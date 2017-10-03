@@ -1,0 +1,56 @@
+<ion-view view-title="Carga de Documentos">
+  <ion-content>
+   <ion-list>
+      <div ng-form="uploadForm">
+        <div class="row">
+            <div class="col no-padding">
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Tipo
+                    </div>
+                    <select ng-model="tipo_documento_seleccionado" ng-change="changeTipo(subtipo_documento_seleccionado)">
+                        <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)==0" value="{{tipo_documento.codigo}}" selected>{{tipo_documento.nombreTipoDocumento}}</option>
+                        <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)!=0" value="{{tipo_documento.codigo}}">{{tipo_documento.nombreTipoDocumento}}</option>
+                    </select>
+                </label>
+            </div>
+            <div class="col no-padding">
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Subtipo
+                    </div>
+                    <select ng-model="subtipo_documento_seleccionado" ng-change="changeSubtipo(subtipo_documento_seleccionado)">
+                        <option ng-repeat="subtipo_documento in subtipos_documento" ng-if="subtipos_documento.indexOf(subtipo_documento)==0" value="{{subtipo_documento.codigo}}" selected>{{subtipo_documento.nombre}}</option>
+                        <option ng-repeat="subtipo_documento in subtipos_documento" ng-if="subtipos_documento.indexOf(subtipo_documento)!=0" value="{{subtipo_documento.codigo}}">{{subtipo_documento.nombre}}</option>
+                    </select>
+                </label>
+            </div>
+            <!--
+            <div class="col no-padding col-10">
+                <button class="button icon ion-ios-plus outline button-positive" on-release="upload()"></button>
+            </div>
+            -->
+        </div>
+        <div class="row">
+            <div class="col no-padding">
+                <label class="item item-input">
+                    <span class="input-label">Nombre del Documento</span>
+                    <input type="text" required id="nombre_documento" name="nombre_documento" ng-model="nombre_documento" ng-blur="inicializar()">
+                </label>
+                <label class="item item-input" onclick=";">
+                     <span class="input-label" name="label_archivo" id="label_archivo">Documento(s)</span>
+                    <input type="file" accept=".pdf" required multiple id="documento" name="documento"/>
+                </label>
+            </div>
+        </div>
+        <div class="padding">
+            <progress id="progressbar" max="100" value="{{ progreso }}"> </progress>
+            <div id="progressbarlabel">{{ progreso }} %</div>
+        </div>
+        <div class="padding">
+            <button class="button button-block button-positive" ng-disabled="uploadForm.nombre_documento.$invalid" on-release='upload(nombre_documento)'>Cargar</a>
+        </div>
+      </div>
+    </ion-list>
+  </ion-content>
+</ion-view>

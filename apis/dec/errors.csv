@@ -1,0 +1,48 @@
+_id,tipo,modelo,errCod,errNombre,errDescripcion,errCampo
+1,Negocio,usuarios,1001,UsuarioRutInvalidoErr,Usuario Rut invalido,usuario
+2,Campo,usuarios,1002,RutInvalidoErr,Rut invalido,rut
+3,Campo,usuarios,1003,CampoRutVacioErr,Rut vacio,rut
+4,Negocio,usuarios,1004,UsuarioCampoRutVacioErr,Rut usuario vacio,usuario
+5,Negocio,usuarios,1005,PerfilNoValidoErr,Usuario sin perfil valido para esta consulta,usuario
+6,Negocio,usuarios,1006,UsuarioAnonimoErr,"Usuario Anonimo, sin privilegio para esta consulta",usuario
+7,Negocio,usuarios,1007,UsuarioNoExisteErr,Usuario consultado No Existe,rut
+8,Sistema,usuarios,10000,EnvioCorreoErr,No se pudo enviar el correo electronico,
+9,Sistema,usuarios,1009,IngresoUsuarioErr,No se pudo ingresar el registro usuarios,
+10,Negocio,usuarios,1010,DesicionASFormatoErr,Campo Desicion AS mal formado,
+11,Negocio,usuarios,1011,CampoRutNoViene,Campo Rut no ingresado,rut
+12,Negocio,usuarios,1012,CampoDesicionAS,Campo Desicion AS no Ingresado,decisionAS
+13,Campo,usuarios,1013,filtroRutInvalidoErr,Rut invalido,filtroRut
+14,Campo,clientes,1014,RutEmpInvalidoErr,Rut Empresa %var Invalido,empresa
+15,Negocio,clientes,1015,CampoEmpNoValido,Campo Empresa no valido,empresa
+16,Negocio,general,1016,DocumentoErr,Documento de entrada mal formado,
+17,Sistema,baseDatos,1,conexionErr,Error interno en la conexion a la BD,
+18,Negocio,usuarios,1018,AutenticacionNoCampoUsuarioErr,No se ingreso el campo Usuario,usuario
+19,Negocio,usuarios,1019,AmbosCamposPasswordHuellaErr,"Campos Password y Huella ingresados, solo debe ser uno de los dos",
+20,Negocio,usuarios,1020,NoCamposPasswordHuellaErr,No se ingreso el campo Password o Huella,
+21,Negocio,usuarios,1021,RutExisteErr,Rut de usuario ya existe,rut
+22,Negocio,usuarios,1022,RutNoExisteErr,Rut de usuario no existe,rut
+23,Campo,usuarios,1023,CampoNombreVacioErr,campo Nombre Vacio,Nombre
+24,Campo,usuarios,1024,CampoApellidoPaternoErr,campo apellido paterno Vacio,apellidoPaterno
+25,Campo,usuarios,1025,correoElectronicoErr,Correo Electronico No Valido,correoElectronico
+26,Campo,usuarios,1026,CampoCorreoElectronicoVacioErr,Correo Electronico Vacio,correoElectronico
+27,Negocio,usuarios,1027,CampoCorreoElectronicoExisteErr,Correo Electronico ya se encuentra registrado,correoElectronico
+28,Campo,usuarios,1028,CampoGeneroVacioErr,Campo genero Vacio,genero
+29,Campo,usuarios,1029,CampoGeneroNoValidoErr,campo genero No Valido,genero
+30,Campo,usuarios,1030,CampoPasswordVacioErr,Campo password Vacio,password
+31,Campo,usuarios,1031,CampoPasswordLargoErr,Campo password menor de 5 caracteres,password
+32,Negocio,usuarios,1032,EmpresaSolicitadaNoExisteErr,Empresa Ingresada %var no existe,empresasSolicitadas
+33,Campo,usuarios,1033,EmpresasSolicitadasErr,No se ingresaron empresas,empresasSolicitadas
+34,Negocio,usuarios,1034,EstadoUsuarioErr,Usuario con estado no valido para el ingreso,
+35,Negocio,usuarios,1035,AutenticacionUsuarioErr,Resultado Autenticacion Erroneo,
+36,Negocio,usuarios,1036,AutenticacionUsuarioNoExisteErr,Usuario No Existe,
+37,Negocio,clientes,1037,empresaSolicitadaErr,No se ingreso el campo Empresa solicitada,empresaSolicitada
+38,Campo,clientes,1038,clienteRutInvalido,Rut invalido %var,empresaSolicitada
+39,Campo,clientes,1039,clienteRutVacio,Rut vacio,empresaSolicitada
+40,Negocio,clientes,1040,ClienteNoExisteErr,Cliente No Existe,
+41,Campo,clientes,1038,empresaSolicitadaErr,No se ingreso el campo Empresa solicitada,perfilesEmpresa
+42,Campo,clientes,1042,clienteRutInvalido,Rut invalido %var,perfilesEmpresa
+43,Campo,clientes,1043,clienteRutVacio,Rut vacio,perfilesEmpresa
+44,Sistema,usuarios,1044,ActualizaUsuarioErr,No se pudo actualizar el registro usuarios,
+45,Negocio,usuarios,1045,RutInvalidoErrNeg,Rut invalido,usuario
+46,Negocio,usuarios,1046,CampoRutVacioErrNeg,Rut vacio,usuario
+47,Negocio,usuarios,1047,RutNoExisteErrNeg,Rut de usuario no existe,usuario

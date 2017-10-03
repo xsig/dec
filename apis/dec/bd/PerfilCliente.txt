@@ -1,0 +1,129 @@
+PerfilCliente
+
+/* 1 */
+{
+    "_id" : 1.0,
+    "idCliente" : 1.0,
+    "idPerfil" : 4.0,
+    "estado" : "ACTIVO"
+}
+
+/* 2 */
+{
+    "_id" : 2.0,
+    "idCliente" : 2.0,
+    "idPerfil" : 4.0,
+    "estado" : "ACTIVO"
+}
+
+/* 3 */
+{
+    "_id" : 3.0,
+    "idCliente" : 3.0,
+    "idPerfil" : 4.0,
+    "estado" : "ACTIVO"
+}
+
+/* 4 */
+{
+    "_id" : 4.0,
+    "idCliente" : 4.0,
+    "idPerfil" : 4.0,
+    "estado" : "ACTIVO"
+}
+
+/* 5 */
+{
+    "_id" : 5.0,
+    "idCliente" : 5.0,
+    "idPerfil" : 4.0,
+    "estado" : "ACTIVO"
+}
+
+/* 6 */
+{
+    "_id" : 6.0,
+    "idCliente" : 6.0,
+    "idPerfil" : 4.0,
+    "estado" : "ACTIVO"
+}
+
+/* 7 */
+{
+    "_id" : 7.0,
+    "idCliente" : 7.0,
+    "idPerfil" : 4.0,
+    "estado" : "ACTIVO"
+}
+
+/* 8 */
+{
+    "_id" : 8.0,
+    "idCliente" : 8.0,
+    "idPerfil" : 4.0,
+    "estado" : "ACTIVO"
+}
+
+/* 9 */
+{
+    "_id" : 9.0,
+    "idCliente" : 1.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 10 */
+{
+    "_id" : 10.0,
+    "idCliente" : 2.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 11 */
+{
+    "_id" : 11.0,
+    "idCliente" : 3.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 12 */
+{
+    "_id" : 12.0,
+    "idCliente" : 4.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 13 */
+{
+    "_id" : 13.0,
+    "idCliente" : 5.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 14 */
+{
+    "_id" : 14.0,
+    "idCliente" : 6.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 15 */
+{
+    "_id" : 15.0,
+    "idCliente" : 7.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 16 */
+{
+    "_id" : 16.0,
+    "idCliente" : 8.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}

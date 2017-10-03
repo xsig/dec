@@ -1,0 +1,38 @@
+<ion-view view-title="DEC" hide-nav-bar="!loggedIn">
+  <ion-content>
+    <h1 ng-show="loggedIn">Bienvenido {{usuario.nombre}} {{usuario.apellidoPaterno}}</h1>
+    <form name="loginForm" ng-show="!loggedIn" ng-submit="doLogin()">
+      <div class="list">
+        <div class="item item-divider item-positive"> 
+          Login
+        </div>
+        <label class="item item-input item-stacked-label"">
+          <span class="input-label">Usuario</span>
+          <input type="text" name="username" id="username" ng-minlength="8" required dvrut rutlen ng-model="loginData.username" ng-focus="unformat_rut($event)" ng-blur="format_rut($event)" autofocus ng-model-options="{ updateOn: 'blur' }">
+        </label>
+        <label class="item" ng-show="loginForm.username.$invalid && loginForm.username.$error.dvrut">
+          <span style="color: red;">El digito verificador no es valido</span>
+        </label>
+        <label class="item" ng-show="loginForm.username.$dirty && loginForm.username.$error.rutlen">
+          <span style="color: red;">El rut debe tener al menos 8 digitos</span>
+        </label>
+        <label class="item item-input item-stacked-label">
+          <span class="input-label">Clave</span>
+          <input type="password" name="password" required ng-model="loginData.password">
+        </label>
+        <ion-list ng-repeat="error in errores" ng-show="errores">
+          <ion-item class="error">{{error.errDescripcion}}</ion-item>
+        </ion-list>
+        <div class="padding">
+            <button class="button button-block button-positive" ng-disabled="loginForm.$invalid" type="submit">Ingresar</button>
+        </div>
+        <div class="padding">
+            <button class="button button-block button-positive" ng-disabled="loginForm.username.$invalid" on-release='recuperarClave()'>Recuperar Clave</button>
+        </div>
+        <div class="padding">
+            <a class="button button-block button-positive" ng-disabled="loginForm.$valid" href="#/app/registro">Registrarse</a>
+        </div>
+      </div>
+    </form>
+  </ion-content>
+</ion-view>

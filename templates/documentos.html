@@ -1,0 +1,41 @@
+<ion-view view-title="Firma de Documentos">
+  <ion-content>
+   <ion-list>
+      <div class="row">
+        <div class="col no-padding">
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Tipo
+                </div>
+                <select ng-model="tipo_documento_seleccionado" ng-change="changeTipo(subtipo_documento_seleccionado)">
+                    <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)==0" value="{{tipo_documento.codigo}}" selected>{{tipo_documento.nombreTipoDocumento}}</option>
+                    <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)!=0" value="{{tipo_documento.codigo}}">{{tipo_documento.nombreTipoDocumento}}</option>
+                </select>
+            </label>
+        </div>
+        <div class="col no-padding">
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Subtipo
+                </div>
+                <select ng-model="subtipo_documento_seleccionado" ng-change="changeSubtipo(subtipo_documento_seleccionado)">
+                    <option ng-repeat="subtipo_documento in subtipos_documento" ng-if="subtipos_documento.indexOf(subtipo_documento)==0" value="{{subtipo_documento.codigo}}" selected>{{subtipo_documento.nombre}}</option>
+                    <option ng-repeat="subtipo_documento in subtipos_documento" ng-if="subtipos_documento.indexOf(subtipo_documento)!=0" value="{{subtipo_documento.codigo}}">{{subtipo_documento.nombre}}</option>
+                </select>
+            </label>
+        </div>
+        <div class="col no-padding col-10">
+            <button class="button icon ion-ios-search button-positive" on-release="buscar()"></button>
+        </div>
+      </div>
+    </ion-list>
+    <ion-list ng-repeat="documento in documentos">
+        <ion-item href="#/app/documento/{{documento.idAcepta}}">
+            <div class="row">
+                <div class="col">{{documento.idAcepta}}</div>
+                <div class="col">{{documento.comentario}}</div>
+            </div>
+        </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

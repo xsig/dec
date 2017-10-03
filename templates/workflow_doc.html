@@ -1,0 +1,14 @@
+<ion-view view-title="Configurar Flujo de {{documento_workflow.nombre}}">
+  <ion-content>
+    <ion-list show-reorder="true" can-swipe="true">
+        <ion-item ng-repeat="firmante in documento_workflow.firmantes">
+            <div class="row">
+                <div class="col no-padding">{{firmante.orden}}</div>
+                <div class="col no-padding">{{firmante.nombrePerfil}}</div>
+                <div class="col no-padding">{{firmante.descripcionPerfil}}</div>
+            </div>
+            <ion-reorder-button class="ion-navicon" on-reorder="moverFirmante(firmante, $fromIndex, $toIndex)"></ion-reorder-button>
+        </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

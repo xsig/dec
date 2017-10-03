@@ -1,0 +1,92 @@
+<ion-view view-title="Registro de Usuarios">
+  <ion-content>
+      <form name="misDatosForm">
+        <div class="list">
+            <div class="item item-divider item-positive"> 
+                Cuenta
+            </div>
+            <label class="item item-input">
+                <span class="input-label">Rut Usuario</span>
+                <input type="text" required dvrut rutlen name="username" id="username" ng-minlength="8" ng-model="usuario.rut" ng-focus="unformat_rut($event)" ng-blur="format_rut($event)" autofocus ng-model-options="{ updateOn: 'blur' }">
+            </label>
+            <div class="list" ng-show="misDatosForm.username.$dirty && misDatosForm.username.$error.dvrut">
+                <div class="error">El digito verificador no es valido</div>
+            </div>
+            <div class="list" ng-show="misDatosForm.username.$dirty && misDatosForm.username.$error.rutlen">
+                <div class="error">Un rut debe tener al menos 8 caracteres incluyendo digito verificador</div>
+            </div>
+            <label class="item item-input">
+                <span class="input-label">Clave</span>
+                <input type="password" ng-minlength="6" id="clave" name="clave" required secure ng-model="usuario.clave">
+            </label>
+            <div class="list" ng-show="misDatosForm.clave.$dirty && misDatosForm.clave.$error.secure">
+                <div class="error">La clave debe tener al menos 6 caracteres</div>
+            </div>
+            <label class="item item-input">
+                <span class="input-label">Repetir clave</span>
+                <input type="password" ng-minlength="6" id="clave2" name="clave2" required secure ng-model="usuario.clave2">
+            </label>
+            <div class="list" ng-show="misDatosForm.clave2.$dirty && misDatosForm.clave2.$error.secure">
+                <div class="error">La clave debe tener al menos 6 caracteres</div>
+            </div>
+            <div class="list" ng-show="clavesDiferentes()">
+                <div class="error">Las claves no coinciden</div>
+            </div>
+            <div class="item item-divider item-positive"> 
+            Datos Personales
+            </div>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Nombre</span>
+                <input type="text" required ng-model="usuario.nombre">
+            </label>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Segundo Nombre</span>
+                <input type="text" required ng-model="usuario.segundoNombre">
+            </label>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Apellido paterno</span>
+                <input type="text" required ng-model="usuario.apellidoPaterno">
+            </label>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">Apellido materno</span>
+                <input type="text" required ng-model="usuario.apellidoMaterno">
+            </label>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">E-mail</span>
+                <input type="text" required ng-pattern="/^[a-z]+[a-z0-9._]+@[a-z]+\.[a-z.]{2,5}$/" ng-model="usuario.correoElectronico">
+            </label>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">G&eacute;nero</span>
+                <ion-list>
+                    <ion-radio ng-model="usuario.genero" required ng-value="'M'">Masculino</ion-radio>
+                    <ion-radio ng-model="usuario.genero" required ng-value="'F'">Femenino</ion-radio>
+                </ion-list>
+            </label>
+            <div class="item item-divider item-positive"> 
+                Accesos
+            </div>
+            <div class="item item-input-inset">
+                <label class="item-input-wrapper">
+                <input type="text" ng-model="empresa_seleccionada.rut" placeholder="Rut Empresa a Solicitar">
+                </label>
+                <button class="button button-small button-positive icon ion-ios-plus-outline" on-release="solicitarEmpresa()"></button>
+            </div>
+            </div>
+            <ion-list ng-repeat="empresa in usuario.empresas">
+                <ion-item class="item-button-right">
+                    {{empresa}}
+                    <button class="button button-positive icon ion-ios-trash" on-release="delete('{{empresa}}')"></button>
+                </ion-item>
+            </ion-list>
+            <div class="list" ng-show="errores">
+                <ion-list ng-repeat="error in errores">
+                    <ion-item class="error">{{error.errDescripcion}}</ion-item>
+                </ion-list>
+            </div>
+            <div class="padding">
+                <button class="button button-block button-positive" ng-disabled="misDatosForm.$invalid || clavesDiferentes()" on-release="registrar()">Crear Usuario</a>
+            </div>
+        </div>
+    </form>
+  </ion-content>
+</ion-view>

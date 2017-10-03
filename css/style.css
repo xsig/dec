@@ -1,0 +1,32 @@
+/* Empty. Add your own CSS if you like */
+.filter-bar {
+    width: 100%;
+    text-align: left;
+}
+
+.status-bar {
+    width: 100%;
+    text-align: right;
+    background-color: #428bca;
+    color: yellow;
+    text-align: center;
+}
+
+.error {
+    color: red;
+    text-align: center;
+}
+
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.scroll-wrapper {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: scroll;
+}

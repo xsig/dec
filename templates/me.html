@@ -1,0 +1,51 @@
+<ion-view view-title="Mis Datos">
+  <ion-content>
+      <form name="misDatosForm">
+        <div class="list">
+            <label class="item item-input">
+                <span class="input-label">Rut Usuario</span>
+                <input type="text" value="{{loginData.username | rutfmt}}" readonly>
+            </label>
+            <div class="item item-divider item-positive"> 
+            Datos Personales
+            </div>
+            <label class="item item-input">
+                <span class="input-label">Nombre</span>
+                <input type="text" required ng-model="usuario.nombre">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Segundo Nombre</span>
+                <input type="text" required ng-model="usuario.segundoNombre">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Apellido paterno</span>
+                <input type="text" required ng-model="usuario.apellidoPaterno">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Apellido materno</span>
+                <input type="text" required ng-model="usuario.apellidoMaterno">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">E-mail</span>
+                <input type="text" required ng-pattern="/^[a-z]+[a-z0-9._]+@[a-z]+\.[a-z.]{2,5}$/" ng-model="usuario.correoElectronico">
+            </label>
+            <label class="item item-input item-stacked-label">
+                <span class="input-label">G&eacute;nero</span>
+                <ion-list>
+                    <ion-radio ng-model="usuario.genero" required ng-value="'M'">Masculino</ion-radio>
+                    <ion-radio ng-model="usuario.genero" required ng-value="'F'">Femenino</ion-radio>
+                </ion-list>
+            </label>
+            <div class="padding">
+                <button class="button button-block button-positive" ng-disabled="misDatosForm.$invalid" on-release="modificar('{{loginData.username}}')">Actualizar Datos</a>
+            </div>
+            <div class="padding">
+                <a class="button button-block button-positive" href="#/app/clave/{{loginData.username}}">Seguridad</a>
+            </div>
+            <div class="padding">
+                <a class="button button-block button-positive" href="#/app/accesos/{{loginData.username}}">Empresas</a>
+            </div>
+        </div>
+    </form>
+  </ion-content>
+</ion-view>

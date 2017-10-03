@@ -1,0 +1,15 @@
+<ion-view view-title="Seguridad">
+  <ion-content>
+        <div class="item item-divider item-positive"> 
+            Perfiles de la Empresa
+        </div>
+        <ion-list ng-repeat="perfil in perfiles">
+            <ion-item class="item-button-right">{{perfil.nombrePerfil}}
+                <button class="button button-positive icon ion-ios-plus-outline" on-release="autorizar('{{perfil.codigoPerfil}}','{{perfil.nombrePerfil}}','A')"></button>
+            </ion-item>
+        </ion-list>
+        <ion-list ng-repeat="error in errores" ng-show="errores">
+          <ion-item class="error">{{error.errDescripcion}}</ion-item>
+        </ion-list>
+  </ion-content>
+</ion-view>

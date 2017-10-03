@@ -1,0 +1,24 @@
+<ion-view view-title="Seguridad">
+  <ion-content>
+    <div ng-form="claveForm">
+        <div class="item item-divider item-positive"> 
+          Cuenta
+        </div>
+        <label class="item item-input">
+            <span class="input-label">Rut Usuario</span>
+            <input type="text" ng-model="cuenta.username" readonly>
+        </label>
+        <label class="item item-input">
+            <span class="input-label">Clave</span>
+            <input type="password" ng-minlength="6" id="clave" name="clave" required secure ng-model="cuenta.clave" autofocus>
+        </label>
+        <label class="item item-input">
+            <span class="input-label">Repetir clave</span>
+            <input type="password" ng-minlength="6" id="clave2" name="clave2" required secure ng-model="cuenta.clave2">
+        </label>
+        <div class="padding">
+            <button class="button button-block button-positive" ng-disabled="claveForm.$invalid || clavesDiferentes()" on-release='cambiarClave()'>Cambiar Clave</a>
+        </div>
+    </div>
+  </ion-content>
+</ion-view>

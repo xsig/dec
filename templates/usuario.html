@@ -1,0 +1,42 @@
+<ion-view view-title="Usuario">
+  <ion-content>
+    <div class="list">
+        <div class="item item-divider item-positive"> 
+          Cuenta
+        </div>
+        <label class="item item-input">
+            <span class="input-label">Rut Usuario</span>
+            <input type="text" value="{{usuario.rut | rutfmt}}" readonly>
+        </label>
+        <label class="item item-input">
+            <span class="input-label">Nombre</span>
+            <input type="text" ng-model="usuario.nombre" readonly>
+        </label>
+        <label class="item item-input">
+            <span class="input-label">Segundo Nombre</span>
+            <input type="text" ng-model="usuario.segundoNombre" readonly>
+        </label>
+        <label class="item item-input">
+            <span class="input-label">Apellido paterno</span>
+            <input type="text" ng-model="usuario.apellidoPaterno" readonly>
+        </label>
+        <label class="item item-input">
+            <span class="input-label">Apellido materno</span>
+            <input type="text" ng-model="usuario.apellidoMaterno" readonly>
+        </label>
+        <label class="item item-input">
+            <span class="input-label">E-mail</span>
+            <input type="text" ng-model="usuario.correoElectronico" readonly>
+        </label>
+        <label class="item item-input item-stacked-label">
+            <span class="input-label">G&eacute;nero</span>
+            <ion-list>
+                <ion-radio ng-model="usuario.genero" ng-value="'M'" disabled="true">Masculino</ion-radio>
+                <ion-radio ng-model="usuario.genero" ng-value="'F'" disabled="true">Femenino</ion-radio>
+            </ion-list>
+        </label>
+        <div class="padding">
+            <a class="button button-block button-positive" href="#/app/empresas/{{usuario.rut}}">Empresas</a>
+        </div>
+  </ion-content>
+</ion-view>

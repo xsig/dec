@@ -1,0 +1,401 @@
+Perfilamiento
+
+/* 1 */
+{
+    "_id" : 1.0,
+    "estado" : "ACTIVO",
+    "idUsuario" : 1.0,
+    "idPerfil" : 1.0
+}
+
+/* 2 */
+{
+    "_id" : 2.0,
+    "idUsuario" : 2.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 3 */
+{
+    "_id" : 3.0,
+    "idUsuario" : 3.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 4 */
+{
+    "_id" : 4.0,
+    "idUsuario" : 4.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 5 */
+{
+    "_id" : 5.0,
+    "idUsuario" : 5.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 6 */
+{
+    "_id" : 6.0,
+    "idUsuario" : 6.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 7 */
+{
+    "_id" : 7.0,
+    "idUsuario" : 7.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 8 */
+{
+    "_id" : 8.0,
+    "idUsuario" : 8.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 9 */
+{
+    "_id" : 9.0,
+    "idUsuario" : 9.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 10 */
+{
+    "_id" : 10.0,
+    "idUsuario" : 10.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 11 */
+{
+    "_id" : 11.0,
+    "idUsuario" : 11.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 12 */
+{
+    "_id" : 12.0,
+    "idUsuario" : 12.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 13 */
+{
+    "_id" : 13.0,
+    "idUsuario" : 13.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 14 */
+{
+    "_id" : 14.0,
+    "idUsuario" : 14.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 15 */
+{
+    "_id" : 15.0,
+    "idUsuario" : 15.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 16 */
+{
+    "_id" : 16.0,
+    "idUsuario" : 16.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 17 */
+{
+    "_id" : 17.0,
+    "idUsuario" : 17.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 18 */
+{
+    "_id" : 18.0,
+    "idUsuario" : 18.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 19 */
+{
+    "_id" : 19.0,
+    "idUsuario" : 19.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 20 */
+{
+    "_id" : 20.0,
+    "idUsuario" : 20.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 21 */
+{
+    "_id" : 21.0,
+    "idUsuario" : 21.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 22 */
+{
+    "_id" : 22.0,
+    "idUsuario" : 22.0,
+    "idPerfil" : 1.0,
+    "estado" : "ACTIVO"
+}
+
+/* 23 */
+{
+    "_id" : 23.0,
+    "estado" : "ACTIVO",
+    "idUsuario" : 1.0,
+    "idPerfil" : 6.0
+}
+
+/* 24 */
+{
+    "_id" : 24.0,
+    "idUsuario" : 2.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 25 */
+{
+    "_id" : 25.0,
+    "idUsuario" : 3.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 26 */
+{
+    "_id" : 26.0,
+    "idUsuario" : 4.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 27 */
+{
+    "_id" : 27.0,
+    "idUsuario" : 5.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 28 */
+{
+    "_id" : 28.0,
+    "idUsuario" : 6.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 29 */
+{
+    "_id" : 29.0,
+    "idUsuario" : 7.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 30 */
+{
+    "_id" : 30.0,
+    "idUsuario" : 8.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 31 */
+{
+    "_id" : 31.0,
+    "idUsuario" : 9.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 32 */
+{
+    "_id" : 32.0,
+    "idUsuario" : 10.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 33 */
+{
+    "_id" : 33.0,
+    "idUsuario" : 11.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 34 */
+{
+    "_id" : 34.0,
+    "idUsuario" : 12.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 35 */
+{
+    "_id" : 35.0,
+    "idUsuario" : 13.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 36 */
+{
+    "_id" : 36.0,
+    "idUsuario" : 14.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 37 */
+{
+    "_id" : 37.0,
+    "idUsuario" : 15.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 38 */
+{
+    "_id" : 38.0,
+    "idUsuario" : 16.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 39 */
+{
+    "_id" : 39.0,
+    "idUsuario" : 17.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 40 */
+{
+    "_id" : 40.0,
+    "idUsuario" : 18.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 41 */
+{
+    "_id" : 41.0,
+    "idUsuario" : 19.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 42 */
+{
+    "_id" : 42.0,
+    "idUsuario" : 20.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 43 */
+{
+    "_id" : 43.0,
+    "idUsuario" : 21.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 44 */
+{
+    "_id" : 44.0,
+    "idUsuario" : 22.0,
+    "idPerfil" : 6.0,
+    "estado" : "ACTIVO"
+}
+
+/* 45 */
+{
+    "_id" : 45.0,
+    "idUsuario" : 4.0,
+    "idPerfil" : 5.0,
+    "estado" : "ACTIVO"
+}
+
+/* 46 */
+{
+    "_id" : 46.0,
+    "idUsuario" : 4.0,
+    "idPerfil" : 5.0,
+    "estado" : "ACTIVO"
+}
+
+/* 47 */
+{
+    "_id" : 47.0,
+    "idUsuario" : 4.0,
+    "idPerfil" : 5.0,
+    "estado" : "ACTIVO"
+}
+
+/* 48 */
+{
+    "_id" : 48.0,
+    "idUsuario" : 4.0,
+    "idPerfil" : 5.0,
+    "estado" : "ACTIVO"
+}
+
+/* 49 */
+{
+    "_id" : 49.0,
+    "idUsuario" : 4.0,
+    "idPerfil" : 5.0,
+    "estado" : "ACTIVO"
+}
+
+/* 50 */
+{
+    "_id" : 50.0,
+    "idUsuario" : 4.0,
+    "idPerfil" : 5.0,
+    "estado" : "ACTIVO"
+}

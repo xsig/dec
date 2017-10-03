@@ -1,0 +1,31 @@
+<ion-view view-title="Configurar Flujo de Documentos">
+  <ion-content>
+   <ion-list>
+      <div class="row">
+        <div class="col no-padding">
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Tipo
+                </div>
+                <select ng-model="tipo_documento_seleccionado" ng-change="changeTipo(subtipo_documento_seleccionado)">
+                    <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)==0" value="{{tipo_documento.codigo}}" selected>{{tipo_documento.nombreTipoDocumento}}</option>
+                    <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)!=0" value="{{tipo_documento.codigo}}">{{tipo_documento.nombreTipoDocumento}}</option>
+                </select>
+            </label>
+        </div>
+        <div class="col no-padding col-10">
+            <button class="button button-positive icon ion-ios-plus-outline" on-release="agregarDocumento()"></button>
+        </div>
+      </div>
+    </ion-list>
+    <ion-list ng-repeat="subtipo_documento in subtipos_documento">
+        <ion-item href="#/app/workflow/{{empresaSeleccionada}}/{{subtipo_documento.codigo}}">
+            <div class="row">
+                <div class="col no-padding">{{subtipo_documento.codigo}}</div>
+                <div class="col no-padding">{{subtipo_documento.nombre}}</div>
+                <div class="col no-padding">{{subtipo_documento.estado}}</div>
+            </div>
+        </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

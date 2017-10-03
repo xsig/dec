@@ -1,0 +1,31 @@
+<ion-view view-title="Empresas">
+  <ion-content>
+        <div class="list">
+          <div class="item item-input-inset">
+            <label class="item-input-wrapper">
+              <input type="text" ng-focus="clearStatus()" ng-model="empresa_seleccionada.rut" placeholder="Rut Empresa a Solicitar">
+            </label>
+            <button class="button button-small button-positive icon ion-ios-plus-outline" on-release="agregarEmpresa()"></button>
+          </div>
+        </div>
+        <ion-list ng-repeat="error in errores" ng-show="errores">
+          <ion-item class="error">{{error.errDescripcion}}</ion-item>
+        </ion-list>
+        <div class="item item-divider item-positive"> 
+            Empresas Solicitadas
+        </div>
+        <ion-list ng-repeat="empresa in empresasSolicitadasObjeto">
+            <ion-item class="item-button-right">{{empresa.rutEmpresa | rutfmt}} {{empresa.razonSocial}}
+              <button class="button button-positive icon ion-ios-close-outline" on-release="quitarEmpresa('{{empresa.rutEmpresa}}')"></button>
+            </ion-item>
+        </ion-list>
+        <div class="item item-divider item-positive"> 
+            Empresas Autorizadas
+        </div>
+        <ion-list ng-repeat="empresa in empresasAsignadasObjeto">
+            <ion-item class="item-button-right">{{empresa.rutEmpresa | rutfmt}} {{empresa.razonSocial}}
+              <button class="button button-positive icon ion-ios-close-outline" on-release="autorizar('{{empresa.rutEmpresa}}','NO')"></button>
+            </ion-item>
+        </ion-list>
+  </ion-content>
+</ion-view>

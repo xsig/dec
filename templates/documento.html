@@ -1,0 +1,55 @@
+<ion-view view-title="Firma de Documento">
+    <ion-content overflow-scroll="true">
+        <iframe id="docfirma" name="docfirma" src='{{ documento.url | trusted }}' width="100%" height="80%"></iframe>
+        <form name="FirmaForm">
+            <div class="item item-divider item-positive"> 
+              Firma Tercero
+            </div>
+            <div class="row">
+                <div class="col no-padding">
+                    <label class="item item-input" style="margin-top: 0px;">
+                        <span class="input-label">Rut</span>
+                        <input type="text" required dvrut rutlen ng-model="firma.rut_firmante" name="rut_firmante" id="rut_firmante" ng-minlength="8" ng-focus="unformat_rut($event)" ng-blur="format_rut($event)" ng-model-options="{ updateOn: 'blur' }">
+                    </label>
+                </div>
+                <div class="col no-padding">
+                    <label class="item item-input" style="margin-top: 0px;">
+                        <span class="input-label">Nombre</span>
+                        <input type="text" required ng-model="firma.nombre_firmante" name="nombre_firmante" id="nombre_firmante">
+                    </label>
+                </div>
+            </div>
+            <div class="list" ng-show="errores">
+                <ion-list ng-repeat="error in errores">
+                    <ion-item class="error">{{error.errDescripcion}}</ion-item>
+                </ion-list>
+            </div>
+            <div class="list" ng-show="FirmaForm.rut_firmante.$dirty && FirmaForm.rut_firmante.$error.dvrut">
+                <div class="error">El digito verificador no es valido</div>
+            </div>
+            <div class="list" ng-show="FirmaForm.rut_firmante.$dirty && FirmaForm.rut_firmante.$error.rutlen">
+                <div class="error">Un rut debe tener al menos 8 caracteres incluyendo digito verificador</div>
+            </div>
+            <div class="item item-divider item-positive"> 
+              Historial
+            </div>
+            <ion-list ng-repeat="firmante in documento.firmantes">
+                <ion-item>
+                    <div class="row">
+                        <div class="col">{{firmante.descripcionPerfil}}</div>
+                        <div class="col">{{firmante.estadoFirma}}</div>
+                        <div class="col">{{firmante.rutFirmante | rutfmt}}</div>
+                        <div class="col">{{firmante.nombreFirmante}}</div>
+                        <div class="col">
+                            <button ng-if="firmante.firmable"
+                             style="margin-top: 0px;"
+                             class="button button-positive icon ion-ios-compose-outline"
+                             on-release="firmar('{{firmante.nombrePerfil}}','{{firmante.descripcionPerfil}}')">
+                            </button>
+                        </div>
+                    </div>
+                </ion-item>
+            </ion-list>
+        </form>
+    </ion-content>
+  </ion-view>
