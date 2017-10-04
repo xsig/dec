@@ -137,6 +137,15 @@ class SubTipoDocumentos {
 				$_subtipoDocumentoArr['descripcion'] = $subitem->descripcion;
 				$_subtipoDocumentoArr['codigo'] = $subitem->codigo;
 				$_subtipoDocumentoArr['estado'] = $subitem->estado;
+				foreach ($subitem->firmantes as $firmante)
+				{
+					$_busqueda2 = array("idSubTipoDocumento" => $subitem->_id ,"nombrePerfil" => $firmante->nombrePerfil );
+					$_cursor2 = self::$ConnMDB->busca("subtipoDocumentoFirmante", $_busqueda2);
+					foreach ($_cursor2 as $usuario)
+					{
+						$firmante->usuarios=$usuario->usuarios;
+					}
+				}
 				$_subtipoDocumentoArr['firmantes'] = $subitem->firmantes;
 				$_subtipoDocumento[] = $_subtipoDocumentoArr;
 			}

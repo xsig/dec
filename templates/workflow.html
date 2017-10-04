@@ -1,31 +1,46 @@
 <ion-view view-title="Configurar Flujo de Documentos">
-  <ion-content>
-   <ion-list>
-      <div class="row">
-        <div class="col no-padding">
-            <label class="item item-input item-select">
-                <div class="input-label">
-                    Tipo
-                </div>
-                <select ng-model="tipo_documento_seleccionado" ng-change="changeTipo(subtipo_documento_seleccionado)">
-                    <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)==0" value="{{tipo_documento.codigo}}" selected>{{tipo_documento.nombreTipoDocumento}}</option>
-                    <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)!=0" value="{{tipo_documento.codigo}}">{{tipo_documento.nombreTipoDocumento}}</option>
-                </select>
-            </label>
+    <ion-nav-buttons side="secondary">
+        <button class="button button-clear icon ion-ios-plus-outline" on-release="habilitarCreacion()"></button>
+        <button class="button button-clear icon ion-ios-minus-outline" ng-click="habilitarBorrado()"></button>
+    </ion-nav-buttons>
+    <ion-content>
+    <ion-list>
+        <div class="row">
+            <div class="col no-padding">
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Tipo
+                    </div>
+                    <select ng-model="tipo_documento_seleccionado" ng-change="changeTipo(subtipo_documento_seleccionado)">
+                        <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)==0" value="{{tipo_documento.codigo}}" selected>{{tipo_documento.nombreTipoDocumento}}</option>
+                        <option ng-repeat="tipo_documento in tipos_documento" ng-if="tipos_documento.indexOf(tipo_documento)!=0" value="{{tipo_documento.codigo}}">{{tipo_documento.nombreTipoDocumento}}</option>
+                    </select>
+                </label>
+            </div>
         </div>
-        <div class="col no-padding col-10">
-            <button class="button button-positive icon ion-ios-plus-outline" on-release="agregarDocumento()"></button>
-        </div>
-      </div>
     </ion-list>
-    <ion-list ng-repeat="subtipo_documento in subtipos_documento">
-        <ion-item href="#/app/workflow/{{empresaSeleccionada}}/{{subtipo_documento.codigo}}">
+    <form name="nuevoWorkflowForm">
+        <div class="list list-inset" ng-if="creacion_habilitada">
+            <label class="item item-input">
+                <input type="text" placeholder="codigo" oninput="upper(this)" required ng-model="nuevo_documento.codigo">
+            </label>
+            <label class="item item-input">
+                <input type="text" placeholder="nombre" oninput="upper(this)" required ng-model="nuevo_documento.nombre">
+            </label>
+            <label class="item item-input">
+                <input type="text" placeholder="descripcion" oninput="upper(this)" required ng-model="nuevo_documento.descripcion">
+            </label>
+            <button class="button button-block button-positive" ng-disabled="nuevoWorkflowForm.$invalid" on-release="crearWorkflow()">Crear</button>
+        </div>
+    </form>
+    <ion-list show-delete="borrado_habilitado">
+        <ion-item ng-repeat="subtipo_documento in subtipos_documento" href="#/app/workflow/{{empresaSeleccionada}}/{{subtipo_documento.codigo}}">
             <div class="row">
                 <div class="col no-padding">{{subtipo_documento.codigo}}</div>
                 <div class="col no-padding">{{subtipo_documento.nombre}}</div>
-                <div class="col no-padding">{{subtipo_documento.estado}}</div>
             </div>
+            <ion-delete-button class="ion-minus-circled" ng-click="borrarWorkflow(subtipo_documento)"></ion-delete-button>
         </ion-item>
     </ion-list>
-  </ion-content>
+    </ion-content>
 </ion-view>

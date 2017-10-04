@@ -1,0 +1,24 @@
+<ion-view view-title="Usuarios Autorizados">
+    <ion-nav-buttons side="secondary">
+        <button class="button button-clear icon ion-ios-plus-outline" on-release="habilitarCreacion()"></button>
+        <button class="button button-clear icon ion-ios-minus-outline" ng-click="habilitarBorrado()"></button>
+    </ion-nav-buttons>
+    <ion-content>
+        <div class="list list-inset" ng-if="creacion_habilitada">
+            <form name="nuevoUsuarioForm">
+                <label class="item item-input">
+                    <input type="text" placeholder="rut" oninput="upper(this)" required ng-model="nuevo_usuario.rut">
+                </label>
+                <button class="button button-block button-positive" ng-disabled="nuevoUsuarioForm.$invalid" on-release="crearUsuario()">Crear</button>
+            </form>
+        </div>
+        <ion-list show-delete="borrado_habilitado" can-swipe="true">
+            <ion-item ng-repeat="usuario in rol_workflow.usuarios">
+                <ion-delete-button class="ion-minus-circled" ng-click="borrarUsuario(usuario)"></ion-delete-button>
+                <div class="row">
+                    <div class="col no-padding">{{usuario}}</div>
+                </div>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

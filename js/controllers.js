@@ -215,6 +215,11 @@ function generarMensajeUpload(etiqueta,usuario, empresa, tipo, subtipo, nombre_a
     return JSON.stringify(mensaje);
 }
 
+function upper(text)
+{
+    text.value=text.value.toUpperCase();
+}
+
 function activarUpload()
 {
     var deviceAgent = navigator.userAgent.toLowerCase();
@@ -435,6 +440,17 @@ var dec=angular.module('dec', ['ionic', 'dec.controllers'])
         views: {
             'menuContent': {
                 templateUrl: 'templates/workflow_doc.html',
+                controller: 'WorkflowCtrl',
+                resolve: { authenticate: authenticate}
+            }
+        }
+    })
+    .state('app.workflow_rol', {
+        url: '/workflow/:empresa/:codigo_documento_workflow/:rol',
+        cache: false,
+        views: {
+            'menuContent': {
+                templateUrl: 'templates/workflow_rol.html',
                 controller: 'WorkflowCtrl',
                 resolve: { authenticate: authenticate}
             }
@@ -1646,7 +1662,69 @@ angular.module('dec.controllers', [])
 .controller('WorkflowCtrl', function($scope, $rootScope, $ionicModal, $timeout, $http, $stateParams, $ionicLoading, DocumentosWorkflow) {
     $scope.empresa=$stateParams.empresa;
     $scope.codigo_documento_workflow=$stateParams.codigo_documento_workflow;
+    $scope.rol=$stateParams.rol;
     $scope.documento_workflow={};
+    $scope.rol_workflow={};
+    $scope.nuevo_documento={};
+    $scope.nuevo_firmante={};
+    $scope.nuevo_usuario={};
+    $scope.creacion_habilitada=false;
+    $scope.borrado_habilitado=false;
+    $scope.ordenacion_habilitada=false;
+    $scope.borrarWorkflow = function(item)
+    {
+        $scope.subtipos_documento.splice($scope.subtipos_documento.indexOf(item), 1);
+        $scope.borrado_habilitado=false;
+    }
+    $scope.borrarUsuario = function(item)
+    {
+        $scope.rol_workflow.usuarios.splice($scope.rol_workflow.usuarios.indexOf(item), 1);
+        $scope.borrado_habilitado=false;
+    }
+    $scope.borrarFirmante = function(item)
+    {
+        $scope.documento_workflow.firmantes.splice($scope.documento_workflow.firmantes.indexOf(item), 1);
+        for(i=0;i<$scope.documento_workflow.firmantes.length;i++)
+        {
+            orden=i+1;
+            $scope.documento_workflow.firmantes[i].orden=orden.toString();
+        }
+        $scope.borrado_habilitado=false;
+    }
+    $scope.habilitarCreacion=function()
+    {
+        if(!$scope.borrado_habilitado)
+            $scope.creacion_habilitada=!$scope.creacion_habilitada;
+    }
+    $scope.habilitarOrdenacion=function()
+    {
+        if(!$scope.borrado_habilitado && !$scope.creacion_habilitada)
+            $scope.ordenacion_habilitada=!$scope.ordenacion_habilitada;
+    }
+    $scope.habilitarBorrado=function()
+    {
+        if(!$scope.creacion_habilitada)
+            $scope.borrado_habilitado=!$scope.borrado_habilitado;
+    }
+    $scope.crearWorkflow = function()
+    {
+        $scope.subtipos_documento.push($scope.nuevo_documento);
+        $scope.creacion_habilitada=false;
+        $scope.nuevo_documento={};
+    }
+    $scope.crearFirmante = function()
+    {
+        $scope.nuevo_firmante["orden"]=$scope.documento_workflow.firmantes.length+1
+        $scope.documento_workflow.firmantes.push($scope.nuevo_firmante);
+        $scope.creacion_habilitada=false;
+        $scope.nuevo_firmante={};
+    }
+    $scope.crearUsuario = function()
+    {
+        $scope.rol_workflow.usuarios.push($scope.nuevo_usuario.rut);
+        $scope.creacion_habilitada=false;
+        $scope.nuevo_usuario={};
+    }
     $scope.changeTipo = function(nuevo)
     {
         for(i=0;i<$scope.tipos_documento.length;i++)
@@ -1713,7 +1791,17 @@ angular.module('dec.controllers', [])
         );
     }
     if($scope.codigo_documento_workflow!=null)
+    {
         $scope.documento_workflow=DocumentosWorkflow.getWorkflow($scope.codigo_documento_workflow);
+        if($scope.rol!=null)
+        {
+            for(i=0;i<$scope.documento_workflow.firmantes.length;i++)
+            {
+                if($scope.documento_workflow.firmantes[i].orden==$scope.rol)
+                    $scope.rol_workflow=$scope.documento_workflow.firmantes[i];
+            }
+        }        
+    }
     else
         $scope.buscarTipos();
 })
