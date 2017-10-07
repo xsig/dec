@@ -1,0 +1,14 @@
+POST http://localhost/apis/dec/roles/busqueda HTTP/1.1
+content-type: application/json
+
+{
+    "mensaje_dec":
+    {"header":
+    {"usuario":"222222222",
+    "accion":"10",
+    "descripcion":"Usuario - Acciones Usuario",
+    "etiqueta":"Consulta datos de Usuarios",
+    "fecha":"2017-10-02T20:11:57.638Z"},
+    "mensaje":{"empresa":"801234569"}
+    }
+}

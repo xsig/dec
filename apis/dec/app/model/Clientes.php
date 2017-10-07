@@ -231,7 +231,7 @@ class Clientes {
 	public function traeIdClientePorListaRut($ListaRutCliente){
 		$_cliente=array();
 		$listaIRuts = array('$in' => $ListaRutCliente);
-		$busqueda = array( "datosDemograficos.Rut" => $listaIRuts , "estado" => "ACTIVO" );
+		$busqueda = array( "datosDemograficos.Rut" => $listaIRuts , "estado" => "Activo" );
 		$cursor = self::$ConnMDB->busca("clientes", $busqueda);
 		foreach($cursor as $item ){
 				$_cliente[] =$item->_id;

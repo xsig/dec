@@ -181,7 +181,7 @@ class PerfilesController{
 		////////////////////////
 		//Incorporar consulta si es cliente agregar este filtro en caso contrario no agregarlo
 		////////////////////////
-		$busquedaPerfil['tipoPerfil'] = 'Cliente';
+		$busquedaPerfil['tipoPerfil'] = 'CLIENTES';
 		////////////////////////
 		////////////////////////
 
@@ -201,7 +201,7 @@ class PerfilesController{
 
 		$listaPerfiles = $this->_perfiles->traePerfilesPorListaId($PerfilesId);
 		//$this->salida['mensaje_dec']['mensaje']['prueba'] = $busquedaPerfil;
-		$this->salida['mensaje_dec']['mensaje']['Lista Perfil'] = $listaPerfiles;
+		$this->salida['mensaje_dec']['mensaje']['Lista Perfiles'] = $listaPerfiles;
 	}
 	// Fin de Busqueda de Perfiles
 

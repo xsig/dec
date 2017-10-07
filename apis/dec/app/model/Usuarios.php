@@ -518,7 +518,7 @@ class Usuarios {
         return $_clientes;
     }
     
-    public function ktraeListaRutClientesAutorizadasPorRut($rutUsuario){
+    public function traeListaRutClientesAutorizadasPorRut($rutUsuario){
         $_clientes = array();
         $_ClientesModel = new Clientes();
         $busqueda = array("rut" => $rutUsuario );

@@ -1,15 +1,30 @@
-<ion-view view-title="Seguridad">
-  <ion-content>
-        <div class="item item-divider item-positive"> 
-            Perfiles de la Empresa
+<ion-view view-title="Gestión de Perfiles">
+    <ion-nav-buttons side="secondary">
+        <button class="button button-clear icon ion-ios-plus-outline" on-release="habilitarCreacion()"></button>
+        <button class="button button-clear icon ion-ios-minus-outline" ng-click="habilitarBorrado()"></button>
+    </ion-nav-buttons>
+    <ion-content>
+        <div class="list list-inset" ng-if="creacion_habilitada">
+            <form name="nuevoPerfilForm">
+                <label class="item item-input">
+                    <input type="text" placeholder="nombre" oninput="upper(this)" required ng-model="nuevo_perfil.nombrePerfil">
+                </label>
+                <label class="item item-input">
+                    <input type="text" placeholder="descripcion" oninput="upper(this)" required ng-model="nuevo_perfil.descripcionPerfil">
+                </label>
+                <button class="button button-block button-positive" ng-disabled="nuevoPerfilForm.$invalid" on-release="crearPerfil()">Crear</button>
+            </form>
         </div>
-        <ion-list ng-repeat="perfil in perfiles">
-            <ion-item class="item-button-right">{{perfil.nombrePerfil}}
-                <button class="button button-positive icon ion-ios-plus-outline" on-release="autorizar('{{perfil.codigoPerfil}}','{{perfil.nombrePerfil}}','A')"></button>
+        <ion-list show-delete="borrado_habilitado" can-swipe="true">
+            <ion-item ng-repeat="perfil in perfiles" href="#/app/seguridad/{{empresaSeleccionada}}/{{perfil.nombrePerfil}}">
+                <ion-delete-button class="ion-minus-circled" ng-click="borrarPerfil(perfil)"></ion-delete-button>
+                <div class="row">
+                    <div class="col no-padding">{{perfil.nombrePerfil}}</div>
+                </div>
             </ion-item>
         </ion-list>
         <ion-list ng-repeat="error in errores" ng-show="errores">
-          <ion-item class="error">{{error.errDescripcion}}</ion-item>
+            <ion-item class="error">{{error.errDescripcion}}</ion-item>
         </ion-list>
-  </ion-content>
+    </ion-content>
 </ion-view>

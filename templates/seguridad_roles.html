@@ -1,0 +1,32 @@
+<ion-view view-title="Roles asociados al Perfil {{perfil.nombrePerfil}}">
+    <ion-nav-buttons side="secondary">
+        <button class="button button-clear icon ion-ios-plus-outline" on-release="habilitarCreacion()"></button>
+        <button class="button button-clear icon ion-ios-minus-outline" ng-click="habilitarBorrado()"></button>
+    </ion-nav-buttons>
+    <ion-content>
+        <div class="list list-inset" ng-if="creacion_habilitada">
+            <form name="nuevoRolForm">
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Roles
+                    </div>
+                    <select ng-model="nuevo_rol.nombreRol">
+                        <option ng-repeat="rol in roles_posibles">{{rol.nombreRol}}</option>
+                    </select>
+                </label>
+                <button class="button button-block button-positive" ng-disabled="nuevoRolForm.$invalid" on-release="agregarRol()">Agregar</button>
+            </form>
+        </div>
+        <ion-list show-delete="borrado_habilitado" can-swipe="true">
+            <ion-item ng-repeat="rol in perfil.roles">
+                <ion-delete-button class="ion-minus-circled" ng-click="quitarRol(rol)"></ion-delete-button>
+                <div class="row">
+                    <div class="col no-padding">{{rol}}</div>
+                </div>
+            </ion-item>
+        </ion-list>
+        <ion-list ng-repeat="error in errores" ng-show="errores">
+            <ion-item class="error">{{error.errDescripcion}}</ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

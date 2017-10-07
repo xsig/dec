@@ -13,6 +13,17 @@ class Roles {
 		return self::$ConnMDB->lista("roles");
 	}
 
+	public function buscaRolesFiltros($busquedaRol){
+        $roles = array();
+        $cursor = self::$ConnMDB->busca("roles", $busquedaRol);
+        //if($cursor->count()>0){
+            foreach($cursor as $item){
+                $roles[] = $item;
+            }   
+        //}
+        return $roles;
+    }
+
 	public function traeRolPorId($id){
 		$_rol="";
 		$busqueda = array('_id' => $id );

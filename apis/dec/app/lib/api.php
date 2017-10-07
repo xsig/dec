@@ -183,6 +183,7 @@ class DecApi extends Api
 	protected $_usuarios;
 	protected $_perfiles;
 	protected $_tipodocumentos;
+	protected $_roles;
 
 
     public function __construct($request, $origin){
@@ -211,6 +212,7 @@ class DecApi extends Api
 		$this->_subtipodocumentos = new Controller\SubTipoDocumentosController();
 		$this->_operadocumentos = new Controller\OperaDocumentosController();
 		$this->_firmantes = new Controller\FirmantesController();
+		$this->_roles = new Controller\RolesController();
     }   
 
     /** 
@@ -601,6 +603,34 @@ class DecApi extends Api
 				break;
 			case 'PUT':
 				$this->output=$this->_perfiles->actualizaPerfil($this->document);
+				break;
+		}
+		return $this->output;
+	}
+
+	protected function roles(){
+		switch($this->method) {
+			case 'DELETE':
+				break;
+			case 'POST':
+				if (isset($this->verb)){
+					switch($this->verb){
+						case "busqueda":
+							$this->output=$this->_roles->busquedaRoles($this->document);
+						    break;
+						default:
+							$this->output=$this->_roles->busquedaRoles($this->document);
+						    break;
+					}
+				}
+				else{
+					$this->output=$this->_roles->busquedaRoles($this->document);
+				}
+				break;
+			case 'GET':
+				break;
+			case 'PUT':
+				$this->output=$this->_roles->busquedaRoles($this->document);
 				break;
 		}
 		return $this->output;
