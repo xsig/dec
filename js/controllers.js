@@ -1853,6 +1853,7 @@ angular.module('dec.controllers', [])
     }
     $scope.crearPerfil = function()
     {
+        $scope.nuevo_perfil["roles"]=[];
         $scope.perfiles.push($scope.nuevo_perfil);
         $scope.creacion_habilitada=false;
         $scope.nuevo_perfil={};
