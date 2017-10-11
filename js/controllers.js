@@ -1744,12 +1744,11 @@ angular.module('dec.controllers', [])
         $scope.creacion_habilitada=false;
         $scope.nuevo_documento={};
     }
-    $scope.crearFirmante = function()
+    $scope.agregarFirmante = function(codigo,nombre)
     {
         $scope.nuevo_firmante["orden"]=$scope.documento_workflow.firmantes.length+1
-        valores=$scope.nuevo_firmante.nombrePerfil.split(":");
-        $scope.nuevo_firmante.nombrePerfil=valores[0];
-        $scope.nuevo_firmante.descripcionPerfil=valores[1];
+        $scope.nuevo_firmante.nombrePerfil=codigo;
+        $scope.nuevo_firmante.descripcionPerfil=nombre;
         $scope.documento_workflow.firmantes.push($scope.nuevo_firmante);
         $scope.creacion_habilitada=false;
         $scope.nuevo_firmante={};
@@ -1834,7 +1833,18 @@ angular.module('dec.controllers', [])
                 if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
                 {
                     perfiles=response.data["mensaje_dec"]["mensaje"]["Lista Perfiles"];
-                    $scope.perfiles=perfiles;
+                    $scope.perfiles=[];
+                    for(i=0;i<perfiles.length;i++)
+                    {
+                        for(j=0;j<perfiles[i].roles.length;j++)
+                        {
+                            if(perfiles[i].roles[j]=="FIRMANTE")
+                            {
+                                $scope.perfiles.push(perfiles[i]);
+                                break;                                
+                            }
+                        }
+                    }
                 }
                 else
                 {

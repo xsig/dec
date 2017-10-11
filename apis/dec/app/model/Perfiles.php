@@ -32,9 +32,7 @@ class Perfiles {
 	private function listaPerfiles(){
 		return 	self::$ConnMDB->lista("perfiles");
 	}
-
-
-		
+	
 	public function traeListaPerfilesAdministradorSeguridad(){
 		$_roles = new Roles();
 		return $this->traeListaIdPerfiles($_roles->traeIdRolAdministradorCliente());
@@ -143,7 +141,6 @@ class Perfiles {
 		$idRol = $_roles->traeIdRolAdministradorCliente();
 
 	}
-
 
 	public function traeRolesPorIdPerfil($IdPerfil){
 		$rolesIds = array();
@@ -302,7 +299,6 @@ class Perfiles {
         return $_id;
     }
 
-
     public function actualizaPerfil($document){
     	$rol = new Roles();
     	$cliente = new Clientes();
@@ -391,7 +387,6 @@ class Perfiles {
 
         }
 */
-        
         return $idPerfil;
     }
 
@@ -463,8 +458,5 @@ class Perfiles {
 		//}
 		return $nombre;
 	}
-
-
-   
 }
 ?>

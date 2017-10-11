@@ -6,17 +6,13 @@
     </ion-nav-buttons>
     <ion-content>
         <div class="list list-inset" ng-if="creacion_habilitada">
-            <form name="nuevoFirmanteForm">
-                <label class="item item-input item-select">
-                    <div class="input-label">
-                        Firmante
-                    </div>
-                    <select required ng-model="nuevo_firmante.nombrePerfil">
-                        <option ng-repeat="perfil in perfiles" value="{{perfil.codigoPerfil}}:{{perfil.nombrePerfil}}">{{perfil.nombrePerfil}}</option>
-                    </select>
-                </label>
-                <button class="button button-block button-positive" ng-disabled="nuevoFirmanteForm.$invalid" on-release="crearFirmante()">Crear</button>
-            </form>
+            <ion-list ng-repeat="perfil in perfiles">
+                    <ion-item class="item-button-right">{{perfil.codigoPerfil}}
+                        <div class="buttons">
+                            <button class="button button-positive icon ion-ios-checkmark-outline" on-release="agregarFirmante('{{perfil.codigoPerfil}}','{{perfil.nombrePerfil}}')"></button>
+                        </div>
+                    </ion-item>
+            </ion-list>
         </div>
         <ion-list show-reorder="ordenacion_habilitada" show-delete="borrado_habilitado" can-swipe="true">
             <ion-item ng-repeat="firmante in documento_workflow.firmantes" href="#/app/workflow/{{empresaSeleccionada}}/{{documento_workflow.codigo}}/{{firmante.orden}}">
