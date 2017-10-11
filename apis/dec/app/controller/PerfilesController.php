@@ -236,7 +236,7 @@ class PerfilesController{
 		$this->validaNombre($document);
 		$this->validaDescripcion($document);
 		$this->validaRoles($document);
-		$this->validaEmpresas($document);
+#		$this->validaEmpresas($document);
 	}
 
 	private function validaUsuario($document){
@@ -257,13 +257,13 @@ class PerfilesController{
 
 	private function validaNombre($document){
 		$rut_usuario = $document['mensaje_dec']['header']['usuario'];
-		if (isset($document['mensaje_dec']['mensaje']['codigoPerfil'])){
-			if(empty($document['mensaje_dec']['mensaje']['codigoPerfil'])){
+		if (isset($document['mensaje_dec']['mensaje']['nombrePerfil'])){
+			if(empty($document['mensaje_dec']['mensaje']['nombrePerfil'])){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoCodigoPerfilVacio");
 			}
 			else{
-				if ($this->_perfiles->existePerfil($rut_usuario, $document['mensaje_dec']['mensaje']['codigoPerfil'])){
+				if ($this->_perfiles->existePerfil($rut_usuario, $document['mensaje_dec']['mensaje']['nombrePerfil'])){
 					$this->valid=false;
 					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoCodigoPerfilExiste");
 				}
@@ -276,8 +276,8 @@ class PerfilesController{
 	}
 
 	private function validaDescripcion($document){
-		if (isset($document['mensaje_dec']['mensaje']['descripcion'])){
-			if(empty($document['mensaje_dec']['mensaje']['descripcion'])){
+		if (isset($document['mensaje_dec']['mensaje']['descripcionPerfil'])){
+			if(empty($document['mensaje_dec']['mensaje']['descripcionPerfil'])){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoDescripcionPerfilVacio");
 			}
@@ -374,20 +374,20 @@ class PerfilesController{
 	private function validaFormatoActualizaPerfil($document){
 		$this->validaUsuario($document);
 		$this->validaNombreAct($document);
-		$this->validaDescripcionAct($document);
+#		$this->validaDescripcionAct($document);
 		$this->validaRolesAct($document);
-		$this->validaEmpresasAct($document);
+#		$this->validaEmpresasAct($document);
 	}
 
 	private function validaNombreAct($document){
 		$rut_usuario = $document['mensaje_dec']['header']['usuario'];
-		if (isset($document['mensaje_dec']['mensaje']['codigoPerfil'])){
-			if(empty($document['mensaje_dec']['mensaje']['codigoPerfil'])){
+		if (isset($document['mensaje_dec']['mensaje']['nombrePerfil'])){
+			if(empty($document['mensaje_dec']['mensaje']['nombrePerfil'])){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoCodigoPerfilVacio");
 			}
 			else{
-				if (!$this->_perfiles->existePerfil($rut_usuario, $document['mensaje_dec']['mensaje']['codigoPerfil'])){
+				if (!$this->_perfiles->existePerfil($rut_usuario, $document['mensaje_dec']['mensaje']['nombrePerfil'])){
 					$this->valid=false;
 					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoCodigoPerfilNoExiste");
 				}
@@ -413,16 +413,16 @@ class PerfilesController{
 		$rolesInsertar = array();
 
 
-		if (isset($document['mensaje_dec']['mensaje']['rolesAltas'])){
-			if(empty($document['mensaje_dec']['mensaje']['rolesAltas'])){
+		if (isset($document['mensaje_dec']['mensaje']['roles'])){
+			if(empty($document['mensaje_dec']['mensaje']['roles'])){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoRolesPerfilVacio");
 			}
 			else{
-				if(is_array($document['mensaje_dec']['mensaje']['rolesAltas'])){
-					$rolesInsertar = $document['mensaje_dec']['mensaje']['rolesAltas'];
-					if(count($rolesInsertar)>0){
-						foreach ($rolesInsertar as $rolIns) { 
+				if(is_array($document['mensaje_dec']['mensaje']['roles'])){
+					$roles = $document['mensaje_dec']['mensaje']['roles'];
+					if(count($roles)>0){
+						foreach ($roles as $rolIns) { 
 							if(!$this->_roles->validaRolExistaPorNombre($rolIns)){
 								$this->valid=false;
 								$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoRolesPerfilNoExiste","rolesAltas",$rolIns);						
@@ -440,36 +440,6 @@ class PerfilesController{
 				}
 			}
 		}
-
-		if (isset($document['mensaje_dec']['mensaje']['rolesBajas'])){
-			if(empty($document['mensaje_dec']['mensaje']['rolesBajas'])){
-				$this->valid=false;
-				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoRolesPerfilVacio");
-			}
-			else{
-				if(is_array($document['mensaje_dec']['mensaje']['rolesBajas'])){
-					$rolesEliminar = $document['mensaje_dec']['mensaje']['rolesBajas'];
-					if(count($rolesEliminar)>0){
-						foreach ($rolesEliminar as $rolEli) { 
-							if(!$this->_roles->validaRolExistaPorNombre($rolEli)){
-								$this->valid=false;
-								$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoRolesPerfilNoExiste","rolesBajas",$rolEli);						
-							}
-						}
-					}
-					else{
-						$this->valid=false;
-						$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoRolesPerfilNoesArreglo");
-					}					
-				}
-				else{
-					$this->valid=false;
-					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoRolesPerfilNoesArreglo");
-				}
-			}
-		}
-
-
 	}
 
 	private function validaEmpresasAct($document){

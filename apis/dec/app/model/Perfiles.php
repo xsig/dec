@@ -159,6 +159,7 @@ class Perfiles {
 	
 	public function traePerfilPorListaId($listaIdPerfiles){
 		$_perfilesClientes = new PerfilesClientes();
+		$_roles = new Roles();
 		$listaClientes = array();
 		$perfiles=array();
 		$perf = array();
@@ -169,10 +170,11 @@ class Perfiles {
 			foreach($cursor as $item ){
 					$perf['codigoPerfil'] =$item->nombrePerfil;
 					$perf['nombrePerfil'] =$item->descripcionPerfil;
+					$perf['roles'] = $_roles->traeListaNombresRolPorListaId($item->roles);
 					$perf['estado'] =$item->estadoPerfil;
 					$perf['fechaUltEstado'] =$item->fechaUltimoEstado;
-					$listaClientes  = $_perfilesClientes->traeListaRutClientePorPerfiles($item->_id);
-					$perf['empresasAsignadas'] = $listaClientes;
+//					$listaClientes  = $_perfilesClientes->traeListaRutClientePorPerfiles($item->_id);
+//					$perf['empresasAsignadas'] = $listaClientes;
 					$perfiles[] =$perf;
 			}
 		//}
@@ -255,37 +257,48 @@ class Perfiles {
     	$idCliente = 0;
     	$_idPerfilCliente = 0;
     	$arrRoles = $rol->traeListaIdRolPorListaNombres($document['mensaje_dec']['mensaje']['roles']);
-    	$rut_usuario = $document['mensaje_dec']['header']['usuario'];
+		$rut_usuario = $document['mensaje_dec']['header']['usuario'];
+		$empresa = $document['mensaje_dec']['mensaje']['empresa'];
     	$idUsuario = $usuario->traeIdUsuarioPorRut($rut_usuario);
     	$doc_perfil = array(
     		"roles" =>  $arrRoles,
-			"nombrePerfil"  =>  $document['mensaje_dec']['mensaje']['codigoPerfil'],
-			"descripcionPerfil"  =>  $document['mensaje_dec']['mensaje']['descripcion'],
+			"nombrePerfil"  =>  $document['mensaje_dec']['mensaje']['nombrePerfil'],
+			"descripcionPerfil"  =>  $document['mensaje_dec']['mensaje']['descripcionPerfil'],
 			"estadoPerfil"  =>  "ACTIVO",
 			"tipoPerfil"  =>  "CLIENTES" ,
 			"fechaUltimoEstado" => date("Y-m-d H:i:s")
     	);
+		$_id =  self::$ConnMDB->ingresa("perfiles",$doc_perfil,"perfiles_id");
 
-        $_id =  self::$ConnMDB->ingresa("perfiles",$doc_perfil,"perfiles_id");
+		$idCliente = $cliente->traeIdClientePorRut($empresa);
+		$doc_perfilCliente= array(
+			"idCliente" => $idCliente,
+			"idPerfil" => $_id,
+			"estado"  => "ACTIVO" 
+		);
+		$_idPerfilCliente =  self::$ConnMDB->ingresa("PerfilCliente",$doc_perfilCliente,"PerfilCliente_id");
+		
+		if (isset($document['mensaje_dec']['mensaje']['empresasSolicitadas']))
+		{
+			$arrClientes  = $document['mensaje_dec']['mensaje']['empresasSolicitadas'];
+			foreach($arrClientes as $rutEmpresa) { 
+				$idCliente = $cliente->traeIdClientePorRut($rutEmpresa);
+				$doc_perfilCliente= array(
+					"idCliente" => $idCliente,
+					"idPerfil" => $_id,
+					"estado"  => "ACTIVO" 
+				);
+				$_idPerfilCliente =  self::$ConnMDB->ingresa("PerfilCliente",$doc_perfilCliente,"PerfilCliente_id");
 
-        $arrClientes  = $document['mensaje_dec']['mensaje']['empresasSolicitadas'];
-        foreach($arrClientes as $rutEmpresa) { 
-			$idCliente = $cliente->traeIdClientePorRut($rutEmpresa);
-	        $doc_perfilCliente= array(
-	        	"idCliente" => $idCliente,
-	        	"idPerfil" => $_id,
-	   			"estado"  => "ACTIVO" 
-	        );
-	        $_idPerfilCliente =  self::$ConnMDB->ingresa("PerfilCliente",$doc_perfilCliente,"PerfilCliente_id");
+				$doc_perfilamiento = array(
+					"idPerfilCliente" => $_idPerfilCliente,
+					"idUsuario" => $idUsuario,
+					"estado" => "ACTIVO"
+					);
 
-	        $doc_perfilamiento = array(
-				   "idPerfilCliente" => $_idPerfilCliente,
-				   "idUsuario" => $idUsuario,
-				   "estado" => "ACTIVO"
-	        	);
-
-	        $_idPerfilamiento=  self::$ConnMDB->ingresa("perfilamiento",$doc_perfilamiento,"perfilamiento_id");
-    	}
+				$_idPerfilamiento=  self::$ConnMDB->ingresa("perfilamiento",$doc_perfilamiento,"perfilamiento_id");
+			}
+		}
         return $_id;
     }
 
@@ -297,13 +310,17 @@ class Perfiles {
     	$perfCliente = new PerfilesClientes();
     	$idCliente = 0;
     	$_idPerfilCliente = 0;
-    	$nombrePerfil = $document['mensaje_dec']['mensaje']['codigoPerfil'];
+    	$nombrePerfil = $document['mensaje_dec']['mensaje']['nombrePerfil'];
     	$idPerfil = $this->traeIdPerfilPorNombre($nombrePerfil);
-    	$arrRoles = $this->traeRolesPorIdPerfil($idPerfil);
     	$docModPerfil = array();
     	$rut_usuario = $document['mensaje_dec']['header']['usuario']; 
      	$idUsuario = $usuario->traeIdUsuarioPorRut($rut_usuario); 
-     	if (isset($document['mensaje_dec']['mensaje']['nuevaDescripcion'])){
+		$arrRoles = $rol->traeListaIdRolPorListaNombres($document['mensaje_dec']['mensaje']['roles']);
+		$docModPerfil['roles'] = $arrRoles;
+		$docModPerfil['fechaUltimoEstado'] = date("Y-m-d H:i:s");
+		self::$ConnMDB->actualizaPorId("perfiles",$idPerfil,$docModPerfil);
+			
+/*     	if (isset($document['mensaje_dec']['mensaje']['nuevaDescripcion'])){
     		$docModPerfil['descripcionPerfil'] = $document['mensaje_dec']['mensaje']['nuevaDescripcion'];
     	}
 
@@ -373,7 +390,7 @@ class Perfiles {
 
 
         }
-
+*/
         
         return $idPerfil;
     }

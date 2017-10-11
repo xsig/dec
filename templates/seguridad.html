@@ -12,6 +12,14 @@
                 <label class="item item-input">
                     <input type="text" placeholder="descripcion" oninput="upper(this)" required ng-model="nuevo_perfil.descripcionPerfil">
                 </label>
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Roles
+                    </div>
+                    <select required ng-model="nuevo_perfil.rol">
+                        <option ng-repeat="rol in roles_posibles">{{rol.nombreRol}}</option>
+                    </select>
+                </label>
                 <button class="button button-block button-positive" ng-disabled="nuevoPerfilForm.$invalid" on-release="crearPerfil()">Crear</button>
             </form>
         </div>

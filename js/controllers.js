@@ -167,6 +167,17 @@ function generarMensajeConsultaPerfiles(etiqueta,usuario,empresa)
     return JSON.stringify(mensaje);
 }
 
+function generarMensajeIngresaPerfil(etiqueta,usuario,empresa,perfil)
+{
+    mensaje=construirHeader(etiqueta,usuario.rut,"10");
+    mensaje["mensaje_dec"]["mensaje"]["empresa"] = empresa;
+    mensaje["mensaje_dec"]["mensaje"]["nombrePerfil"] = perfil["nombrePerfil"];
+    mensaje["mensaje_dec"]["mensaje"]["descripcionPerfil"] = perfil["descripcionPerfil"];
+    mensaje["mensaje_dec"]["mensaje"]["roles"] = perfil["roles"];
+    
+    return JSON.stringify(mensaje);
+}
+
 function generarMensajeConsultaPerfilesEmpresa(etiqueta,usuario,empresa)
 {
     mensaje=construirHeader(etiqueta,usuario,"10");
@@ -1691,6 +1702,7 @@ angular.module('dec.controllers', [])
     $scope.creacion_habilitada=false;
     $scope.borrado_habilitado=false;
     $scope.ordenacion_habilitada=false;
+    $scope.perfiles=[];
     $scope.borrarWorkflow = function(item)
     {
         $scope.subtipos_documento.splice($scope.subtipos_documento.indexOf(item), 1);
@@ -1735,6 +1747,9 @@ angular.module('dec.controllers', [])
     $scope.crearFirmante = function()
     {
         $scope.nuevo_firmante["orden"]=$scope.documento_workflow.firmantes.length+1
+        valores=$scope.nuevo_firmante.nombrePerfil.split(":");
+        $scope.nuevo_firmante.nombrePerfil=valores[0];
+        $scope.nuevo_firmante.descripcionPerfil=valores[1];
         $scope.documento_workflow.firmantes.push($scope.nuevo_firmante);
         $scope.creacion_habilitada=false;
         $scope.nuevo_firmante={};
@@ -1810,9 +1825,34 @@ angular.module('dec.controllers', [])
             }
         );
     }
+    $scope.buscarFirmantes = function()
+    {
+        mensaje = generarMensajeConsultaPerfiles("Consulta Perfiles",$rootScope.loginData.username, $scope.empresa);
+        $http.post(servidor+"/apis/dec/clientes/perfiles",mensaje,
+            {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
+            function (response) {
+                if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
+                {
+                    perfiles=response.data["mensaje_dec"]["mensaje"]["Lista Perfiles"];
+                    $scope.perfiles=perfiles;
+                }
+                else
+                {
+                    if(response.data.mensaje_dec.header.estado==5000)
+                        $scope.showAlert("No tiene autorización para realizar la acción");
+                    $scope.perfiles = [];
+                }
+            },
+            function (response)
+            {
+                $scope.perfiles = [];
+            }
+        );
+    }
     if($scope.codigo_documento_workflow!=null)
     {
         $scope.documento_workflow=DocumentosWorkflow.getWorkflow($scope.codigo_documento_workflow);
+        $scope.buscarFirmantes();
         if($scope.rol!=null)
         {
             for(i=0;i<$scope.documento_workflow.firmantes.length;i++)
@@ -1854,28 +1894,81 @@ angular.module('dec.controllers', [])
     $scope.crearPerfil = function()
     {
         $scope.nuevo_perfil["roles"]=[];
-        $scope.perfiles.push($scope.nuevo_perfil);
-        $scope.creacion_habilitada=false;
-        $scope.nuevo_perfil={};
+        $scope.nuevo_perfil["roles"].push($scope.nuevo_perfil["rol"]);
+        mensaje=generarMensajeIngresaPerfil("Ingresa Perfil",$scope.usuario,$scope.empresa,$scope.nuevo_perfil);
+        $http.post(servidor+"/apis/dec/perfiles/crear",mensaje,
+        {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
+        function (response) {
+            if (response.status == 200)
+            {
+                $scope.perfiles.push($scope.nuevo_perfil);
+                $scope.creacion_habilitada=false;
+                $scope.nuevo_perfil={};
+            }
+            else
+            {
+                if(response.data.mensaje_dec.header.estado==5000)
+                    $scope.showAlert("No tiene autorización para realizar la acción");
+                $scope.creacion_habilitada=false;
+                $scope.nuevo_perfil={};
+            }
+        },
+        function (response)
+        {
+            $scope.showAlert("Falló la creación del perfil");
+            $scope.creacion_habilitada=false;
+            $scope.nuevo_perfil={};
+        }
+        );
+    }
+
+    $scope.actualizarPerfil = function()
+    {
+        mensaje=generarMensajeIngresaPerfil("Actualiza Perfil",$scope.usuario,$scope.empresa,$scope.perfil);
+        $http.post(servidor+"/apis/dec/perfiles/actualizar",mensaje,
+        {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
+        function (response) {
+            if (response.status == 200)
+            {
+                $scope.creacion_habilitada=false;
+                $scope.borrado_habilitado=false;
+                $scope.nuevo_rol={};
+            }
+            else
+            {
+                if(response.data.mensaje_dec.header.estado==5000)
+                    $scope.showAlert("No tiene autorización para realizar la acción");
+                $scope.creacion_habilitada=false;
+                $scope.borrado_habilitado=false;
+                $scope.nuevo_rol={};
+            }
+        },
+        function (response)
+        {
+            $scope.showAlert("Falló la actualización de roles");
+            $scope.creacion_habilitada=false;
+            $scope.borrado_habilitado=false;
+            $scope.nuevo_rol={};
+        }
+        );
     }
 
     $scope.agregarRol = function()
     {
         $scope.perfil.roles.push($scope.nuevo_rol.nombreRol);
-        $scope.creacion_habilitada=false;
-        $scope.nuevo_rol={};
+        $scope.actualizarPerfil();
     }
 
     $scope.quitarRol = function(item)
     {
         $scope.perfil.roles.splice($scope.perfil.roles.indexOf(item), 1);
-        $scope.borrado_habilitado=false;
+        $scope.actualizarPerfil();
     }
 
     $scope.buscar = function()
     {
         mensaje = generarMensajeConsultaPerfiles("Consulta Perfiles",$rootScope.loginData.username, $scope.empresa);
-        $http.post(servidor+"/apis/dec/perfiles/busqueda",mensaje,
+        $http.post(servidor+"/apis/dec/clientes/perfiles",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
                 if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
@@ -1927,8 +2020,8 @@ angular.module('dec.controllers', [])
     else
     {
         $scope.perfil=PerfilFactory.getPerfil($scope.nombrePerfil);
-        $scope.buscarRoles();
     }
+    $scope.buscarRoles();
 });
 
 dec.factory('PerfilFactory', function() {

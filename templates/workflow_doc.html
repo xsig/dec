@@ -7,11 +7,13 @@
     <ion-content>
         <div class="list list-inset" ng-if="creacion_habilitada">
             <form name="nuevoFirmanteForm">
-                <label class="item item-input">
-                    <input type="text" placeholder="nombre" oninput="upper(this)" required ng-model="nuevo_firmante.nombrePerfil">
-                </label>
-                <label class="item item-input">
-                    <input type="text" placeholder="descripcion" oninput="upper(this)" required ng-model="nuevo_firmante.descripcionPerfil">
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Firmante
+                    </div>
+                    <select required ng-model="nuevo_firmante.nombrePerfil">
+                        <option ng-repeat="perfil in perfiles" value="{{perfil.codigoPerfil}}:{{perfil.nombrePerfil}}">{{perfil.nombrePerfil}}</option>
+                    </select>
                 </label>
                 <button class="button button-block button-positive" ng-disabled="nuevoFirmanteForm.$invalid" on-release="crearFirmante()">Crear</button>
             </form>

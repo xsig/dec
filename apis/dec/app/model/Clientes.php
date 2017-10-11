@@ -208,7 +208,7 @@ class Clientes {
 	
 	public function traeIdClientePorRut($rutCliente){
 		$_cliente=0;
-		$busqueda = array( "datosDemograficos.Rut" => $rutCliente , "estado" => "ACTIVO" );
+		$busqueda = array( "datosDemograficos.Rut" => $rutCliente , "estado" => "Activo" );
 		$cursor = self::$ConnMDB->busca("clientes", $busqueda);
 		foreach($cursor as $item ){
 			$_cliente =$item->_id;
@@ -218,7 +218,7 @@ class Clientes {
 	
 	public function traeRutClientePorId($Id){
 		$_cliente=0;
-		$busqueda = array( "_id" => $Id , "estado" => "ACTIVO" );
+		$busqueda = array( "_id" => $Id , "estado" => "Activo" );
 		$cursor = self::$ConnMDB->busca("clientes", $busqueda);
 
 		foreach($cursor as $item ){
@@ -243,7 +243,7 @@ class Clientes {
 	public function traeRutsClientePorListaId($ListaIds){
 		$_cliente=array();
 		$lista = array('$in' => $ListaIds);
-		$busqueda = array( "_id" => $lista , "estado" => "ACTIVO" );
+		$busqueda = array( "_id" => $lista , "estado" => "Activo" );
 		$cursor = self::$ConnMDB->busca("clientes", $busqueda);
 
 		foreach($cursor as $item ){
