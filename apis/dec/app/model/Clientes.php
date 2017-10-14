@@ -85,6 +85,7 @@ class Clientes {
 		return $cliente;
 	}	
 	
+	//Version anterior de la consulta de perfiles
 	public function traePerfilesPorRut($rut){
 		$cliente=array();
 		$listaId = array();
@@ -104,6 +105,17 @@ class Clientes {
 		//return $listaIdPerfiles;
 		return $_perfiles;
 	}
+
+	public function traePerfilesPorRutEmpresa($rut){
+		$_perfiles = array();
+		$perfiles= new Perfiles();
+
+		$_perfiles = $perfiles->traePerfilesPorEmpresa($rut);
+
+		//return $listaIdPerfiles;
+		return $_perfiles;
+	}
+
 	public function traeNombresDeEmpresasPorListaDeRuts($listaRuts){
 		$arrRutsEmpresas = array();
 		foreach ($listaRuts as $rut ) {

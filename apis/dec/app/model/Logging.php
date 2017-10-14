@@ -32,7 +32,6 @@ class Logging {
             return false;
     }
     
-
     public function guardaDocumentoEntrada($document){
         $id = self::$ConnMDB->ingresa("log",$document,"log_id");
     }

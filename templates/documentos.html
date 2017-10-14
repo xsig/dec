@@ -1,5 +1,8 @@
 <ion-view view-title="Firma de Documentos">
-  <ion-content>
+<ion-nav-buttons side="secondary">
+    <button class="button button-clear icon ion-ios-search" on-release="buscar()"></button>
+</ion-nav-buttons>
+<ion-content>
    <ion-list>
       <div class="row">
         <div class="col no-padding">
@@ -24,10 +27,18 @@
                 </select>
             </label>
         </div>
-        <div class="col no-padding col-10">
-            <button class="button icon ion-ios-search button-positive" on-release="buscar()"></button>
+        <div class="col no-padding">
+            <label class="item item-input item-select">
+                <div class="input-label">
+                    Estado
+                </div>
+                <select ng-model="filtro.estado">
+                    <option value="PENDIENTE FIRMA" selected>PENDIENTE FIRMA</option>
+                    <option value="FIRMADO">FIRMADO</option>
+                </select>
+            </label>
         </div>
-      </div>
+    </div>
     </ion-list>
     <ion-list ng-repeat="documento in documentos">
         <ion-item href="#/app/documento/{{documento.idAcepta}}">

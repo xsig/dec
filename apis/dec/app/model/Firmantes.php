@@ -142,7 +142,7 @@ class Firmantes {
 			}
 
 			if ($this->estaFirmadoFirmantes($new_firmante)){
-				$datosAct['estadoFirma'] =  "FIRMADO";
+				$datosAct['estado'] =  "FIRMADO";
 			}
 
 			$datosAct['firmantes'] =  $new_firmante;

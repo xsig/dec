@@ -274,9 +274,9 @@ class SubTipoDocumentos {
         return false;
     }
 
-	public function existeSubTipoDocumento($rut, $nombreSubTipoDocumento){
+	public function existeSubTipoDocumento($rutEmpresa, $nombreSubTipoDocumento){
     	// Falta buscar la empresa del rut del usuario
-        $busqueda = array('nombre' => $nombreSubTipoDocumento );
+        $busqueda = array('empresa' => strtoupper($rutEmpresa), 'nombre' => $nombreSubTipoDocumento );
         $cursor = self::$ConnMDB->busca("subtipoDocumento", $busqueda);
         foreach($cursor as $item ){
             return true;
@@ -303,7 +303,7 @@ class SubTipoDocumentos {
     	$idUsuario = $usuario->traeIdUsuarioPorRut($rut_usuario);
 
     	$doc_subtDocs = array(
-    		"nombre" => strtoupper($document['mensaje_dec']['mensaje']['subtipoDocumento']) ,
+    		"nombre" => strtoupper($document['mensaje_dec']['mensaje']['nombre']) ,
     		"descripcion" => strtoupper($document['mensaje_dec']['mensaje']['descripcion']) ,
     		"codigo" => strtoupper($document['mensaje_dec']['mensaje']['codigo']) ,
     		"tipoDocumento" => strtoupper($document['mensaje_dec']['mensaje']['tipoDocumento']) ,
@@ -314,10 +314,10 @@ class SubTipoDocumentos {
 
         $_id =  self::$ConnMDB->ingresa("subtipoDocumento",$doc_subtDocs,"subtipoDocumento_id");
 
-        foreach ($this->upperFirmantes($document['mensaje_dec']['mensaje']['firmantes'])  as $firmante) {
+/*        foreach ($this->upperFirmantes($document['mensaje_dec']['mensaje']['firmantes'])  as $firmante) {
         	$this->ingresaFirmanteSubTipoDocumentoFirmante($document['mensaje_dec']['mensaje']['tipoDocumento'],$firmante,$_id, strtoupper($document['mensaje_dec']['header']['empresa']));
         }
-
+*/
         return $_id;
     }
 
@@ -333,7 +333,38 @@ class SubTipoDocumentos {
     	return $new_firmante;
     }
 
-    private function ingresaFirmanteSubTipoDocumentoFirmante($codTD,$firmante,$idSubTipoDocumento, $empresa){
+    public function actualizaSubTipoDocumento($document){
+    	$firmante = new Firmantes();
+    	$usuario = new Usuarios();
+    	$subtDocFirmante = new SubTipoDocumentosFirmantes();
+    	$idFirmante = 0;
+    	$_idPerfilCliente = 0;
+    	//////
+    	$codigoSubTD = $document['mensaje_dec']['mensaje']['codigo'];
+    	$_idSubTD = $this->traeIdSubTipoDocumentoPorCodigo($codigoSubTD);
+    	//////
+
+    	$rut_usuario = $document['mensaje_dec']['header']['usuario']; 
+     	$idUsuario = $usuario->traeIdUsuarioPorRut($rut_usuario); 
+
+     	if (isset($document['mensaje_dec']['mensaje']['nombre'])){
+    		$docModSubTipoDocumento['nombre'] = $document['mensaje_dec']['mensaje']['nombre'];
+    	}
+
+    	if (isset($document['mensaje_dec']['mensaje']['descripcion'])){
+    		$docModSubTipoDocumento['descripcion'] = $document['mensaje_dec']['mensaje']['descripcion'];
+    	}
+
+    	if (isset($document['mensaje_dec']['mensaje']['firmantes'])){
+    	 	$docModSubTipoDocumento['firmantes'] = $document['mensaje_dec']['mensaje']['firmantes'];
+    	}
+
+        self::$ConnMDB->actualizaPorId("subtipoDocumento",$_idSubTD,$docModSubTipoDocumento);
+       
+        return $_idSubTD;
+    }
+
+	private function ingresaFirmanteSubTipoDocumentoFirmante($codTD,$firmante,$idSubTipoDocumento, $empresa){
     	$subtipoDoc = new SubTipoDocumentosFirmantes();
     	$firmantes = new Firmantes();
     	$_clientes = new Clientes();
@@ -357,94 +388,10 @@ class SubTipoDocumentos {
     			}
     		}
     	//}
-
-
     	// $idFirmante = $firmantes->traeIdFirmantePorRut($firmante);
     	// if (!$subtipoDoc->existeSubTipoDocumentoFirmante($idFirmante, $idSubTipoDocumento)){
     	// 	$subtipoDoc->ingresaSubTipoDocumentoFirmante($idFirmante, $idSubTipoDocumento);
     	// }
     }
-
-    public function actualizaSubTipoDocumento($document){
-    	$firmante = new Firmantes();
-    	$usuario = new Usuarios();
-    	$subtDocFirmante = new SubTipoDocumentosFirmantes();
-    	$idFirmante = 0;
-    	$_idPerfilCliente = 0;
-    	//////
-    	$codigoSubTD = $document['mensaje_dec']['mensaje']['codigoSubTipoDocumento'];
-    	$_idSubTD = $this->traeIdSubTipoDocumentoPorCodigo($codigoSubTD);
-    	$arrIdFirmantes = $this->traeFirmantesPorIdSubTDocumento($_idSubTD);
-    	$docModSubTipoDocumento = array();
-    	//////
-
-    	$rut_usuario = $document['mensaje_dec']['header']['usuario']; 
-     	$idUsuario = $usuario->traeIdUsuarioPorRut($rut_usuario); 
-
-     	if (isset($document['mensaje_dec']['mensaje']['nuevoSubTipoDocumento'])){
-    		$docModSubTipoDocumento['nombre'] = $document['mensaje_dec']['mensaje']['nuevoSubTipoDocumento'];
-    	}
-
-    	if (isset($document['mensaje_dec']['mensaje']['nuevaDescripcion'])){
-    		$docModTipoDocumento['descripcion'] = $document['mensaje_dec']['mensaje']['nuevaDescripcion'];
-    	}
-
-    	// if (isset($document['mensaje_dec']['mensaje']['firmantes'])){
-    	// 	$docModTipoDocumento['firmantes'] = $document['mensaje_dec']['mensaje']['firmantes'];
-    	// }
-
-    	if (isset($document['mensaje_dec']['mensaje']['empresasSolicitadasAltas'])){
-    		$arrIdEmpresas = $arrIdEmpresas + $cliente->traeIdClientePorListaRut($document['mensaje_dec']['mensaje']['empresasSolicitadasAltas']);
-    	}
-
-    	if (isset($document['mensaje_dec']['mensaje']['empresasSolicitadasBajas'])){
-    		$arrIdEmpresas = array_diff($arrIdEmpresas, $cliente->traeIdClientePorListaRut($document['mensaje_dec']['mensaje']['empresasSolicitadasBajas']));
-    	}
-
-    	$arrRutsEmpresas = $cliente->traeRutsClientePorListaId($arrIdEmpresas);
-		$docModTipoDocumento['empresasSolicitadas'] = $arrRutsEmpresas;
-
-
-        if(self::$ConnMDB->actualizaPorId("tipoDocumento",$_idTD,$docModTipoDocumento)){
-        	$hayCambiosEnEmpresa =  0;
-        	if(isset($document['mensaje_dec']['mensaje']['empresasSolicitadasAltas'])){
-        		$arrClientes  = $document['mensaje_dec']['mensaje']['empresasSolicitadasAltas'];
-		        foreach($arrClientes as $rutEmpresa) { 
-					$idCliente = $cliente->traeIdClientePorRut($rutEmpresa);
-			        $doc_TDCliente= array(
-			        	"idCliente" => $idCliente,
-			        	"idTipoDocumento" => $_idTD,
-			   			"estado"  => "ACTIVO" 
-			        );
-			        if (!$tDocCliente->existeTipoDocumentoCliente($idCliente,$_idTD)){
-			        	$_idTDCliente=  self::$ConnMDB->ingresa("tipoDocumentoCliente",$doc_TDCliente,"tipoDocumentoCliente_id");
-			        }
-		    	}
-
-        	}
-        	if(isset($document['mensaje_dec']['mensaje']['empresasSolicitadasBajas'])){
-         		$arrClientes  = $document['mensaje_dec']['mensaje']['empresasSolicitadasBajas'];
-		        foreach($arrClientes as $rutEmpresa) { 
-					$idCliente = $cliente->traeIdClientePorRut($rutEmpresa);
-
-			        $doc_TDCliente= array(
-			        	"idCliente" => $idCliente,
-			        	"idTipoDocumento" => $_idTD
-			        );
-			        $_idTDCliente =  self::$ConnMDB->buscaId("tipoDocumentoCliente",$doc_TDCliente);
-
-			        if ($tDocCliente->existeTipoDocumentoCliente($idCliente,$_idTD)){
-			        	self::$ConnMDB->eliminaPorId("tipoDocumentoCliente",$_idTDCliente);
-			        }
-
-		    	}  		
-        	}
-
-
-        }
-        
-        return $_idTD;
-    }
-   
 }
 ?>

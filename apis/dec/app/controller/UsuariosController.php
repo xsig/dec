@@ -926,10 +926,10 @@ class UsuariosController{
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoCorreoElectronicoVacioErr","correoElectronico");
 			}
-			if ($this->_usuarios->validaCorreoExisteAct($correoElectronico, $rut)){
+	/*		if ($this->_usuarios->validaCorreoExisteAct($correoElectronico, $rut)){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoCorreoElectronicoExisteErr","correoElectronico");
-			}
+			}*/
 		}  
 	}
 

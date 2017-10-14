@@ -165,9 +165,9 @@ class OperaDocumentosController{
 
 	private function validaFormatoConsultaDocumentos($document){
 		$this->validaConsultaEmpresa($document);
-		$this->validaConsultaTipoDocumentos($document);
+//		$this->validaConsultaTipoDocumentos($document);
 		$this->validaConsultaSubTipoDocumentos($document);
-		$this->validaConsultaDocumentosFiltros($document);
+//		$this->validaConsultaDocumentosFiltros($document);
 	}
 
 	// Fin Validaciones
@@ -225,7 +225,7 @@ class OperaDocumentosController{
 	}
 
 	private function validaConsultaTipoDocumentos($document){
-		if (!isset($document['mensaje_dec']['mensaje']['TipoDocumentos'])){
+		if (!isset($document['mensaje_dec']['mensaje']['tipoDocumento'])){
 			$this->valid=false;
 			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"TipoDocumentosEnOperaDocumentos", "TipoDocumentos");	
 		}
@@ -245,7 +245,7 @@ class OperaDocumentosController{
 	}
 
 	private function validaConsultaSubTipoDocumentos($document){
-		if (!isset($document['mensaje_dec']['mensaje']['subTipoDocumentos'])){
+		if (!isset($document['mensaje_dec']['mensaje']['subtipoDocumento'])){
 			$this->valid=false;
 			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"SubTipoDocumentosEnOperaDocumentos", "subTipoDocumentos");	
 		}
@@ -321,11 +321,13 @@ class OperaDocumentosController{
 	private function ejecutaConsultaDocumentos($document){
 		$_Documentos = new Documentos();
 		$doc_busqueda = array();
-		if (isset($document['mensaje_dec']['mensaje']['Filtro']['idDocumento'])){
-			$doc_busqueda['idAcepta'] = $document['mensaje_dec']['mensaje']['Filtro']['idDocumento'];
+		if (isset($document['mensaje_dec']['mensaje']['subtipoDocumento']))
+		{
+			$doc_busqueda['subtipoDocumento'] = $document['mensaje_dec']['mensaje']['subtipoDocumento'];
 		}
-		if (isset($document['mensaje_dec']['mensaje']['Filtro']['estado'])){
-			$doc_busqueda['estado'] = $document['mensaje_dec']['mensaje']['Filtro']['estado'];
+		if (isset($document['mensaje_dec']['mensaje']['estado']))
+		{
+			$doc_busqueda['estado'] = $document['mensaje_dec']['mensaje']['estado'];
 		}
 		$doc_busqueda['empresa'] = $document['mensaje_dec']['header']['empresa'];
 

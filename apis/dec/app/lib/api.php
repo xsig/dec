@@ -108,9 +108,15 @@ abstract class Api
 
     	$logging = new Logging();
 	    $docSalida = array();
-	    $docSalida['message'] = $data;
-        $logging->guardaDocumentoEntrada($docSalida);
-
+		$docSalida['message'] = $data;
+		try
+		{
+			$logging->guardaDocumentoEntrada($docSalida);
+		} catch(MongoCursorException $e)
+		{
+			//Si hay error en el registro de log se ignora
+		}
+   
         return json_encode($data);
     }
 
@@ -536,9 +542,6 @@ class DecApi extends Api
 						case "busqueda":
 							$this->output=$this->_operadocumentos->ConsultaDocumentos($this->document);
 							break;
-						case "consulta":
-							$this->output=$this->_operadocumentos->ConsultaDocumentos($this->document);
-							break;
 						case "firmantes":
 							$this->output=$this->_operadocumentos->FirmantesDeDocumentos($this->document);
 							break;
@@ -652,9 +655,6 @@ class DecApi extends Api
 						case 'actualizar':
 							$this->output=$this->_subtipodocumentos->actualizaSubTipoDocumento($this->document);
 							break;
-						case "agregar":
-							$this->output=$this->_firmantes->agregaFirmantes($this->document);
-						    break;
 						default:
 							$this->output=$this->_subtipodocumentos->creaSubTipoDocumento($this->document);
 						    break;

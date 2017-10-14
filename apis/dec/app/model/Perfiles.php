@@ -153,7 +153,28 @@ class Perfiles {
 		//}
 		return $rolesIds;
 	}
-	
+
+	public function traePerfilesPorEmpresa($rut){
+		$_roles = new Roles();
+		$perfiles=array();
+		$perf = array();
+		$busqueda = array( "empresa" => $rut  );
+		$cursor = self::$ConnMDB->busca("perfiles", $busqueda);
+		//if($cursor->count()>0){
+			foreach($cursor as $item ){
+					$perf['codigoPerfil'] =$item->nombrePerfil;
+					$perf['nombrePerfil'] =$item->descripcionPerfil;
+					$perf['roles'] = $_roles->traeListaNombresRolPorListaId($item->roles);
+					$perf['estado'] =$item->estadoPerfil;
+					$perf['fechaUltEstado'] =$item->fechaUltimoEstado;
+//					$listaClientes  = $_perfilesClientes->traeListaRutClientePorPerfiles($item->_id);
+//					$perf['empresasAsignadas'] = $listaClientes;
+					$perfiles[] =$perf;
+			}
+		//}
+		return $perfiles;
+	}
+
 	public function traePerfilPorListaId($listaIdPerfiles){
 		$_perfilesClientes = new PerfilesClientes();
 		$_roles = new Roles();

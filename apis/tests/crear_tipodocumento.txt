@@ -1,0 +1,16 @@
+POST http://localhost/apis/dec/SubtipoDocumentos/crear HTTP/1.1
+content-type: application/json
+
+{
+    "mensaje_dec": {
+    "header":
+        {"usuario":"222222222","accion":"10","descripcion":"Usuario - Acciones Usuario","etiqueta":"Crear SubtipoDocumentos",
+        "fecha":"2017-10-14T16:17:24.960Z","empresa":"801234569"},
+    "mensaje":
+        {"nombre":"CONTRATO DE ARRIENDO",
+        "descripcion":"CONTRATO DE ARRIENDO",
+        "codigo":"CA",
+        "tipoDocumento":"VENT65",
+        "firmantes":[]}
+    }
+}

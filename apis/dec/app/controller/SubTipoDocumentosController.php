@@ -276,13 +276,14 @@ class SubTipoDocumentosController{
 
 	private function validaNombreCreaSubTD($document){
 		$rut_usuario = $document['mensaje_dec']['header']['usuario'];
-		if (isset($document['mensaje_dec']['mensaje']['subtipoDocumento'])){
-			if(empty($document['mensaje_dec']['mensaje']['subtipoDocumento'])){
+		$rut_empresa = $document['mensaje_dec']['header']['empresa'];
+		if (isset($document['mensaje_dec']['mensaje']['nombre'])){
+			if(empty($document['mensaje_dec']['mensaje']['nombre'])){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"NombreSubTipoDocumentoVacio");
 			}
 			else{
-				if ($this->_subtDocs->existeSubTipoDocumento($rut_usuario, $document['mensaje_dec']['mensaje']['subtipoDocumento'])){
+				if ($this->_subtDocs->existeSubTipoDocumento($rut_empresa, $document['mensaje_dec']['mensaje']['nombre'])){
 					$this->valid=false;
 					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"NombreSubTipoDocumentoYaExiste");
 				}
@@ -353,7 +354,7 @@ class SubTipoDocumentosController{
 							$nombPerfil = $firmante['nombrePerfil'];						
 						}				
 						if(isset($firmante['orden'])){
-							$orden =$firmante['orden'];						
+							$orden =intval($firmante['orden']);						
 						}	
 						if(isset($firmante['descripcionPerfil'])){
 							$descPerfil = $firmante['descripcionPerfil'];						
@@ -373,8 +374,7 @@ class SubTipoDocumentosController{
 					}
 				}
 				else{
-					$this->valid=false;
-					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"FirmantesTipoDocumentoArregloVacio");
+					$this->valid=true;
 				}
 			}
 			else{
@@ -415,8 +415,8 @@ class SubTipoDocumentosController{
 
 	private function validaFormatoActualizaSubTipoDocumento($document){
 		$this->validaUsuario($document);
-		$this->validaDescripcionActSubTD($document);
 		$this->validaCodigoActSubTD($document);
+		$this->validaFirmantesCreaSubTD($document);
 	}
 
 	private function validaDescripcionActSubTD($document){
@@ -430,13 +430,13 @@ class SubTipoDocumentosController{
 
 	private function validaCodigoActSubTD($document){
 		$rut_usuario = $document['mensaje_dec']['header']['usuario'];
-		if (isset($document['mensaje_dec']['mensaje']['codigoSubTipoDocumento'])){
-			if(empty($document['mensaje_dec']['mensaje']['codigoSubTipoDocumento'])){
+		if (isset($document['mensaje_dec']['mensaje']['codigo'])){
+			if(empty($document['mensaje_dec']['mensaje']['codigo'])){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CodigoSubTipoDocumentoVacio");
 			}
 			else{
-				if (!$this->_subtDocs->existeSubTipoDocumentoCodigo($document['mensaje_dec']['mensaje']['codigoSubTipoDocumento'])){
+				if (!$this->_subtDocs->existeSubTipoDocumentoCodigo($document['mensaje_dec']['mensaje']['codigo'])){
 					$this->valid=false;
 					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CodigoSubTipoDocumentoNoExiste");					
 				}

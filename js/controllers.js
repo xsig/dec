@@ -138,15 +138,31 @@ function generarMensajeConsultaTipoDocumentos(etiqueta,usuario,empresa)
     return JSON.stringify(mensaje);
 }
 
-function generarMensajeConsultaDocumentos(etiqueta,usuario,empresa,tipo,subtipo)
+function generarMensajeCrearSubtipoDocumentos(etiqueta,usuario,empresa,documento)
+{
+    mensaje=construirHeader(etiqueta,usuario,"10")
+    if(empresa.length!=0)
+        mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
+    mensaje["mensaje_dec"]["mensaje"]["nombre"]=documento.nombre;
+    mensaje["mensaje_dec"]["mensaje"]["descripcion"]=documento.descripcion;
+    mensaje["mensaje_dec"]["mensaje"]["codigo"]=documento.codigo;
+    mensaje["mensaje_dec"]["mensaje"]["tipoDocumento"]=documento.tipoDocumento;
+    mensaje["mensaje_dec"]["mensaje"]["firmantes"]=documento.firmantes;
+    
+    return angular.toJson(mensaje);
+}
+
+function generarMensajeConsultaDocumentos(etiqueta,usuario,empresa,tipo,subtipo,filtro)
 {
     mensaje=construirHeader(etiqueta,usuario,"100")
     if(empresa.length!=0)
         mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
     if(tipo!=null && tipo.length!=0)
-        mensaje["mensaje_dec"]["mensaje"]["TipoDocumentos"] = tipo;
+        mensaje["mensaje_dec"]["mensaje"]["tipoDocumento"] = tipo;
     if(subtipo!=null && subtipo.length!=0)
-        mensaje["mensaje_dec"]["mensaje"]["subTipoDocumentos"] = subtipo;
+        mensaje["mensaje_dec"]["mensaje"]["subtipoDocumento"] = subtipo;
+    if(filtro.estado!=null)
+        mensaje["mensaje_dec"]["mensaje"]["estado"] = filtro.estado;
 
     return JSON.stringify(mensaje);
 }
@@ -1402,6 +1418,7 @@ angular.module('dec.controllers', [])
 })
 .controller('DocumentosCtrl', function($scope, $rootScope, $ionicModal, $timeout, $http, $stateParams, $ionicLoading, DocumentosPendientes) {
     $scope.empresa=$stateParams.empresa;
+    $scope.filtro={estado: "PENDIENTE FIRMA"};
     $scope.changeTipo = function(nuevo)
     {
         for(i=0;i<$scope.tipos_documento.length;i++)
@@ -1476,8 +1493,9 @@ angular.module('dec.controllers', [])
             $scope.showAlert("El usuario no tiene una empresa asociada");
             return;            
         }
-        mensaje = generarMensajeConsultaDocumentos("Firma Documentos",$rootScope.loginData.username, $scope.empresa, $scope.tipo_documento_seleccionado,$scope.subtipo_documento_seleccionado);
-        $http.post(servidor+"/apis/dec/OperaDocumentos/consulta",mensaje,
+        mensaje = generarMensajeConsultaDocumentos("Firma Documentos",$rootScope.loginData.username,
+                  $scope.empresa, $scope.tipo_documento_seleccionado,$scope.subtipo_documento_seleccionado,$scope.filtro);
+        $http.post(servidor+"/apis/dec/OperaDocumentos/busqueda",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
                 if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
@@ -1698,31 +1716,10 @@ angular.module('dec.controllers', [])
     $scope.rol_workflow={};
     $scope.nuevo_documento={};
     $scope.nuevo_firmante={};
-    $scope.nuevo_usuario={};
     $scope.creacion_habilitada=false;
     $scope.borrado_habilitado=false;
     $scope.ordenacion_habilitada=false;
     $scope.perfiles=[];
-    $scope.borrarWorkflow = function(item)
-    {
-        $scope.subtipos_documento.splice($scope.subtipos_documento.indexOf(item), 1);
-        $scope.borrado_habilitado=false;
-    }
-    $scope.borrarUsuario = function(item)
-    {
-        $scope.rol_workflow.usuarios.splice($scope.rol_workflow.usuarios.indexOf(item), 1);
-        $scope.borrado_habilitado=false;
-    }
-    $scope.borrarFirmante = function(item)
-    {
-        $scope.documento_workflow.firmantes.splice($scope.documento_workflow.firmantes.indexOf(item), 1);
-        for(i=0;i<$scope.documento_workflow.firmantes.length;i++)
-        {
-            orden=i+1;
-            $scope.documento_workflow.firmantes[i].orden=orden.toString();
-        }
-        $scope.borrado_habilitado=false;
-    }
     $scope.habilitarCreacion=function()
     {
         if(!$scope.borrado_habilitado)
@@ -1740,9 +1737,14 @@ angular.module('dec.controllers', [])
     }
     $scope.crearWorkflow = function()
     {
-        $scope.subtipos_documento.push($scope.nuevo_documento);
-        $scope.creacion_habilitada=false;
-        $scope.nuevo_documento={};
+        $scope.nuevo_documento.tipoDocumento=$scope.tipo_documento_seleccionado;
+        $scope.nuevo_documento.firmantes=[];
+        $scope.crearSubtipoDocumento();
+    }
+    $scope.borrarWorkflow = function(item)
+    {
+        $scope.subtipos_documento.splice($scope.subtipos_documento.indexOf(item), 1);
+        $scope.borrado_habilitado=false;
     }
     $scope.agregarFirmante = function(codigo,nombre)
     {
@@ -1750,14 +1752,29 @@ angular.module('dec.controllers', [])
         $scope.nuevo_firmante.nombrePerfil=codigo;
         $scope.nuevo_firmante.descripcionPerfil=nombre;
         $scope.documento_workflow.firmantes.push($scope.nuevo_firmante);
-        $scope.creacion_habilitada=false;
-        $scope.nuevo_firmante={};
+        $scope.actualizarSubtipoDocumento("agregarFirmante");
     }
-    $scope.crearUsuario = function()
+    $scope.moverFirmante = function(item, fromIndex, toIndex)
     {
-        $scope.rol_workflow.usuarios.push($scope.nuevo_usuario.rut);
-        $scope.creacion_habilitada=false;
-        $scope.nuevo_usuario={};
+        $scope.documento_workflow.firmantes.splice(fromIndex, 1);
+        $scope.documento_workflow.firmantes.splice(toIndex, 0, item);
+        for(i=0;i<$scope.documento_workflow.firmantes.length;i++)
+        {
+            orden=i+1;
+            $scope.documento_workflow.firmantes[i].orden=orden.toString();
+        }
+        $scope.actualizarSubtipoDocumento("moverFirmante");
+    };
+    $scope.borrarFirmante = function(item)
+    {
+        $scope.documento_workflow.firmantes.splice($scope.documento_workflow.firmantes.indexOf(item), 1);
+        for(i=0;i<$scope.documento_workflow.firmantes.length;i++)
+        {
+            orden=i+1;
+            $scope.documento_workflow.firmantes[i].orden=orden.toString();
+        }
+        $scope.borrado_habilitado=false;
+        $scope.actualizarSubtipoDocumento("borrarFirmante");
     }
     $scope.changeTipo = function(nuevo)
     {
@@ -1775,16 +1792,6 @@ angular.module('dec.controllers', [])
             }                
         }
     }
-    $scope.moverFirmante = function(item, fromIndex, toIndex)
-    {
-        $scope.documento_workflow.firmantes.splice(fromIndex, 1);
-        $scope.documento_workflow.firmantes.splice(toIndex, 0, item);
-        for(i=0;i<$scope.documento_workflow.firmantes.length;i++)
-        {
-            orden=i+1;
-            $scope.documento_workflow.firmantes[i].orden=orden.toString();
-        }
-    };
     $scope.buscarTipos = function()
     {
         if(!$scope.empresa)
@@ -1821,6 +1828,65 @@ angular.module('dec.controllers', [])
             function (response)
             {
                 $scope.tipos_documento=[];
+            }
+        );
+    }
+    $scope.crearSubtipoDocumento = function()
+    {
+        mensaje = generarMensajeCrearSubtipoDocumentos("Crear SubtipoDocumentos",$rootScope.loginData.username,$scope.empresa,$scope.nuevo_documento);
+        $http.post(servidor+"/apis/dec/subtipodocumentos/crear",mensaje,
+        {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
+            function (response) {
+                if (response.status == 200 && response.data.mensaje_dec.header.estado!=1)
+                {
+                    $scope.subtipos_documento.push($scope.nuevo_documento);
+                    $scope.creacion_habilitada=false;
+                    $scope.nuevo_documento={};
+                }
+                else
+                {
+                    if(response.data.mensaje_dec.header.estado==5000)
+                        $scope.showAlert("No tiene autorización para realizar la acción");
+                    else
+                        $scope.showAlert("Falló la creación del documento");
+                    $scope.creacion_habilitada=false;
+                    $scope.nuevo_documento={};
+                }
+            },
+            function (response)
+            {
+                $scope.showAlert("Falló la creación del documento");
+                $scope.creacion_habilitada=false;
+                $scope.nuevo_documento={};
+            }
+        );
+    }
+    $scope.actualizarSubtipoDocumento = function(opcion)
+    {
+        mensaje = generarMensajeCrearSubtipoDocumentos("Actualizar SubtipoDocumentos",$rootScope.loginData.username,$scope.empresa,$scope.documento_workflow);
+        $http.post(servidor+"/apis/dec/subtipodocumentos/actualizar",mensaje,
+        {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
+            function (response) {
+                if (response.status == 200 && response.data.mensaje_dec.header.estado!=1)
+                {
+                    $scope.creacion_habilitada=false;
+                    $scope.nuevo_firmante={};
+                }
+                else
+                {
+                    if(response.data.mensaje_dec.header.estado==5000)
+                        $scope.showAlert("No tiene autorización para realizar la acción");
+                    else
+                        $scope.showAlert("Falló la actualización del documento");
+                    $scope.creacion_habilitada=false;
+                    $scope.nuevo_firmante={};
+                }
+            },
+            function (response)
+            {
+                $scope.showAlert("Falló la actualización del documento");
+                $scope.creacion_habilitada=false;
+                $scope.nuevo_firmante={};
             }
         );
     }
