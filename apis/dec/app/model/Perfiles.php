@@ -258,9 +258,8 @@ class Perfiles {
         return $perfilesIds;
     }
 
-    public function existePerfil($rut, $nombrePerfil){
-    	// Falta buscar la empresa del rut del usuario
-        $busqueda = array('nombrePerfil' => $nombrePerfil );
+    public function existePerfil($empresa, $nombrePerfil){
+        $busqueda = array('nombrePerfil' => $nombrePerfil, "empresa" => $empresa );
         $cursor = self::$ConnMDB->busca("perfiles", $busqueda);
         foreach($cursor as $item){
             return true;
@@ -282,6 +281,7 @@ class Perfiles {
     		"roles" =>  $arrRoles,
 			"nombrePerfil"  =>  $document['mensaje_dec']['mensaje']['nombrePerfil'],
 			"descripcionPerfil"  =>  $document['mensaje_dec']['mensaje']['descripcionPerfil'],
+			"empresa" => $empresa,
 			"estadoPerfil"  =>  "ACTIVO",
 			"tipoPerfil"  =>  "CLIENTES" ,
 			"fechaUltimoEstado" => date("Y-m-d H:i:s")

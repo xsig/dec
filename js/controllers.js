@@ -1975,7 +1975,7 @@ angular.module('dec.controllers', [])
         $http.post(servidor+"/apis/dec/perfiles/crear",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
         function (response) {
-            if (response.status == 200)
+            if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
             {
                 $scope.perfiles.push($scope.nuevo_perfil);
                 $scope.creacion_habilitada=false;
@@ -1985,6 +1985,8 @@ angular.module('dec.controllers', [])
             {
                 if(response.data.mensaje_dec.header.estado==5000)
                     $scope.showAlert("No tiene autorización para realizar la acción");
+                else
+                    $scope.showAlert("Falló la creación del perfil");
                 $scope.creacion_habilitada=false;
                 $scope.nuevo_perfil={};
             }
