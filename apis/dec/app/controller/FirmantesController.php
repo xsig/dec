@@ -10,6 +10,7 @@ use Dec\model\Salida as _Salida;
 use Dec\error\MensajeError as MensajeError;
 use Dec\utils\Funciones as Funciones;
 use Dec\model\Logging as Logging;
+use Dec\model\Perfilamientos as Perfilamientos;
 
 class FirmantesController{
 	private $valid;
@@ -125,6 +126,7 @@ class FirmantesController{
 
 	public function validaMensajeFirmarDocumento($document){
 		$_documentos = new Documentos();
+		$_perfilamiento = new Perfilamientos();
 		$codigoDocAcepta = "";	
 		$codigoFirma="";
 		$rutFirmante="";
@@ -180,6 +182,13 @@ class FirmantesController{
 				if(!$_documentos->sepuedeFirmarDocumento($codigoDocAcepta,$empresa,$nombrePerfilFirmante)){
 					$this->valid=false;
 					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"firmanteOrdenPrioridadInvalido");
+				}
+				if($nombrePerfilFirmante!="PERSONAL")
+				{
+					if(!$_perfilamiento->usuarioTienePerfil($rutFirmante,$nombrePerfilFirmante,$empresa)){
+						$this->valid=false;
+						$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"firmanteNoAutorizado");
+					}
 				}
 			}
 		}

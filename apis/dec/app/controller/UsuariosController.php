@@ -270,7 +270,7 @@ class UsuariosController{
 								if(is_array($perfilesAsociados)){
 									if(count($perfilesAsociados)>0){
 										foreach($perfilesAsociados as $perf){
-											if(!$this->_perfiles->existePerfil($rut_usuario,$perf)){
+											if(!$this->_perfiles->existePerfil($empresa,$perf)){
 												$this->valid=false;
 												$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"perfilNoExiste", "perfilesAsociados",$perf);
 											}
@@ -287,7 +287,7 @@ class UsuariosController{
 								if(is_array($perfilesDesasociados)){
 									if(count($perfilesDesasociados)>0){
 										foreach($perfilesDesasociados as $perf){
-											if(!$this->_perfiles->existePerfil($rut_usuario,$perf)){
+											if(!$this->_perfiles->existePerfil($empresa,$perf)){
 												$this->valid=false;
 												$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"perfilNoExiste", "perfilesDesasociados",$perf);
 											}
@@ -306,7 +306,7 @@ class UsuariosController{
 								if(is_array($perfilesDesasociados)){
 									if(count($perfilesDesasociados)>0){
 										foreach($perfilesDesasociados as $perf){
-											if(!$this->_perfiles->existePerfil($rut_usuario,$perf)){
+											if(!$this->_perfiles->existePerfil($empresa,$perf)){
 													$this->valid=false;
 													$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"perfilNoExiste", "perfilesDesasociados",$perf);
 											}

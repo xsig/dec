@@ -539,35 +539,11 @@ class Usuarios {
     }
     public function getPerfilesUsuarioEmpresa($rutUsuario,$empresa){
         $nombrePerfil =array();
-        $_perfiles = new Perfiles();
-        $_clientes = new Clientes();
-        $_perfilesClientes = new PerfilesClientes();
         $_perfilamiento = new Perfilamientos();
 
-        $idUsuario = $this->traeIdUsuarioPorRut($rutUsuario);
-        $idCliente = $_clientes->traeIdClientePorRut($empresa);
+        $perfiles = $_perfilamiento->traePerfilesUsuarioEmpresa($rutUsuario,$empresa);
 
-        $listaPerfilClientes = $_perfilesClientes->traeListaIdPerfilesPorCliente($idCliente);
-
-        if (is_array($listaPerfilClientes) && count($listaPerfilClientes) > 0){
-            $listaPerfilClientes = $this->func->remove_duplicates_array($listaPerfilClientes);
-            if ($_perfilamiento->validaPerfilamientoPerfilClienteIdUsuario($listaPerfilClientes, $idUsuario)) {
-                    foreach ($listaPerfilClientes as $IDsPC) {
-                        if($_perfilamiento->validaPerfilamientoIdUsuarioPerfilCliente($IDsPC,$idUsuario)) {
-                            $idPerfil = $_perfilesClientes->traeIdPerfilPorIdPerfilCliente($IDsPC);
-                            if ($idPerfil<>0){
-                                $nombre = $_perfiles->traeNombrePerfilPorId($idPerfil);
-                                if ($nombre != ""){
-                                    $nombrePerfil[]=$nombre; 
-                                }                           
-                            }
-
-                        }
-                    }      
-            }
-        }
-        $nombrePerfil = $this->func->remove_duplicates_array($nombrePerfil);
-        return $nombrePerfil;
+        return $perfiles;
     }
 
     public function getEmpresasAsignadasPerfiles($rutUsuario){
@@ -786,9 +762,9 @@ class Usuarios {
             $idPerfil = $_perfiles->traeIdPerfilPorNombreYEmpresa($perf,$idCliente);
             $idPerfilCliente = $_perfilCliente->traeIdPerfilCliente($idPerfil,$idCliente);
             if($idPerfilCliente != 0){
-                if(!$_perfilamiento->validaPerfilamientoIdUsuarioPerfilCliente($idPerfilCliente,$idUsuario)){
+                if(!$_perfilamiento->validaPerfilamientoIdUsuarioPerfil($idPerfil,$idUsuario)){
                     $doc_perfilamiento = array(
-                   "idPerfilCliente" => $idPerfilCliente,
+                   "idPerfil" => $idPerfil,
                    "idUsuario" => $idUsuario,
                    "estado" => "ACTIVO" 
                     );
@@ -836,9 +812,9 @@ class Usuarios {
             $idPerfil = $_perfiles->traeIdPerfilPorNombreYEmpresa($perf,$idCliente);
             $idPerfilCliente = $_perfilCliente->traeIdPerfilCliente($idPerfil,$idCliente);
             if($idPerfilCliente != 0){
-                if($_perfilamiento->validaPerfilamientoIdUsuarioPerfilCliente($idPerfilCliente,$idUsuario)){
+                if($_perfilamiento->validaPerfilamientoIdUsuarioPerfil($idPerfil,$idUsuario)){
                     $doc_perfilamiento = array(
-                       "idPerfilCliente" => $idPerfilCliente,
+                       "idPerfil" => $idPerfil,
                        "idUsuario" => $idUsuario
                         );
                     self::$ConnMDB->eliminaPorBusqueda("perfilamiento",$doc_perfilamiento);

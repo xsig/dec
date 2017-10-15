@@ -162,6 +162,7 @@ class Perfiles {
 		$cursor = self::$ConnMDB->busca("perfiles", $busqueda);
 		//if($cursor->count()>0){
 			foreach($cursor as $item ){
+				    $perf['id']=$item->_id;
 					$perf['codigoPerfil'] =$item->nombrePerfil;
 					$perf['nombrePerfil'] =$item->descripcionPerfil;
 					$perf['roles'] = $_roles->traeListaNombresRolPorListaId($item->roles);

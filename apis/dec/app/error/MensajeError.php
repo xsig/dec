@@ -79,8 +79,11 @@ class MensajeError {
                 # code...
             break;
         }
+        //Falta indicar los errores de privilegios
         if ($tipo != "Sistema" && $error_arr['errCod'] != 10000)
             $documento['mensaje_dec']['header']['estado'] = 1;
+        else
+            $documento['mensaje_dec']['header']['estado'] = 2;
 
         return $documento;
     }
@@ -146,8 +149,11 @@ class MensajeError {
                 # code...
             break;
         }
+        //#TODO Falta indicar los errores de privilegios en el estado
         if ($tipo != "Sistema" && $error_arr['errCod'] != 10000)
             $documento['mensaje_dec']['header']['estado'] = 1;
+        else
+            $documento['mensaje_dec']['header']['estado'] = 5000;
 
         return $documento;
     }

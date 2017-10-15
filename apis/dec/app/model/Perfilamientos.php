@@ -2,6 +2,7 @@
 namespace Dec\model;
 use Dec\database\MongoDBConn as MongoDBConn;
 use Dec\model\Logging as Logging;
+use Dec\model\Usuarios as Usuarios;
 class Perfilamientos {
 	private static $ConnMDB;
 	private $coll;
@@ -19,6 +20,50 @@ class Perfilamientos {
 	private function listaPerfiles(){
 		return 	self::$ConnMDB->lista("perfilamiento");
 	}
+
+	public function traePerfilesUsuarioEmpresa($rutUsuario, $rutEmpresa)
+	{
+		$_perfiles = new Perfiles();
+		$_usuarios = new Usuarios();
+		
+		$idUsuario=$_usuarios->traeIdUsuarioPorRut($rutUsuario);
+		$perfiles=$_perfiles->traePerfilesPorEmpresa($rutEmpresa);
+		$accesos=array();
+		foreach($perfiles as $perfil)
+		{
+			$filtro = array("idUsuario" => $idUsuario, "idPerfil" => $perfil["id"] );
+			$cursor = self::$ConnMDB->busca("perfilamiento", $filtro);
+			foreach($cursor as $item)
+			{
+				$accesos[] = $perfil["nombrePerfil"];
+			}
+		}
+
+		return $accesos;
+	}	
+
+	public function usuarioTienePerfil($rutUsuario, $perfil, $rutEmpresa)
+	{
+		$_perfiles = new Perfiles();
+		$_usuarios = new Usuarios();
+		$filtro = array( "nombrePerfil" => $perfil, "empresa" => $rutEmpresa );
+		$listaPerfiles = $_perfiles->buscaPerfilesFiltros($filtro);
+		if(count($listaPerfiles)==0)
+			return false;
+		else
+		{
+			$idPerfil=$listaPerfiles[0];
+			$idUsuario=$_usuarios->traeIdUsuarioPorRut($rutUsuario);
+			$filtro = array( "idPerfil" => $idPerfil, "idUsuario" => $idUsuario );
+			$cursor = self::$ConnMDB->busca("perfilamiento", $filtro);
+			$autorizado=false;
+			foreach($cursor as $item)
+			{
+				$autorizado=true;
+			}
+			return $autorizado;
+		}	
+	}	
 
 	public function validaPerfilDocumentos($rutUsuario, $rutEmpresa){
 		$_rol = new Roles();
@@ -213,6 +258,16 @@ class Perfilamientos {
 	public function validaPerfilamientoIdUsuarioPerfilCliente($idPerfilCliente, $idUsuario){
 		$_perfilamiento="";
 		$busqueda = array("idPerfilCliente" => $idPerfilCliente , "idUsuario" => $idUsuario ,"estado" => "ACTIVO" );
+		$cursor = self::$ConnMDB->busca("perfilamiento", $busqueda);
+		foreach($cursor as $item ){
+			return true;
+		}
+		return false;
+	}
+
+	public function validaPerfilamientoIdUsuarioPerfil($idPerfil, $idUsuario){
+		$_perfilamiento="";
+		$busqueda = array("idPerfil" => $idPerfil , "idUsuario" => $idUsuario );
 		$cursor = self::$ConnMDB->busca("perfilamiento", $busqueda);
 		foreach($cursor as $item ){
 			return true;
