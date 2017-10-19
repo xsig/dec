@@ -763,6 +763,10 @@ class Usuarios {
             //$idPerfilCliente = $_perfilCliente->traeIdPerfilCliente($idPerfil,$idCliente);
             //if($idPerfilCliente != 0){
                 $idPerfil = $_perfiles->traeIdPerfilesPorNombre($perf);
+                if(count($idPerfil)>0)
+                    $idPerfil=$idPerfil[0];
+                else
+                    $idPerfil=-1;
                 if(!$_perfilamiento->validaPerfilamientoIdUsuarioPerfil($idPerfil,$idUsuario)){
                     $doc_perfilamiento = array(
                    "idPerfil" => $idPerfil,
@@ -814,6 +818,10 @@ class Usuarios {
 //            $idPerfilCliente = $_perfilCliente->traeIdPerfilCliente($idPerfil,$idCliente);
 //            if($idPerfilCliente != 0){
                 $idPerfil = $_perfiles->traeIdPerfilesPorNombre($perf);
+                if(count($idPerfil)>0)
+                    $idPerfil=$idPerfil[0];
+                else
+                    $idPerfil=-1;
                 if($_perfilamiento->validaPerfilamientoIdUsuarioPerfil($idPerfil,$idUsuario)){
                     $doc_perfilamiento = array(
                        "idPerfil" => $idPerfil,
