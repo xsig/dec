@@ -35,7 +35,7 @@ class Perfilamientos {
 			$cursor = self::$ConnMDB->busca("perfilamiento", $filtro);
 			foreach($cursor as $item)
 			{
-				$accesos[] = $perfil["nombrePerfil"];
+				$accesos[] = $perfil["codigoPerfil"];
 			}
 		}
 

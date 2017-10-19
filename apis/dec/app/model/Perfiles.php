@@ -116,7 +116,7 @@ class Perfiles {
 
 	public function traeIdPerfilesPorNombre($nombrePerfil){
 		$perfilesIds = array();
-		$busqueda = array("nombrePerfil" => $nombrePerfil, "estadoPerfil" => "ACTIVO", "tipoPerfil" => "CLIENTES" );
+		$busqueda = array("nombrePerfil" => $nombrePerfil, "estadoPerfil" => "ACTIVO" );
 		$cursor = self::$ConnMDB->busca("perfiles", $busqueda);
 		//if($cursor->count()>0){
 			foreach($cursor as $item){

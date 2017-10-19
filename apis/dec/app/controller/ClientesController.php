@@ -138,7 +138,7 @@ class ClientesController{
 	private function traePerfilesEmpresa($document){
 		$rut = $document['mensaje_dec']['mensaje']['empresa'];
 		$this->salida['mensaje_dec']['mensaje']['empresa'] =$rut;
-		$this->salida['mensaje_dec']['mensaje']['Lista Perfiles'] = $this->_clientes->traePerfilesPorRut($rut);
+		$this->salida['mensaje_dec']['mensaje']['Lista Perfiles'] = $this->_perfiles->traePerfilesPorEmpresa($rut);
 	}
 
 	public function PerfilesEmpresa($document){
