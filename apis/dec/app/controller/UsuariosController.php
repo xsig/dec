@@ -141,17 +141,14 @@ class UsuariosController{
 	
 	public function busquedaUsuario($document){
 		$this->salida = $this->objSalida->seteaSalida("busquedaUsuario",$document);
-		$_perfilamiento = new Perfilamientos();
+/*		$_perfilamiento = new Perfilamientos();
 		if (!$_perfilamiento->validaPerfilServicio("USUARIO BUSQUEDA",$document['mensaje_dec']['header']['usuario'], null)){
 			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"NoPerfilBusquedaUsuario", "perfiles");
-		}
-		else{
-			$this->validaBusquedaUsuario($document);
-			if ($this->valid){
-				$this->traeBusquedaUsuario($document);
-			}			
-		}
-		
+		}*/
+		$this->validaBusquedaUsuario($document);
+		if ($this->valid){
+			$this->traeBusquedaUsuario($document);
+		}			
 		return $this->salida;
 	}
 	
