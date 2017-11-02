@@ -1840,6 +1840,7 @@ angular.module('dec.controllers', [])
                 if (response.status == 200 && response.data.mensaje_dec.header.estado!=1)
                 {
                     $scope.subtipos_documento.push($scope.nuevo_documento);
+                    DocumentosWorkflow.addDocumentoWorkflow($scope.nuevo_documento);
                     $scope.creacion_habilitada=false;
                     $scope.nuevo_documento={};
                 }
@@ -2153,6 +2154,10 @@ dec.factory('DocumentosWorkflow', function() {
                     }
                 }
             }
+        },
+        addDocumentoWorkflow : function(d)
+        {
+            documentos_workflow.push(d);
         },
         getWorkflow : function(id) {
             for(i=0;i<documentos_workflow.length;i++)
