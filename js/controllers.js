@@ -2000,13 +2000,17 @@ angular.module('dec.controllers', [])
         );
     }
 
-    $scope.actualizarPerfil = function()
+    $scope.actualizarPerfil = function(rol)
     {
+        if(rol == null)
+            $scope.perfil.roles.push($scope.nuevo_rol.nombreRol);
+        else
+            $scope.perfil.roles.splice($scope.perfil.roles.indexOf(rol), 1);
         mensaje=generarMensajeIngresaPerfil("Actualiza Perfil",$scope.usuario,$scope.empresa,$scope.perfil);
         $http.post(servidor+"/apis/dec/perfiles/actualizar",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
         function (response) {
-            if (response.status == 200)
+            if (response.status == 200 && response.data.mensaje_dec.header.estado!=1)
             {
                 $scope.creacion_habilitada=false;
                 $scope.borrado_habilitado=false;
@@ -2014,8 +2018,14 @@ angular.module('dec.controllers', [])
             }
             else
             {
+                if(rol == null)
+                    $scope.perfil.roles.splice($scope.perfil.roles.indexOf($scope.nuevo_rol.nombreRol),1);
+                else
+                    $scope.perfil.roles.push(rol);
                 if(response.data.mensaje_dec.header.estado==5000)
                     $scope.showAlert("No tiene autorización para realizar la acción");
+                else
+                    $scope.showAlert("Falló la actualización de roles");
                 $scope.creacion_habilitada=false;
                 $scope.borrado_habilitado=false;
                 $scope.nuevo_rol={};
@@ -2033,14 +2043,20 @@ angular.module('dec.controllers', [])
 
     $scope.agregarRol = function()
     {
-        $scope.perfil.roles.push($scope.nuevo_rol.nombreRol);
-        $scope.actualizarPerfil();
+        if($scope.perfil.roles.indexOf($scope.nuevo_rol.nombreRol)!=-1)
+        {
+            $scope.showAlert("No se puede agregar dos veces el mismo rol");
+            $scope.creacion_habilitada=false;
+            $scope.borrado_habilitado=false;
+            $scope.nuevo_rol={};
+        }
+        else
+            $scope.actualizarPerfil(null);
     }
 
     $scope.quitarRol = function(item)
     {
-        $scope.perfil.roles.splice($scope.perfil.roles.indexOf(item), 1);
-        $scope.actualizarPerfil();
+        $scope.actualizarPerfil(item);
     }
 
     $scope.buscar = function()

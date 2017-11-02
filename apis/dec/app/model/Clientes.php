@@ -227,7 +227,17 @@ class Clientes {
 		}
 		return $_cliente;
 	}
-	
+
+	public function traeClientePorRut($rutCliente){
+		$_cliente=0;
+		$busqueda = array( "datosDemograficos.Rut" => $rutCliente , "estado" => "Activo" );
+		$cursor = self::$ConnMDB->busca("clientes", $busqueda);
+		foreach($cursor as $item ){
+			$_cliente =$item;
+		}
+		return $_cliente;
+	}
+
 	public function traeRutClientePorId($Id){
 		$_cliente=0;
 		$busqueda = array( "_id" => $Id , "estado" => "Activo" );

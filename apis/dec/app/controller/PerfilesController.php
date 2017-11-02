@@ -381,13 +381,14 @@ class PerfilesController{
 
 	private function validaNombreAct($document){
 		$rut_usuario = $document['mensaje_dec']['header']['usuario'];
+		$rut_empresa = $document['mensaje_dec']['mensaje']['empresa'];
 		if (isset($document['mensaje_dec']['mensaje']['nombrePerfil'])){
 			if(empty($document['mensaje_dec']['mensaje']['nombrePerfil'])){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoCodigoPerfilVacio");
 			}
 			else{
-				if (!$this->_perfiles->existePerfil($rut_usuario, $document['mensaje_dec']['mensaje']['nombrePerfil'])){
+				if (!$this->_perfiles->existePerfil($rut_empresa, $document['mensaje_dec']['mensaje']['nombrePerfil'])){
 					$this->valid=false;
 					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoCodigoPerfilNoExiste");
 				}
