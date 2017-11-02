@@ -123,13 +123,13 @@ class SubTipoDocumentos {
 		return $_subtipoDocumento;
 	}
 
-	public function traeArrSubTipoDocumentoPorIdTipoDocumento($idTipoDocumento){
+	public function traeArrSubTipoDocumentoPorIdTipoDocumento($idTipoDocumento,$rut_empresa){
 		$_subtipoDocumento = array();
 		$_subtipoDocumentoArr = array();
-		$busqueda = array("_id" => $idTipoDocumento ,"estado" => "ACTIVO" );
+		$busqueda = array("_id" => $idTipoDocumento ,"empresa" => $rut_empresa, "estado" => "ACTIVO" );
 		$cursor = self::$ConnMDB->busca("tipoDocumento", $busqueda);
 		foreach($cursor as $item ){
-			$_busqueda = array("tipoDocumento" => $item->codigo ,"estado" => "ACTIVO" );
+			$_busqueda = array("tipoDocumento" => $item->codigo ,"empresa" => $rut_empresa,"estado" => "ACTIVO" );
 			$_cursor = self::$ConnMDB->busca("subtipoDocumento", $_busqueda);
 			foreach ($_cursor as $subitem) {
 				$_subtipoDocumentoArr['id'] = $subitem->_id;

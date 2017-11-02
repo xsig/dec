@@ -122,7 +122,7 @@ class TipoDocumentos {
 				$_tdocs['estado'] =$item->estado;
 				$_tdocs['codigo'] =$item->codigo;
 				$_tdocs['empresa'] = $item->empresa;
-				$_tdocs['subtipoDocumentos'] = $_subtDocsClientes->traeArrSubTipoDocumentoPorIdTipoDocumento($item->_id);
+				$_tdocs['subtipoDocumentos'] = $_subtDocsClientes->traeArrSubTipoDocumentoPorIdTipoDocumento($item->_id, $item->empresa);
 				$tipoDocs[] =$_tdocs;
 		}
 		return $tipoDocs;
