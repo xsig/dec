@@ -1,4 +1,4 @@
-<ion-view view-title="Configurar Flujo de Documentos">
+<ion-view view-title="{{razonSocialEmpresaSeleccionada}}: Configurar Flujo de Documentos">
     <ion-nav-buttons side="secondary">
         <button class="button button-clear icon ion-ios-plus-outline" on-release="habilitarCreacion()"></button>
         <!--<button class="button button-clear icon ion-ios-minus-outline" ng-click="habilitarBorrado()"></button>-->
@@ -34,7 +34,7 @@
         </div>
     </form>
     <ion-list show-delete="borrado_habilitado">
-        <ion-item ng-repeat="subtipo_documento in subtipos_documento" href="#/app/workflow/{{empresaSeleccionada}}/{{subtipo_documento.codigo}}">
+        <ion-item ng-repeat="subtipo_documento in subtipos_documento" href="#/app/workflow/{{empresa}}/{{subtipo_documento.codigo}}">
             <div class="row">
                 <div class="col no-padding">{{subtipo_documento.codigo}}</div>
                 <div class="col no-padding">{{subtipo_documento.nombre}}</div>

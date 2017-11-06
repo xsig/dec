@@ -329,9 +329,11 @@ class OperaDocumentosController{
 		{
 			$doc_busqueda['estado'] = $document['mensaje_dec']['mensaje']['estado'];
 		}
+		$rut_usuario = $document["mensaje_dec"]["header"]["usuario"];
+		$rut_empresa = $document["mensaje_dec"]["header"]["empresa"];
 		$doc_busqueda['empresa'] = $document['mensaje_dec']['header']['empresa'];
 
-		$this->salida['mensaje_dec']['mensaje'] = $_Documentos->buscaDocumentosFiltros($doc_busqueda);
+		$this->salida['mensaje_dec']['mensaje'] = $_Documentos->buscaDocumentosFiltros($doc_busqueda,$rut_usuario,$rut_empresa);
 
 	}
 

@@ -1,0 +1,20 @@
+POST http://localhost/apis/dec/firmantes/firmar HTTP/1.1
+content-type: application/json
+
+{
+    "mensaje_dec":
+    {"header":
+    {"usuario":"222222222",
+    "accion":"10",
+    "descripcion":"Usuario - Acciones Usuario",
+    "etiqueta":"Firma un Tercero",
+    "fecha":"2017-11-06T21:41:43.196Z",
+    "empresa":"801234569"},
+    "mensaje":
+    {"codigoDocAcepta":"ACEPTA-0000000098",
+    "codigoFirma":"7650-KQ54-0973-H630",
+    "rutFirmante":"128643036","nombreFirmante":"PABLO SCHWARZENBERG",
+    "nombrePerfilFirmante":"VENDEDOR",
+    "descripcionFirmante":"VENDEDOR"}
+    }
+}

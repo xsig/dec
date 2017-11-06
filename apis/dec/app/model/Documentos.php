@@ -96,8 +96,9 @@ class Documentos {
 		return false;
 	}
 
-	public function buscaDocumentosFiltros($busquedaDocumentos){
-		$_SubTipoDocumentos = new SubTipoDocumentos();
+	public function buscaDocumentosFiltros($busquedaDocumentos,$rut_usuario,$rut_empresa){
+		$_usuarios = new Usuarios();
+		$perfilesUsuario = $_usuarios->perfilesFirmaUsuario($rut_usuario,$rut_empresa);
         $tDocsIds = array();
                 $arrSalidaDocs = array();
         $cursor = self::$ConnMDB->busca("documentos", $busquedaDocumentos);
@@ -115,19 +116,31 @@ class Documentos {
             $tDocsIds['comentario'] = $item->comentario;
 			$tDocsIds['estado'] = $item->estado;
 
-    		$idSubTipoDoc = $_SubTipoDocumentos->traeIdSubTipoDocumentosPorEmpresaSubDoc($item->empresa, $item->subtipoDocumento);
     		$arrFirmante = array();
 			$tDocsIds['firmantes'] = array();
             foreach ($item->firmantes as  $firmante) {
 
-	            $arrFirmante['rutFirmante'] = $firmante->rutFirmante;
+				$arrFirmante['rutFirmante'] = $firmante->rutFirmante;
+				$arrFirmante["nombreFirmante"] = $firmante->nombreFirmante;
 	            $arrFirmante['nombrePerfil'] = $firmante->nombrePerfil;
 	            $arrFirmante['descripcionPerfil'] = $firmante->descripcionPerfil;
 	            $arrFirmante['orden'] = $firmante->orden;
 	            $arrFirmante['codigoFirma'] = $firmante->codigoFirma;
-	            $arrFirmante['estadoFirma'] = $firmante->estadoFirma;
-	            $arrFirmante['usuarios']  = array();
-				$arrFirmante['usuarios'] = $_SubTipoDocumentos->traeUsuariosPerfilSubTipoDocumentos($idSubTipoDoc, $firmante->nombrePerfil);
+				$arrFirmante['estadoFirma'] = $firmante->estadoFirma;
+				if($firmante->estadoFirma=="FIRMADO")
+					$arrFirmante["firmable"] = "N";
+				else
+				{
+					if($firmante->descripcionPerfil=="PERSONAL")
+						$arrFirmante["firmable"]="S";
+					else
+					{
+						if(in_array($firmante->nombrePerfil,$perfilesUsuario))
+							$arrFirmante["firmable"] = "S";
+						else
+							$arrFirmante["firmable"] = "N";
+					}
+				}
 
 				$tDocsIds['firmantes'][] = $arrFirmante; 	            
 

@@ -22,7 +22,7 @@
             <div class="input-label">
               Empresa
             </div>
-            <select ng-model="empresaSeleccionada">
+            <select ng-model="empresaSeleccionada" ng-change="cambiarEmpresa(empresaSeleccionada)">
               <option ng-repeat="empresa in empresas" ng-if="empresas.indexOf(empresa)==0" value="{{empresa.rutEmpresa}}" selected>{{empresa.razonSocial}}</option>
               <option ng-repeat="empresa in empresas" ng-if="empresas.indexOf(empresa)!=0" value="{{empresa.rutEmpresa}}">{{empresa.razonSocial}}</option>
             </select>

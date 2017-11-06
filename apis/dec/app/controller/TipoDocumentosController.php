@@ -207,7 +207,7 @@ class TipoDocumentosController{
 		
 		$listaTipoDocumentos = array();
 
-		$listaTipoDocumentos = $this->_tDocs->traeTipoDocumentosPorListaId($tipoDocumentosId);
+		$listaTipoDocumentos = $this->_tDocs->traeTipoDocumentosPorListaId($tipoDocumentosId,$rut_empresa);
 
 		$this->salida['mensaje_dec']['mensaje'] = $listaTipoDocumentos;
 	}

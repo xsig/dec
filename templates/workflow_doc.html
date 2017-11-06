@@ -7,15 +7,14 @@
     <ion-content>
         <div class="list list-inset" ng-if="creacion_habilitada">
             <ion-list ng-repeat="perfil in perfiles">
-                    <ion-item class="item-button-right">{{perfil.codigoPerfil}}
+                    <ion-item class="item-button-right">{{perfil.nombrePerfil}}
                         <div class="buttons">
-                            <button class="button button-positive icon ion-ios-checkmark-outline" on-release="agregarFirmante('{{perfil.codigoPerfil}}','{{perfil.nombrePerfil}}')"></button>
+                            <button class="button button-positive icon ion-ios-checkmark-outline" on-release="agregarFirmante('{{perfil.nombrePerfil}}','{{perfil.descripcionPerfil}}')"></button>
                         </div>
                     </ion-item>
             </ion-list>
         </div>
         <ion-list show-reorder="ordenacion_habilitada" show-delete="borrado_habilitado" can-swipe="true">
-<!--            <ion-item ng-repeat="firmante in documento_workflow.firmantes" href="#/app/workflow/{{empresaSeleccionada}}/{{documento_workflow.codigo}}/{{firmante.orden}}">-->
             <ion-item ng-repeat="firmante in documento_workflow.firmantes">
                 <ion-delete-button class="ion-minus-circled" ng-click="borrarFirmante(firmante)"></ion-delete-button>
                 <div class="row">

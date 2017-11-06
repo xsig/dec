@@ -873,7 +873,10 @@ angular.module('dec.controllers', [])
                     {
                         $scope.empresas= $scope.usuario.empresasAsignadas;
                         if($scope.empresas.length>0)
+                        {
                             $scope.empresaSeleccionada=$scope.empresas[0].rutEmpresa;
+                            $scope.razonSocialEmpresaSeleccionada=$scope.empresas[0].razonSocial;
+                        }
                     } catch(error)
                     {
                         $scope.empresas=[];
@@ -892,6 +895,19 @@ angular.module('dec.controllers', [])
             }
         );
     };
+
+    $scope.cambiarEmpresa = function(nueva)
+    {
+        $scope.empresaSeleccionada=nueva;
+        for(i=0;i<$scope.empresas.length;i++)
+        {
+            if($scope.empresas[i].rutEmpresa==nueva)
+            {
+                $scope.razonSocialEmpresaSeleccionada=$scope.empresas[i].razonSocial;
+                break;
+            }
+        }
+    }
 
     $scope.recuperarClave = function()
     {
@@ -1358,31 +1374,6 @@ angular.module('dec.controllers', [])
             destino.firmantes[i].usuarios=origen.firmantes[i].usuarios;
     }
 
-    $scope.verificarFirmantes = function(documento)
-    {
-        var i,j;
-        for(i=0;i<documento.firmantes.length;i++)
-        {
-            documento.firmantes[i].firmable=false;
-            if(documento.firmantes[i].estadoFirma=="DISPONIBLE FIRMA")
-            {
-                if(documento.firmantes[i].usuarios.length==0)
-                    documento.firmantes[i].firmable=true;
-                else{
-                    for(j=0;j<documento.firmantes[i].usuarios.length;j++)
-                    {
-                        if(documento.firmantes[i].usuarios[j]==$rootScope.loginData.username)
-                        {
-                            documento.firmantes[i].firmable=true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    $scope.verificarFirmantes($scope.documento);
-
     $scope.unformat_rut = function(s) {
         if(s && s.length>0)
         {
@@ -1395,7 +1386,7 @@ angular.module('dec.controllers', [])
     $scope.firmar = function(nombrePerfil,descripcionPerfil)
     {
         etiqueta="";
-        if(nombrePerfil!="PERSONAL")
+        if(descripcionPerfil!="PERSONAL")
         {
             rut=$rootScope.loginData.username;
             nombre=$rootScope.loginData.nombre;
@@ -1422,7 +1413,6 @@ angular.module('dec.controllers', [])
                     $scope.showAlert("Documento firmado exitosamente");
                     $scope.copiarFirmantes($scope.documento,response.data.mensaje_dec.mensaje);
                     $scope.documento=response.data.mensaje_dec.mensaje;
-                    $scope.verificarFirmantes($scope.documento);
                     docfirma=document.getElementById('docfirma');
                     docfirma.src=$scope.documento.url;
                 }

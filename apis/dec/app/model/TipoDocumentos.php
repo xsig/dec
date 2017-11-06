@@ -106,7 +106,7 @@ class TipoDocumentos {
         return $tDocsIds;
     }
 
-    public function traeTipoDocumentosPorListaId($listaIdTDocs){
+    public function traeTipoDocumentosPorListaId($listaIdTDocs,$rut_empresa){
 		$_tDocsClientes = new TipoDocumentosCliente();
 		$_subtDocsClientes = new SubTipoDocumentos();
 		$listaClientes = array();
@@ -121,8 +121,8 @@ class TipoDocumentos {
 				$_tdocs['nombreTipoDocumento'] =$item->descripcion;
 				$_tdocs['estado'] =$item->estado;
 				$_tdocs['codigo'] =$item->codigo;
-				$_tdocs['empresa'] = $item->empresa;
-				$_tdocs['subtipoDocumentos'] = $_subtDocsClientes->traeArrSubTipoDocumentoPorIdTipoDocumento($item->_id, $item->empresa);
+				$_tdocs['empresa'] = $rut_empresa;
+				$_tdocs['subtipoDocumentos'] = $_subtDocsClientes->traeArrSubTipoDocumentoPorIdTipoDocumento($item->_id, $rut_empresa);
 				$tipoDocs[] =$_tdocs;
 		}
 		return $tipoDocs;

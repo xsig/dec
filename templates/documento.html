@@ -36,12 +36,12 @@
             <ion-list ng-repeat="firmante in documento.firmantes">
                 <ion-item>
                     <div class="row">
-                        <div class="col">{{firmante.descripcionPerfil}}</div>
+                        <div class="col">{{firmante.nombrePerfil}}</div>
                         <div class="col">{{firmante.estadoFirma}}</div>
                         <div class="col">{{firmante.rutFirmante | rutfmt}}</div>
                         <div class="col">{{firmante.nombreFirmante}}</div>
                         <div class="col">
-                            <button ng-if="firmante.firmable"
+                            <button ng-if="firmante.firmable=='S'"
                              style="margin-top: 0px;"
                              class="button button-positive icon ion-ios-compose-outline"
                              on-release="firmar('{{firmante.nombrePerfil}}','{{firmante.descripcionPerfil}}')">

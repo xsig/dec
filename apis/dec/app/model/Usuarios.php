@@ -759,6 +759,15 @@ class Usuarios {
         self::$ConnMDB->actualiza("usuarios", $busqueda, $usuario);
     }
 
+    public function verificaAutorizacionFirma($rutUsuario,$rutEmpresa,$perfil)
+    {
+        $perfiles=$this->perfilesFirmaUsuario($rutUsuario,$rutEmpresa);
+        if(in_array($perfil,$perfiles))
+            return true;
+        else
+            return false;
+    }
+
     public function verificaAutorizacion($rutUsuario,$rutEmpresa,$rol)
     {
         $roles = $this->rolesUsuario($rutUsuario,$rutEmpresa);
@@ -766,6 +775,27 @@ class Usuarios {
             return true;
         else
             return false;
+    }
+
+    public function perfilesFirmaUsuario($rutUsuario,$rutEmpresa)
+    {
+        $id = 0;
+        $_perfiles = new Perfiles();
+        $usuario = $this->traeUsuarioPorRut($rutUsuario);
+        $perfilesFirmanteUsuario=array();
+        foreach ($usuario->empresasAutorizadas as $empresa)
+        {
+            if($empresa->rut==$rutEmpresa)
+            {
+                foreach($empresa->perfiles as $perfil)
+                {
+                    $roles = $_perfiles->traeRolesPorIdPerfil($perfil->id);
+                    if(in_array("FIRMANTE",$roles))
+                        array_push($perfilesFirmanteUsuario,$perfil->nombrePerfil);
+                }
+            }
+        }
+        return $perfilesFirmanteUsuario;
     }
 
     public function rolesUsuario($rutUsuario,$rutEmpresa)

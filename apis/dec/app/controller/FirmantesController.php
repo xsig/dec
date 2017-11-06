@@ -126,7 +126,6 @@ class FirmantesController{
 
 	public function validaMensajeFirmarDocumento($document){
 		$_documentos = new Documentos();
-		$_perfilamiento = new Perfilamientos();
 		$codigoDocAcepta = "";	
 		$codigoFirma="";
 		$rutFirmante="";
@@ -183,11 +182,11 @@ class FirmantesController{
 					$this->valid=false;
 					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"firmanteOrdenPrioridadInvalido");
 				}
-				if($nombrePerfilFirmante!="PERSONAL")
+				if($descripcionFirmante!="PERSONAL")
 				{
-					if(!$_perfilamiento->usuarioTienePerfil($rutFirmante,$nombrePerfilFirmante,$empresa)){
+					if(!$this->_usuarios->verificaAutorizacionFirma($rutFirmante,$empresa,$nombrePerfilFirmante)){
 						$this->valid=false;
-						$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"firmanteNoAutorizado");
+						$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"accesoNegado");
 					}
 				}
 			}
