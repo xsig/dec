@@ -5,7 +5,7 @@
         </div>
         <ion-list ng-repeat="perfil in perfiles">
             <ion-item class="item-button-right">{{perfil.nombrePerfil}}
-                <button class="button button-positive icon ion-ios-plus-outline" on-release="autorizar('{{perfil.codigoPerfil}}','{{perfil.nombrePerfil}}','A')"></button>
+                <button class="button button-positive icon ion-ios-plus-outline" on-release="autorizar('{{perfil.id}}','{{perfil.nombrePerfil}}','A')"></button>
             </ion-item>
         </ion-list>
         <div class="item item-divider item-positive"> 
@@ -13,7 +13,7 @@
         </div>
         <ion-list ng-repeat="perfil in perfiles_usuario">
             <ion-item class="item-button-right">{{perfil.nombrePerfil}}
-                <button class="button button-positive icon ion-ios-minus-outline" on-release="autorizar('{{perfil.codigoPerfil}}','{{perfil.nombrePerfil}}','D')"></button>
+                <button class="button button-positive icon ion-ios-minus-outline" on-release="autorizar('{{perfil.id}}','{{perfil.nombrePerfil}}','D')"></button>
             </ion-item>
         </ion-list>
         <ion-list ng-repeat="error in errores" ng-show="errores">

@@ -1,0 +1,17 @@
+POST http://localhost//apis/dec/usuarios/autorizar/ HTTP/1.1
+content-type: application/json
+
+{
+    "mensaje_dec":
+    {"header":
+    {"usuario":"222222222",
+    "accion":"10",
+    "descripcion":"Usuario - Acciones Usuario",
+    "etiqueta":"Otorgar Perfiles",
+    "fecha":"2017-11-06T02:25:06.298Z"},
+    "mensaje":
+    {"rutUsuario":"222222222",
+    "decisiones":[{"autoriza":"SI","empresa":"801234569","perfiles":[{"id":"28","nombrePerfil":"PRUEBA"}]}]
+    }
+    }
+}

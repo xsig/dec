@@ -491,18 +491,11 @@ class UsuariosController{
 		}
 
 		if(isset($document['mensaje_dec']['mensaje']['empresa'])){
-			$listaEmpresas = $document['mensaje_dec']['mensaje']['empresa'];
-			if(is_array($listaEmpresas) && count($listaEmpresas) > 0){
-				foreach($listaEmpresas as $emp){
-					if (!$this->func->valida_rut($emp)){
-						$this->valid=false;
-						$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"RutEmpInvalidoErr", "empresa",$emp);
-					}
-				}
-			}
-			else{
+			$emp = $document['mensaje_dec']['mensaje']['empresa'];
+			if (!$this->func->valida_rut($emp))
+			{
 				$this->valid=false;
-				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoEmpNoValido");				
+				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"RutEmpInvalidoErr", "empresa",$emp);
 			}
 		}
 	}
@@ -555,25 +548,24 @@ class UsuariosController{
 		$rut_usuario = $document['mensaje_dec']['mensaje']['rutUsuario'];
 		$decisiones = $document['mensaje_dec']['mensaje']['decisiones'];
 		foreach ($decisiones as $decision) {
-			if(strtoupper($decision['autoriza']) == "SI"){
-				if(isset($decision['empresa'])){
+			if(strtoupper($decision['autoriza']) == "SI")
+			{
+				if(isset($decision['empresa']))
+				{
 					$this->_usuarios->autorizaEmpresa($rut_usuario,$decision['empresa']);
 					$this->_usuarios->EliminaConTramite($rut_usuario,$decision['empresa']);
 				}
-				if(isset($decision['perfilesAsociados'])){
-					$this->_usuarios->asociarPerfiles($rut_usuario,$decision['empresa'],$decision['perfilesAsociados']);
-				}
-				if(isset($decision['perfilesDesasociados'])){
-					$this->_usuarios->desasociarPerfiles($rut_usuario,$decision['empresa'],$decision['perfilesDesasociados']);	
+				if(isset($decision['perfiles']))
+				{
+					$this->_usuarios->asociarPerfiles($rut_usuario,$decision['empresa'],$decision['perfiles']);
 				}
 			}
-			if(strtoupper($decision['autoriza']) == "NO"){
-				if(isset($decision['empresa'])){
+			if(strtoupper($decision['autoriza']) == "NO")
+			{
+				if(isset($decision['empresa']))
+				{
 					$this->_usuarios->desautorizaEmpresa($rut_usuario,$decision['empresa']);
 					$this->_usuarios->EliminaConTramite($rut_usuario,$decision['empresa']);
-				}
-				if(isset($decision['perfilesDesasociados'])){
-					$this->_usuarios->desasociarPerfiles($rut_usuario,$decision['empresa'],$decision['perfilesDesasociados']);	
 				}
 			}
 		}
@@ -615,7 +607,6 @@ class UsuariosController{
 				$filtroPerfil = strtoupper($document['mensaje_dec']['mensaje']['perfilUsuario']) ;
 		}
 		
-		//$filtroEstado = "Pendiente";
 		if(isset($document['mensaje_dec']['mensaje']['estado'])){
 			if ($document['mensaje_dec']['mensaje']['estado']!=NULL)
 				$filtroEstado = $document['mensaje_dec']['mensaje']['estado'];
@@ -626,25 +617,19 @@ class UsuariosController{
 				$filtroConTramite = strtoupper($document['mensaje_dec']['mensaje']['conTramite']) ;
 		}
 		
-		$rutEmpresasPermitidas = array();
-		$idEmpresasPermitidas = array();
-		$empresasId = array();
-		$ClientesBusq = array();
-		
-		//$ClientesBusq = $this->_usuarios->traeListaRutClientesAutorizadasPorRut($rut_usuario);
-		//$ClientesBusq = $this->_usuarios->traeListaIdClientesAutorizadasPorRut($rut_usuario);
-		
-		if(isset($document['mensaje_dec']['mensaje']['empresa'])){
-			if ($document['mensaje_dec']['mensaje']['empresa']!=NULL){
-				$ClientesBusq = array_intersect($ClientesBusq,$document['mensaje_dec']['mensaje']['empresa']);
+		if(isset($document['mensaje_dec']['mensaje']['empresa']))
+		{
+			$rut_empresa=$document['mensaje_dec']['mensaje']['empresa'];
+			if ($rut_empresa!=NULL)
+			{
+				if(!$this->_usuarios->verificaAutorizacion($rut_usuario,$rut_empresa,"BUSQUEDA DE USUARIOS"))
+				{
+					$this->salida['mensaje_dec']['mensaje']['ListaUsuarios']=array();
+					return;
+				}
 			}
 		}
 
-		
-		//$Clientes = array_unique(array_merge($idEmpresasPermitidas,$empresasFiltro));
-		
-		
-		// Busqueda de Usuario
 		$busquedaUsuario =  array();
 		if ($filtroRut != "" ){
 			$busquedaUsuario['rut'] = $filtroRut;
@@ -662,35 +647,8 @@ class UsuariosController{
 			$busquedaUsuario['conTramite'] = $filtroConTramite;
 		}
 		
-
-		
-		// $usuariosId =array();
-
-		// if(count($ClientesBusq)>0 && is_array($ClientesBusq)){
-		// 	foreach ($ClientesBusq as $rutEmpresa) {
-		// 		if (){
-
-		// 		}
-				
-		// 	}
-		// 	//$empresasId = $this->_clientes->traeIdClientePorListaRut($ClientesBusq);
-		// }
-
 		$usuariosId = $this->_usuarios->buscaUsuarioFiltros($busquedaUsuario);
 		
-		// Busqueda de Perfil
-		$busquedaPerfil = array();
-		$PerfilesId = array();
-		if ($filtroPerfil != "" ){
-			$busquedaPerfil['nombrePerfil'] = $filtroPerfil;
-			$PerfilesId = $this->_perfiles->traeIdPerfilesPorNombre($busquedaUsuario);
-		}
-		
-		//$PerfilesIdCliente = 
-		
-		
-		// Busqueda de Empresas		
-
 		$this->salida['mensaje_dec']['mensaje']['ListaUsuarios'] = $this->_usuarios->traeUsuariosPorListaIdBusqueda($usuariosId);
 	}
 
@@ -1048,47 +1006,28 @@ class UsuariosController{
 		}
 
 	}
-	private function traeUsuariodatosUsuario($document){
+	private function traeUsuariodatosUsuario($document)
+	{
 		$rut_usuario = $document['mensaje_dec']['header']['usuario'];
-		if ($rut_usuario != "Anonimo"){
+		if ($rut_usuario != "Anonimo")
+		{
 			if (isset($document['mensaje_dec']['mensaje']['rutUsuario']) && 
 				$document['mensaje_dec']['mensaje']['rutUsuario'] != "" && 
-				$document['mensaje_dec']['mensaje']['rutUsuario'] != NULL){
-					$rut_consultar = $document['mensaje_dec']['mensaje']['rutUsuario'];
-					// if ($document['mensaje_dec']['mensaje']['rutUsuario'] == $rut_usuario ){
-					// 	// Traer Datos Usuario
-					// 	if ($this->_usuarios->getUsuarioPorRut($rut_usuario)){
-					// 		$this->salida['mensaje_dec']['mensaje']['ListaUsuario'] = $this->_usuarios->getUsuarioPorRutDatos($rut_usuario);
-					// 		$this->salida['mensaje_dec']['mensaje']['empresasAsignadas'] = $this->_usuarios->getEmpresasAsignadasPerfiles($rut_usuario);
-					// 	}
-					// 	else{
-					// 		$this->valid=false;
-					// 		$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"UsuarioNoExisteErr");
-					// 	}
-					// }
-					// else{
-
-					// 	if ($this->_usuarios->validaPerfilDatosPersonales($rut_usuario, $rut_consultar)){
-					// 		// Traer Datos Rut Consultado
-				if ($this->_usuarios->getUsuarioPorRut($rut_consultar)){
+				$document['mensaje_dec']['mensaje']['rutUsuario'] != NULL)
+			{
+				$rut_consultar = $document['mensaje_dec']['mensaje']['rutUsuario'];
+				if ($this->_usuarios->getUsuarioPorRut($rut_consultar))
+				{
 					$this->salida['mensaje_dec']['mensaje']['ListaUsuario'] = $this->_usuarios->getUsuarioPorRutDatos($rut_consultar);
-					$this->salida['mensaje_dec']['mensaje']['empresasAsignadas'] = $this->_usuarios->getEmpresasAsignadasPerfiles($rut_consultar);
 				}
-				else{
+				else
+				{
 					$this->valid=false;
 					$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"UsuarioNoExisteErr");
 				}
-					// 	}
-					// 	else{
-					// 		//Error Perfil erroneo
-					// 		$this->valid=false;
-					// 		$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"PerfilNoValidoErr");
-					// 	}
-					// }
 			}
-			else{
-				//Traer Datos Usuario
-
+			else
+			{
 				if ($this->_usuarios->getUsuarioPorRut($rut_usuario)){
 					$this->salida['mensaje_dec']['mensaje'] = $this->_usuarios->getUsuarioPorRutDatos($rut_usuario);
 				}
@@ -1098,7 +1037,8 @@ class UsuariosController{
 				}
 			}
 		}
-		else{
+		else
+		{
 			$this->valid=false;
 			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"UsuarioAnonimoErr");	
 		}

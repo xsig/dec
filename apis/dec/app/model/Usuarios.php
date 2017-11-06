@@ -438,7 +438,17 @@ class Usuarios {
         }
         return $_usuario;
     }
-    
+
+    public function traeUsuarioPorRut($rut){
+        $_usuario = 0;
+        $busqueda = array('rut' => $rut );
+        $cursor = self::$ConnMDB->busca("usuarios", $busqueda);
+        foreach($cursor as $users){
+            $_usuario = $users;
+        }
+        return $_usuario;
+    }
+
     public function traeUsuarioPorId($id){
         $_usuario = 0;
         $busqueda = array('_id' => $id );
@@ -537,14 +547,6 @@ class Usuarios {
         }
         return false;
     }
-    public function getPerfilesUsuarioEmpresa($rutUsuario,$empresa){
-        $nombrePerfil =array();
-        $_perfilamiento = new Perfilamientos();
-
-        $perfiles = $_perfilamiento->traePerfilesUsuarioEmpresa($rutUsuario,$empresa);
-
-        return $perfiles;
-    }
 
     public function getEmpresasAsignadasPerfiles($rutUsuario){
         $empresas = array();
@@ -558,7 +560,16 @@ class Usuarios {
                 if (isset($item->empresasAutorizadas)){
                     foreach ($item->empresasAutorizadas as $empresa) {
                        $resultado['empresa'] = $empresa;
-                       $resultado['perfiles'] = $this->getPerfilesUsuarioEmpresa($rutUsuario,$empresa);
+                       $perfiles=array();
+                       if(isset($item->perfiles))
+                       {
+                           foreach ($item->perfiles as $perfil)
+                           {
+                                if($perfil->empresa==$empresa)
+                                    array_push($perfiles,$perfil);
+                           }
+                       }
+                       $resultado['perfiles'] = $perfiles;
                        $result[] = $resultado;
                     }
                 }
@@ -697,231 +708,171 @@ class Usuarios {
         }
     }
 
-    public function modificaEmpresasAsociadas($rutUsuario, $empresa, $tipo){
-        $retorno = false;
-        $empresas = array();
-        $busqueda = array("rut" => $rutUsuario );
-        $cursor = self::$ConnMDB->busca("usuarios", $busqueda);
-        //if($cursor->count()>0){
-            foreach($cursor as $item ){
-                $empresasArr = $item->empresasAutorizadas;
-                if(count($empresasArr)>0){
-                    foreach ($item->empresasAutorizadas as $key => $value) {
-                        if(strtoupper($tipo) == "ELIMINA" && $$empresa == $value ){
-                            $empresasArr = array_delete($value, $empresasArr);
-                            // update usuarios con las empresas eliminadas
-                            // eliminar relacion usuario empresa
-                            $retorno = true;
-                        }
-                    }
-                }
-                if(strtoupper($tipo) == "AGREGA"){
-                    $empresasArr = $empresasArr + array($empresa);
-                    // update usuarios con las empresas agregadas
-                    // crear relacion usuario empresa
-                    $retorno = true;
-                }               
-            }
-        //}
-        return $retorno;
+    public function asociarPerfiles($rutUsuario,$empresa,$perfiles)
+    {
+        $this->agregaPerfiles($rutUsuario,$empresa,$perfiles);
     }
 
-    public function asociarPerfiles($rutUsuario,$empresa,$perfiles){
-        //if (!$this->perfilExiste($rutUsuario,$empresa,$perfiles)){
-            $this->agregaPerfiles($rutUsuario,$empresa,$perfiles);
-        //}
-    }
-
-    public function desasociarPerfiles($rutUsuario,$empresa,$perfiles){
-        //if ($this->perfilExiste($rutUsuario,$empresa,$perfil)){
-            $this->eliminaPerfiles($rutUsuario,$empresa,$perfiles);
-        //}
-    }
-
-    public function autorizaEmpresa($rutUsuario,$empresa){
+    public function autorizaEmpresa($rutUsuario,$empresa)
+    {
         if (!$this->empresaAsociadaExiste($rutUsuario,$empresa)){
             $this->agregaEmpresaAutorizada($rutUsuario,$empresa);
         }
     }
 
-    public function desautorizaEmpresa($rutUsuario,$empresa){
-        if ($this->empresaAsociadaExisteDES($rutUsuario,$empresa)){
+    public function desautorizaEmpresa($rutUsuario,$empresa)
+    {
+        if ($this->empresaAsociadaExisteDES($rutUsuario,$empresa))
+        {
             $this->eliminaEmpresaAutorizada($rutUsuario,$empresa);
         }
     }
 
-    public function agregaPerfiles($rutUsuario,$empresa,$perfiles){
-        $_id = 0;
+    public function agregaPerfiles($rutUsuario,$rutEmpresa,$perfiles)
+    {
+        $id = 0;
         $_perfiles = new Perfiles();
-        $_clientes = new Clientes();
-        $_perfilCliente = new PerfilesClientes();
-        $_perfilamiento = new Perfilamientos();
-        $idUsuario = $this->traeIdUsuarioPorRut($rutUsuario);
-//        $idCliente = $_clientes->traeIdClientePorRut($empresa);
-        foreach ($perfiles as $perf) {
-            //$idPerfil = $_perfiles->traeIdPerfilPorNombreYEmpresa($perf,$idCliente);
-            //$idPerfilCliente = $_perfilCliente->traeIdPerfilCliente($idPerfil,$idCliente);
-            //if($idPerfilCliente != 0){
-                $idPerfil = $_perfiles->traeIdPerfilesPorNombre($perf);
-                if(count($idPerfil)>0)
-                    $idPerfil=$idPerfil[0];
-                else
-                    $idPerfil=-1;
-                if(!$_perfilamiento->validaPerfilamientoIdUsuarioPerfil($idPerfil,$idUsuario)){
-                    $doc_perfilamiento = array(
-                   "idPerfil" => $idPerfil,
-                   "idUsuario" => $idUsuario,
-                   "estado" => "ACTIVO" 
-                    );
-                    $_id =  self::$ConnMDB->ingresa("perfilamiento",$doc_perfilamiento,"perfilamiento_id");
-                }
-            //}
-        }
-    }
-/*
-    public function agregaPerfil($rutUsuario,$empresa,$perfil){
-        $_id = 0;
-        $_perfiles = new Perfiles();
-        $_clientes = new Clientes();
-        $idUsuario = $this->traeIdUsuarioPorRut($rutUsuario);
-        $idPerfil = $_perfiles->traeIdPerfilPorNombre($perfil);
-        $idCliente = $_clientes->traeIdClientePorRut($empresa);
-        $busquedaPerfilCliente = array(
-            "idCliente" => $idCliente ,
-            "idPerfil" => $idPerfil 
-            );
-        $cursor = self::$ConnMDB->busca("PerfilCliente", $busquedaPerfilCliente);
-        //if ($cursor->count()>0){
-            foreach ($cursor as $item) {
-                $idPerfilCliente = $item->_id;
-                $doc_perfilamiento = array(
-                   "idPerfilCliente" => $idPerfilCliente,
-                   "idUsuario" => $idUsuario,
-                   "estado" => "ACTIVO" 
-                    );
-                $_id =  self::$ConnMDB->ingresa("perfilamiento",$doc_perfilamiento,"perfilamiento_id");
+        $usuario = $this->traeUsuarioPorRut($rutUsuario);
+        $valido=true;
+        foreach ($perfiles as $perf)
+        {
+            $idPerfil = $_perfiles->traeIdPerfilesPorNombre($perf["nombrePerfil"]);
+            if(count($idPerfil)==0)
+            {
+                $valido=false;
+                break;
             }
-        //}
-        return $_id;
-    }
-*/
-     public function eliminaPerfiles($rutUsuario,$empresa,$perfiles){
-        $_id = 0;
-        $_perfiles = new Perfiles();
-        $_clientes = new Clientes();
-        $_perfilCliente = new PerfilesClientes();
-        $_perfilamiento = new Perfilamientos();
-        $idUsuario = $this->traeIdUsuarioPorRut($rutUsuario);
-//        $idCliente = $_clientes->traeIdClientePorRut($empresa);
-        foreach ($perfiles as $perf) {
-//            $idPerfil = $_perfiles->traeIdPerfilPorNombreYEmpresa($perf,$idCliente);
-//            $idPerfilCliente = $_perfilCliente->traeIdPerfilCliente($idPerfil,$idCliente);
-//            if($idPerfilCliente != 0){
-                $idPerfil = $_perfiles->traeIdPerfilesPorNombre($perf);
-                if(count($idPerfil)>0)
-                    $idPerfil=$idPerfil[0];
-                else
-                    $idPerfil=-1;
-                if($_perfilamiento->validaPerfilamientoIdUsuarioPerfil($idPerfil,$idUsuario)){
-                    $doc_perfilamiento = array(
-                       "idPerfil" => $idPerfil,
-                       "idUsuario" => $idUsuario
-                        );
-                    self::$ConnMDB->eliminaPorBusqueda("perfilamiento",$doc_perfilamiento);
-                }
-//            }
         }
-    }
-/*
-    public function eliminaPerfil($rutUsuario,$empresa,$perfil){
-        $_id = 0;
-        $_perfiles = new Perfiles();
-        $_clientes = new Clientes();
-        $idUsuario = $this->traeIdUsuarioPorRut($rutUsuario);
-        $idPerfil = $_perfiles->traeIdPerfilPorNombre($perfil);
-        $idCliente = $_clientes->traeIdClientePorRut($empresa);
-        $busquedaPerfilCliente = array(
-            "idCliente" => $idCliente ,
-            "idPerfil" => $idPerfil 
-            );
-        $cursor = self::$ConnMDB->busca("PerfilCliente", $busquedaPerfilCliente);
-        //if ($cursor->count()>0){
-            foreach ($cursor as $item) {
-                $idPerfilCliente = $item->_id;
-                $doc_perfilamiento = array(
-                   "idPerfilCliente" => $idPerfilCliente,
-                   "idUsuario" => $idUsuario
-                    );
-                self::$ConnMDB->eliminaPorBusqueda("perfilamiento",$doc_perfilamiento);
+        if(!$valido)
+            return;
+        $busqueda = array('rut' => $rutUsuario);
+        foreach($usuario->empresasAutorizadas as $empresa)
+        {
+            if($empresa->rut==$rutEmpresa)
+            {
+                $empresa->perfiles=$perfiles;
+                break;                
             }
-        //}
+        }
+        self::$ConnMDB->actualiza("usuarios", $busqueda, $usuario);
     }
-*/
+
+    public function verificaAutorizacion($rutUsuario,$rutEmpresa,$rol)
+    {
+        $roles = $this->rolesUsuario($rutUsuario,$rutEmpresa);
+        if(in_array($rol,$roles))
+            return true;
+        else
+            return false;
+    }
+
+    public function rolesUsuario($rutUsuario,$rutEmpresa)
+    {
+        $id = 0;
+        $_perfiles = new Perfiles();
+        $usuario = $this->traeUsuarioPorRut($rutUsuario);
+        $rolesUsuario=array();
+        foreach ($usuario->empresasAutorizadas as $empresa)
+        {
+            if($empresa->rut==$rutEmpresa)
+            {
+                foreach($empresa->perfiles as $perfil)
+                {
+                    $roles = $_perfiles->traeRolesPorIdPerfil($perfil->id);
+                    foreach($roles as $rol)
+                    {
+                        if(!in_array($rol,$rolesUsuario))
+                            array_push($rolesUsuario,$rol);
+                    }
+                }
+            }
+        }
+        return $rolesUsuario;
+    }
+
     public function agregaEmpresaAutorizada($rutUsuario,$empresa){
-        $_clientes = array();
+        $clientes = array();
         $Solicitados = array();
         $busqueda = array("rut" => $rutUsuario );
         $cursor = self::$ConnMDB->busca("usuarios", $busqueda);
         foreach($cursor as $item ){
-            $_clientes = $item->empresasAutorizadas;
+            $clientes = $item->empresasAutorizadas;
             $Solicitados = $item->empresasSolicitadas;
         }
-        $_clientes[] = $empresa;
-        $_clientes = $this->func->remove_duplicates_array($_clientes);
+        $existe=false;
+        foreach($clientes as $cliente)
+        {
+            if($cliente->rut==$empresa)
+            {
+                $existe=true;
+                break;
+            }
+        }
+        if(!$existe)
+            $clientes[] = array("rut"=>$empresa,"perfiles" => array());
         $Solicitados = $this->func->array_delete($empresa,$Solicitados);
         if ($Solicitados == null ){ $Solicitados = array(); }
         $datosAct = array( 
-            "empresasAutorizadas" => $_clientes ,
+            "empresasAutorizadas" => $clientes ,
             "empresasSolicitadas" => $Solicitados
             );
         $cursor = self::$ConnMDB->actualiza("usuarios", $busqueda, $datosAct);
     }
 
     public function eliminaEmpresaAutorizada($rutUsuario,$empresa){
-        $_clientes = array();
+        $clientes = array();
         $Solicitados = array();
         $busqueda = array("rut" => $rutUsuario );
         $cursor = self::$ConnMDB->busca("usuarios", $busqueda);
-        //if($cursor->count()>0){
-            foreach($cursor as $item ){
-                $_clientes = $item->empresasAutorizadas;
-                $Solicitados = $item->empresasSolicitadas;
+        foreach($cursor as $item )
+        {
+            $clientes = $item->empresasAutorizadas;
+            $Solicitados = $item->empresasSolicitadas;
+        }
+        for($i=0;$i<count($clientes);$i++)
+        {
+            if($clientes[i]->rut==$empresa)
+            {
+                array_splice($clientes,i,1);
+                break;
             }
-        //}
-        $_clientes = $this->func->array_delete($empresa,$_clientes);
-        $_clientes = $this->func->remove_duplicates_array($_clientes);
-        $Solicitados = $this->func->array_delete($empresa,$Solicitados);
+        }
         if ($Solicitados == null ){ $Solicitados = array(); }
         $datosAct = array( 
-            "empresasAutorizadas" => $_clientes ,
+            "empresasAutorizadas" => $clientes ,
             "empresasSolicitadas" => $Solicitados
             );
         $cursor = self::$ConnMDB->actualiza("usuarios", $busqueda, $datosAct);
     }
 
-    public function empresaAsociadaExisteDES($rutUsuario,$empresa){
+    public function empresaAsociadaExisteDES($rutUsuario,$empresa)
+    {
         $_clientes = array();
         $resultado = false;
         $busqueda = array("rut" => $rutUsuario );
         $cursor = self::$ConnMDB->busca("usuarios", $busqueda);
-        //if($cursor->count()>0){
-            foreach($cursor as $item ){
-                foreach ($item->empresasSolicitadas as $empsolic) {
-                    if($empsolic == $empresa){
-                        $resultado = true;
-                    }
-                }
-                foreach ($item->empresasAutorizadas as $empaut) {
-                    if($empaut == $empresa){
-                        $resultado = true;
-                    }
+        foreach($cursor as $item )
+        {
+            foreach ($item->empresasSolicitadas as $empsolic)
+            {
+                if($empsolic == $empresa)
+                {
+                    $resultado = true;
                 }
             }
-        //}
+            foreach ($item->empresasAutorizadas as $empaut)
+            {
+                if($empaut == $empresa)
+                {
+                    $resultado = true;
+                }
+            }
+        }
         return $resultado;
     }
 
-    public function empresaAsociadaExiste($rutUsuario,$empresa){
+    public function empresaAsociadaExiste($rutUsuario,$empresa)
+    {
         $_clientes = array();
         $busqueda = array("rut" => $rutUsuario );
         $listaEmpresas = array();
@@ -934,34 +885,6 @@ class Usuarios {
                 return true;
             }
         }
-        return false;
-    }
-
-    public function perfilExiste($rutUsuario,$empresa,$perfil){
-        $_perfiles = new Perfiles();
-        $_clientes = new Clientes();
-        $idUsuario = $this->traeIdUsuarioPorRut($rutUsuario);
-        $idPerfil = $_perfiles->traeIdPerfilPorNombre($perfil);
-        $idCliente = $_clientes->traeIdClientePorRut($empresa);
-        $busquedaPerfilCliente = array(
-            "idCliente" => $idCliente ,
-            "idPerfil" => $idPerfil 
-            );
-
-        $cursor = self::$ConnMDB->busca("PerfilCliente", $busquedaPerfilCliente);
-        //if ($cursor->count()>0){
-            foreach ($cursor as $item) {
-                $idPerfilCliente = $item->_id;
-                $busquedaPerfilamiento = array(
-                    "idUsuario" => $idUsuario ,
-                    "idPerfilCliente" => $idPerfilCliente 
-                    );            
-                $contador = self::$ConnMDB->count("perfilamiento", $busquedaPerfilamiento);
-                if($contador >0){
-                    return true;
-                }                
-            }
-        //}
         return false;
     }
 
@@ -984,7 +907,8 @@ class Usuarios {
 
     }
 
-    public function ExistenEmpresasSolicitadas($rutUsuario){
+    public function ExistenEmpresasSolicitadas($rutUsuario)
+    {
         $Solicitados = array();
         $busqueda = array("rut" => $rutUsuario);
         $cursor = self::$ConnMDB->busca("usuarios", $busqueda);
@@ -996,5 +920,4 @@ class Usuarios {
         }
         return false;
     }
-
 }

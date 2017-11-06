@@ -24,7 +24,7 @@
             </form>
         </div>
         <ion-list show-delete="borrado_habilitado" can-swipe="true">
-            <ion-item ng-repeat="perfil in perfiles" href="#/app/seguridad/{{empresaSeleccionada}}/{{perfil.nombrePerfil}}">
+            <ion-item ng-repeat="perfil in perfiles" href="#/app/seguridad/{{empresa}}/{{perfil.nombrePerfil}}">
                 <ion-delete-button class="ion-minus-circled" ng-click="borrarPerfil(perfil)"></ion-delete-button>
                 <div class="row">
                     <div class="col no-padding">{{perfil.nombrePerfil}}</div>

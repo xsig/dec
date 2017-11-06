@@ -142,37 +142,34 @@ class Perfiles {
 
 	}
 
-	public function traeRolesPorIdPerfil($IdPerfil){
-		$rolesIds = array();
-		$busqueda = array("_id" => $IdPerfil );
+	public function traeRolesPorIdPerfil($IdPerfil)
+	{
+		$roles = array();
+		$busqueda = array("_id" => floatval($IdPerfil) );
 		$cursor = self::$ConnMDB->busca("perfiles", $busqueda);
-		//if($cursor->count()>0){
-			foreach($cursor as $item){
-				$rolesIds = $item->roles;
-			}	
-		//}
-		return $rolesIds;
+		foreach($cursor as $item)
+		{
+			$roles = $item->roles;
+		}	
+		return $roles;
 	}
 
-	public function traePerfilesPorEmpresa($rut){
-		$_roles = new Roles();
+	public function traePerfilesPorEmpresa($rut)
+	{
 		$perfiles=array();
 		$perf = array();
 		$busqueda = array( "empresa" => $rut  );
 		$cursor = self::$ConnMDB->busca("perfiles", $busqueda);
-		//if($cursor->count()>0){
-			foreach($cursor as $item ){
-				    $perf['id']=$item->_id;
-					$perf['codigoPerfil'] =$item->nombrePerfil;
-					$perf['nombrePerfil'] =$item->descripcionPerfil;
-					$perf['roles'] = $_roles->traeListaNombresRolPorListaId($item->roles);
-					$perf['estado'] =$item->estadoPerfil;
-					$perf['fechaUltEstado'] =$item->fechaUltimoEstado;
-//					$listaClientes  = $_perfilesClientes->traeListaRutClientePorPerfiles($item->_id);
-//					$perf['empresasAsignadas'] = $listaClientes;
-					$perfiles[] =$perf;
-			}
-		//}
+		foreach($cursor as $item )
+		{
+			$perf['id']=$item->_id;
+			$perf['nombrePerfil'] =$item->nombrePerfil;
+			$perf['descripcionPerfil'] =$item->descripcionPerfil;
+			$perf['roles'] = $item->roles;
+			$perf['estado'] =$item->estadoPerfil;
+			$perf['fechaUltEstado'] =$item->fechaUltimoEstado;
+			$perfiles[] =$perf;
+		}
 		return $perfiles;
 	}
 
@@ -274,7 +271,7 @@ class Perfiles {
     	$usuario = new Usuarios();
     	$idCliente = 0;
     	$_idPerfilCliente = 0;
-    	$arrRoles = $rol->traeListaIdRolPorListaNombres($document['mensaje_dec']['mensaje']['roles']);
+    	$arrRoles = $document['mensaje_dec']['mensaje']['roles'];
 		$rut_usuario = $document['mensaje_dec']['header']['usuario'];
 		$empresa = $document['mensaje_dec']['mensaje']['empresa'];
     	$doc_perfil = array(
@@ -287,12 +284,6 @@ class Perfiles {
 			"fechaUltimoEstado" => date("Y-m-d H:i:s")
     	);
 		$_id =  self::$ConnMDB->ingresa("perfiles",$doc_perfil,"perfiles_id");
-
-		$datos_cliente = $cliente->traeClientePorRut($empresa);
-		if(!isset($datos_cliente->perfiles))
-			$datos_cliente->perfiles=array();
-		array_push($datos_cliente->perfiles,$_id);
-		self::$ConnMDB->actualiza("clientes", array("_id"=>$datos_cliente->_id), array("perfiles"=>$datos_cliente->perfiles));
 
         return $_id;
     }
@@ -309,82 +300,11 @@ class Perfiles {
     	$docModPerfil = array();
     	$rut_usuario = $document['mensaje_dec']['header']['usuario']; 
      	$idUsuario = $usuario->traeIdUsuarioPorRut($rut_usuario); 
-		$arrRoles = $rol->traeListaIdRolPorListaNombres($document['mensaje_dec']['mensaje']['roles']);
+		$arrRoles = $document['mensaje_dec']['mensaje']['roles'];
 		$docModPerfil['roles'] = $arrRoles;
 		$docModPerfil['fechaUltimoEstado'] = date("Y-m-d H:i:s");
 		self::$ConnMDB->actualizaPorId("perfiles",$idPerfil,$docModPerfil);
 			
-/*     	if (isset($document['mensaje_dec']['mensaje']['nuevaDescripcion'])){
-    		$docModPerfil['descripcionPerfil'] = $document['mensaje_dec']['mensaje']['nuevaDescripcion'];
-    	}
-
-    	if (isset($document['mensaje_dec']['mensaje']['rolesAltas'])){
-    		$arrRoles = $this->func->arrayMerge( $arrRoles ,$rol->traeListaIdRolPorListaNombres($document['mensaje_dec']['mensaje']['rolesAltas']));
-    	}
-
-    	if (isset($document['mensaje_dec']['mensaje']['rolesBajas'])){
-    		$arrRoles = array_diff($arrRoles, $rol->traeListaIdRolPorListaNombres($document['mensaje_dec']['mensaje']['rolesBajas']));
-    	}
-    	
-    	$arrRoles = $this->func->remove_duplicates_array($arrRoles);
-		$docModPerfil['roles'] = $arrRoles;
-		$docModPerfil['fechaUltimoEstado'] = date("Y-m-d H:i:s");
-
-
-        if(self::$ConnMDB->actualizaPorId("perfiles",$idPerfil,$docModPerfil)){
-        	$hayCambiosEnEmpresa =  0;
-        	if(isset($document['mensaje_dec']['mensaje']['empresasSolicitadasAltas'])){
-        		$arrClientes  = $document['mensaje_dec']['mensaje']['empresasSolicitadasAltas'];
-		        foreach($arrClientes as $rutEmpresa) { 
-					$idCliente = $cliente->traeIdClientePorRut($rutEmpresa);
-			        $doc_perfilCliente= array(
-			        	"idCliente" => $idCliente,
-			        	"idPerfil" => $idPerfil,
-			   			"estado"  => "ACTIVO" 
-			        );
-			        if (!self::$ConnMDB->buscaId("PerfilCliente",$doc_perfilCliente)){
-				        $_idPerfilCliente =  self::$ConnMDB->ingresa("PerfilCliente",$doc_perfilCliente,"PerfilCliente_id");
-
-				        $doc_perfilamiento = array(
-							   "idPerfilCliente" => $_idPerfilCliente,
-							   "idUsuario" => $idUsuario,
-							   "estado" => "ACTIVO"
-				        	);
-				        if (!self::$ConnMDB->buscaId("perfilamiento",$doc_perfilamiento)){
-				        	$_idPerfilamiento=  self::$ConnMDB->ingresa("perfilamiento",$doc_perfilamiento,"perfilamiento_id");	
-				        }
-				        		        	
-			        }
-		    	}
-
-        	}
-        	if(isset($document['mensaje_dec']['mensaje']['empresasSolicitadasBajas'])){
-         		$arrClientes  = $document['mensaje_dec']['mensaje']['empresasSolicitadasBajas'];
-		        foreach($arrClientes as $rutEmpresa) { 
-					$idCliente = $cliente->traeIdClientePorRut($rutEmpresa);
-
-			        $doc_perfilCliente= array(
-			        	"idCliente" => $idCliente,
-			        	"idPerfil" => $idPerfil
-			        );
-			        $_idPerfilCliente =  self::$ConnMDB->buscaId("PerfilCliente",$doc_perfilCliente);
-
-			        if(self::$ConnMDB->eliminaPorId("PerfilCliente",$_idPerfilCliente)){
-						$doc_perfilamiento = array(
-							"idPerfilCliente" => $_idPerfilCliente,
-							"idUsuario" => $idUsuario
-						);
-						$_idPerfilamiento =  self::$ConnMDB->buscaId("perfilamiento",$doc_perfilamiento);
-
-						self::$ConnMDB->eliminaPorId("perfilamiento",$_idPerfilamiento);	
-			        }
-
-		    	}  		
-        	}
-
-
-        }
-*/
         return $idPerfil;
     }
 

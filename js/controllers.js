@@ -114,6 +114,23 @@ function generarMensajeRegistrarUsuario(etiqueta,usuario)
     return JSON.stringify(mensaje);
 }
 
+function generarMensajeConsultaGeneralUsuarios(etiqueta,usuario,empresa,rut,nombre,apellido,estado)
+{
+    mensaje=construirHeader(etiqueta,usuario,"10")
+    mensaje["mensaje_dec"]["mensaje"]["empresa"]=empresa;
+    if(rut.length!=0)
+        mensaje["mensaje_dec"]["mensaje"]["rutUsuario"] = rut;
+    if(nombre.length!=0)
+        mensaje["mensaje_dec"]["mensaje"]["nombreUsuario"] = nombre;
+    if(apellido.length!=0)
+        mensaje["mensaje_dec"]["mensaje"]["apellidoUsuario"] = apellido;
+    if(estado.length!=0)
+        mensaje["mensaje_dec"]["mensaje"]["estado"] = estado;
+
+    return JSON.stringify(mensaje);
+}
+
+
 function generarMensajeConsultaUsuarios(etiqueta,usuario,rut,nombre,apellido,estado)
 {
     mensaje=construirHeader(etiqueta,usuario,"10")
@@ -215,16 +232,14 @@ function generarMensajeAutorizaEmpresa(etiqueta,usuario,rut,empresa,accion)
     return JSON.stringify(mensaje);
 }
 
-function generarMensajeAutorizaPerfil(etiqueta,usuario,rut,empresa,perfil,accion)
+function generarMensajeAutorizaPerfil(etiqueta,usuario,rut,empresa,perfiles)
 {
     mensaje=construirHeader(etiqueta,usuario,"10");
     mensaje["mensaje_dec"]["mensaje"]["rutUsuario"] = rut;
     mensaje["mensaje_dec"]["mensaje"]["decisiones"]=[];
-    mensaje["mensaje_dec"]["mensaje"]["decisiones"].push({"autoriza":"SI","empresa":empresa, "perfilesAsociados":[],"perfilesDesasociados":[]});
-    if(accion=="A")
-        mensaje["mensaje_dec"]["mensaje"]["decisiones"][0].perfilesAsociados.push(perfil);
-    else
-        mensaje["mensaje_dec"]["mensaje"]["decisiones"][0].perfilesDesasociados.push(perfil);
+    mensaje["mensaje_dec"]["mensaje"]["decisiones"].push({"autoriza":"SI","empresa":empresa, "perfiles":[]});
+    for(i=0;i<perfiles.length;i++)
+        mensaje["mensaje_dec"]["mensaje"]["decisiones"][0].perfiles.push({"id":perfiles[i].id,"nombrePerfil":perfiles[i].nombrePerfil});
 
     return JSON.stringify(mensaje);
 }
@@ -900,7 +915,9 @@ angular.module('dec.controllers', [])
         );        
     };
 })
-.controller('UsuariosCtrl', function($scope, $rootScope, $http, $stateParams, $ionicLoading, $ionicPopup) {
+.controller('UsuariosCtrl', function($scope, $rootScope, $http, $stateParams, $ionicLoading, $ionicPopup,$stateParams)
+{
+    $scope.rut_empresa=$stateParams.empresa;    
     $scope.buscar = function()
     {
         var rut=$scope.filtro.rut;
@@ -910,7 +927,7 @@ angular.module('dec.controllers', [])
         $ionicLoading.show({
             template: '<ion-spinner></ion-spinner>'
         });
-        mensaje = generarMensajeConsultaUsuarios("Usuarios",$rootScope.loginData.username, rut,nombre,apellidoPaterno,estado);
+        mensaje = generarMensajeConsultaGeneralUsuarios("Usuarios",$rootScope.loginData.username, $scope.rut_empresa, rut,nombre,apellidoPaterno,estado);
         $http.post(servidor+"/apis/dec/usuarios/busqueda/",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1178,18 +1195,20 @@ angular.module('dec.controllers', [])
     $scope.perfiles_usuario=[];
     $scope.errores=[];
 
-    $scope.autorizar = function(perfil,nombre,accion) {
-        mensaje = generarMensajeAutorizaPerfil("Otorgar Perfiles",$rootScope.loginData.username, $scope.rut, $scope.empresa,perfil,accion);
-        $http.post(servidor+"/apis/dec/usuarios/administraEmpresas/",mensaje,
+    $scope.autorizar = function(perfil,nombre,accion)
+    {
+        $scope.errores=[];
+        if(accion=="A")
+            $scope.agregarPerfil(perfil,nombre);
+        else
+            $scope.quitarPerfil(perfil);
+        mensaje = generarMensajeAutorizaPerfil("Otorgar Perfiles",$rootScope.loginData.username, $scope.rut, $scope.empresa, $scope.perfiles_usuario);
+        $http.post(servidor+"/apis/dec/usuarios/autorizar/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
                 if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
                 {
                     $scope.errores=[];
-                    if(accion=="A")
-                        $scope.agregarPerfil(perfil,nombre);
-                    else
-                        $scope.quitarPerfil(perfil);
                 }
                 else
                 {
@@ -1197,6 +1216,10 @@ angular.module('dec.controllers', [])
                         $scope.showAlert("No tiene autorización para realizar la acción");
                     else
                         $scope.showAlert("No se pudo agregar el perfil");
+                    if(accion=="A")
+                        $scope.quitarPerfil(perfil);
+                    else
+                        $scope.agregarPerfil(perfil,nombre);
                     header=response.data.mensaje_dec.header;
                     $scope.errores=cargarErrores(header.listaDeErroresCampo,header.listaDeErroresNegocio,header.listaDeErroresSistema);
                 }
@@ -1204,6 +1227,10 @@ angular.module('dec.controllers', [])
             function (response)
             {
                 $scope.errores=[];
+                if(accion=="A")
+                    $scope.quitarPerfil(perfil);
+                else
+                    $scope.agregarPerfil(perfil,nombre);
                 $scope.showAlert("Fallo la comunicación con el servicio");
             }
         );
@@ -1214,20 +1241,20 @@ angular.module('dec.controllers', [])
             return;
         for(i=0;i<$scope.perfiles_usuario.length;i++)
         {
-            if($scope.perfiles_usuario[i].codigoPerfil==codigo)
+            if($scope.perfiles_usuario[i].id==codigo)
             {
                 return;
             }
         }
         for(i=0;i<$scope.perfiles.length;i++)
         {
-            if($scope.perfiles[i].codigoPerfil==codigo)
+            if($scope.perfiles[i].id==codigo)
             {
                 $scope.perfiles.splice(i,1);
                 break;
             }
         }
-        perfil={"codigoPerfil":codigo, "nombrePerfil":nombre};
+        perfil={"id":codigo, "nombrePerfil":nombre};
         $scope.perfiles_usuario.push(perfil);
     };
 
@@ -1236,9 +1263,9 @@ angular.module('dec.controllers', [])
             return;
         for(i=0;i<$scope.perfiles_usuario.length;i++)
         {
-            if($scope.perfiles_usuario[i].codigoPerfil==codigo)
+            if($scope.perfiles_usuario[i].id==codigo)
             {
-                $scope.perfiles.push({"codigoPerfil":codigo,"nombrePerfil":$scope.perfiles_usuario[i].nombrePerfil});
+                $scope.perfiles.push({"id":codigo,"nombrePerfil":$scope.perfiles_usuario[i].nombrePerfil});
                 $scope.perfiles_usuario.splice(i,1);
                 return;
             }
@@ -1253,17 +1280,17 @@ angular.module('dec.controllers', [])
                 if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
                 {
                     $scope.usuario = response.data.mensaje_dec.mensaje.ListaUsuario[0];
-                    empresas=response.data.mensaje_dec.mensaje.empresasAsignadas;
+                    empresas=$scope.usuario.empresasAsignadas;
                     if(!empresas)
                         empresas=[];
                     $scope.perfiles_usuario = [];
                     for(i=0;i<empresas.length;i++)
                     {
-                        if(empresas[i].empresa.toUpperCase()==$scope.empresa.toUpperCase())
+                        if(empresas[i].rutEmpresa.toUpperCase()==$scope.empresa.toUpperCase())
                         {
                             for(j=0;j<empresas[i].perfiles.length;j++)
                             {
-                                codigoPerfil=empresas[i].perfiles[j];
+                                codigoPerfil=empresas[i].perfiles[j].id;
                                 perfil=$scope.traductorPerfiles[codigoPerfil];
                                 index=perfiles.indexOf(perfil);
                                 perfiles.splice(index,1);
@@ -1299,7 +1326,7 @@ angular.module('dec.controllers', [])
                 $scope.traductorPerfiles = {};
                 for(i=0;i<perfiles.length;i++)
                 {
-                    $scope.traductorPerfiles[perfiles[i].codigoPerfil]=perfiles[i];
+                    $scope.traductorPerfiles[perfiles[i].id]=perfiles[i];
                 }
                 $scope.buscarPerfilesUsuario(perfiles);
             }

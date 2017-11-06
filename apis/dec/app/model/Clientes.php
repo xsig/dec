@@ -118,9 +118,10 @@ class Clientes {
 
 	public function traeNombresDeEmpresasPorListaDeRuts($listaRuts){
 		$arrRutsEmpresas = array();
-		foreach ($listaRuts as $rut ) {
-			$arrEmpresas["rutEmpresa"] = $rut;
-			$arrEmpresas["razonSocial"] = $this->traeRazonSocialPorRut($rut);
+		foreach ($listaRuts as $empresa ) {
+			$arrEmpresas["rutEmpresa"] = $empresa->rut;
+			$arrEmpresas["razonSocial"] = $this->traeRazonSocialPorRut($empresa->rut);
+			$arrEmpresas["perfiles"]=$empresa->perfiles;
 			$arrRutsEmpresas[] = $arrEmpresas;
 		}
 		return $arrRutsEmpresas;

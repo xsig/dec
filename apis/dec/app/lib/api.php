@@ -427,7 +427,7 @@ class DecApi extends Api
 					case "administraempresas":
 						$this->output=$this->_usuarios->autorizaUsuario($this->document);
 						break;
-					case "autoriza":
+					case "autorizar":
 						$this->output=$this->_usuarios->autorizaUsuario($this->document);
 						break;
 					case "autenticacion":				
