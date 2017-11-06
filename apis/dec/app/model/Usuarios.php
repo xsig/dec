@@ -200,6 +200,8 @@ class Usuarios {
     
     public function ingresaUsuario($document){
         $arrEmpresasAutorizadas = array();
+        $perfiles_globales = array();
+        array_push($perfiles_globales,array("id"=>1,"nombrePerfil"=>"INGRESO WEB"));
         $doc_usuario = array(
             "estado" => "ACTIVO",
             "rut" =>strtoupper($document['mensaje_dec']['mensaje']['rut']) , 
@@ -211,7 +213,8 @@ class Usuarios {
             "correoElectronico" => $document['mensaje_dec']['mensaje']['correoElectronico'],
             "genero" => strtoupper($document['mensaje_dec']['mensaje']['genero']),
             "foto" => (isset($document['mensaje_dec']['mensaje']['foto']) == false )? " ":$document['mensaje_dec']['mensaje']['foto'],
-            "empresasAutorizadas" => array()
+            "empresasAutorizadas" => array(),
+            "perfiles_globales" => $perfiles_globales
         );
 
         if (isset($document['mensaje_dec']['mensaje']['empresasSolicitadas'])){
@@ -236,12 +239,6 @@ class Usuarios {
         }
 
         $idUsuario =  self::$ConnMDB->ingresa("usuarios",$doc_usuario,"usuario_id");
-        $doc_perfilamiento = array(
-                "idUsuario" => $idUsuario ,
-                "idPerfil" => 1.0,
-                "estado" => "ACTIVO"
-            );
-        $idPerfilBasico = self::$ConnMDB->ingresa("perfilamiento",$doc_perfilamiento,"perfilamiento_id");
 
         return $idUsuario;
     }
@@ -275,15 +272,20 @@ class Usuarios {
         }
         if(isset($document['mensaje_dec']['mensaje']['empresasSolicitadas'])){
             if (is_array($document['mensaje_dec']['mensaje']['empresasSolicitadas'])){
-                if (count($document['mensaje_dec']['mensaje']['empresasSolicitadas'])>0){
-                   $doc_actualiza['conTramite'] = "SI" ; 
+                if (count($document['mensaje_dec']['mensaje']['empresasSolicitadas'])>0)
+                {
+                    $doc_actualiza['conTramite'] = "SI" ; 
+                    foreach ( $document['mensaje_dec']['mensaje']['empresasSolicitadas'] as $value)
+                    {
+                        $doc_actualiza['empresasSolicitadas'][] = strtoupper($value) ;
+                    }
                 }
-                foreach ( $document['mensaje_dec']['mensaje']['empresasSolicitadas'] as $value) {
-                    $doc_actualiza['empresasSolicitadas'][] = strtoupper($value) ;
+                else
+                {
+                    $doc_actualiza["conTramite"]="NO";
+                    $doc_actualiza["empresasSolicitadas"]=array();
                 }
             }
-
-            
         }
         $id = self::$ConnMDB->actualiza("usuarios", $busqueda, $doc_actualiza);
         return $id;
@@ -372,7 +374,7 @@ class Usuarios {
                 if (isset($item->empresasSolicitadas) && $item->empresasSolicitadas != null){
                     $_usus['empresasSolicitadas'] = $_clientes->traeNombresDeEmpresasPorListaDeRuts($item->empresasSolicitadas);
                 }
-                $_usus['empresasAsignadas'] = ($item->empresasAutorizadas == null) ? array() : $_clientes->traeNombresDeEmpresasPorListaDeRuts($item->empresasAutorizadas);
+                $_usus['empresasAsignadas'] = ($item->empresasAutorizadas == null) ? array() : $_clientes->traeNombresDeEmpresasPorListaDeEmpresas($item->empresasAutorizadas);
                 $_usuario[] = $_usus;
             }
         //}
@@ -772,6 +774,18 @@ class Usuarios {
         $_perfiles = new Perfiles();
         $usuario = $this->traeUsuarioPorRut($rutUsuario);
         $rolesUsuario=array();
+        if(isset($usuario->perfiles_globales))
+        {
+            foreach ($usuario->perfiles_globales as $perfil)
+            {
+                $roles = $_perfiles->traeRolesPorIdPerfil($perfil->id);
+                foreach($roles as $rol)
+                {
+                    if(!in_array($rol,$rolesUsuario))
+                        array_push($rolesUsuario,$rol);
+                }
+            }
+        }
         foreach ($usuario->empresasAutorizadas as $empresa)
         {
             if($empresa->rut==$rutEmpresa)
@@ -831,9 +845,9 @@ class Usuarios {
         }
         for($i=0;$i<count($clientes);$i++)
         {
-            if($clientes[i]->rut==$empresa)
+            if($clientes[$i]->rut==$empresa)
             {
-                array_splice($clientes,i,1);
+                array_splice($clientes,$i,1);
                 break;
             }
         }
@@ -862,7 +876,7 @@ class Usuarios {
             }
             foreach ($item->empresasAutorizadas as $empaut)
             {
-                if($empaut == $empresa)
+                if($empaut->rut == $empresa)
                 {
                     $resultado = true;
                 }

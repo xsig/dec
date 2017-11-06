@@ -1,0 +1,13 @@
+POST http://localhost/apis/dec/usuarios/datos HTTP/1.1
+content-type: application/json
+
+{"mensaje_dec":
+{"header":
+{"usuario":"222222222",
+"accion":"10",
+"descripcion":"Usuario - Acciones Usuario",
+"etiqueta":"Mis Datos",
+"fecha":"2017-11-06T16:40:55.326Z"},
+"mensaje":{"rutUsuario":"122966445"}
+}
+}

@@ -1,0 +1,16 @@
+POST http://localhost/apis/dec/usuarios/administraEmpresas/ HTTP/1.1
+content-type: application/json
+
+{
+    "mensaje_dec":
+    {"header":
+    {"usuario":"222222222",
+    "accion":"10",
+    "descripcion":"Usuario - Acciones Usuario",
+    "etiqueta":"Consulta datos de Usuarios",
+    "fecha":"2017-11-06T17:07:05.633Z"},
+    "mensaje":
+    {"rutUsuario":"122966445","decisiones":[{"autoriza":"SI","empresa":"801234569"}]
+    }
+    }
+}

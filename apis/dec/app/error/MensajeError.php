@@ -97,7 +97,7 @@ class MensajeError {
             $tipo ="Sistema";
         }
 
-        if($error != "conexionErr"){
+        if($error != "conexionErr" && $error != "accesoNegado"){
             $cursor = self::$ConnMDB->busca($this->coll,$busqueda);
             $contador = self::$ConnMDB->count($this->coll,$busqueda);
             if($contador>0){
@@ -124,7 +124,10 @@ class MensajeError {
         else{
             $tipo="Sistema";
             self::$errCod = 1;
-            self::$errDescripcion = "Error interno en la conexion a la BD";
+            if($error=="accesoNegado")
+                self::$errDescripcion = "Acceso Negado";
+            else
+                self::$errDescripcion = "Error interno en la conexion a la BD";
         }
         $error_arr = array();
         $error_arr['errCod'] = self::$errCod;
@@ -149,8 +152,7 @@ class MensajeError {
                 # code...
             break;
         }
-        //#TODO Falta indicar los errores de privilegios en el estado
-        if ($tipo != "Sistema" && $error_arr['errCod'] != 10000)
+        if ($error != "accesoNegado")
             $documento['mensaje_dec']['header']['estado'] = 1;
         else
             $documento['mensaje_dec']['header']['estado'] = 5000;
