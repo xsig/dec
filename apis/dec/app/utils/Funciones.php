@@ -34,6 +34,7 @@ use PHPMailer as PHPMailer;
 	}
 	
 	public function getURL(){
+//		return "http://34.208.241.57/apis/dec/app/archivos/";
 		return "http://localhost/apis/dec/app/archivos/";
 	}
 	
