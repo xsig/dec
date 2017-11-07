@@ -98,6 +98,7 @@ class Documentos {
 
 	public function buscaDocumentosFiltros($busquedaDocumentos,$rut_usuario,$rut_empresa){
 		$_usuarios = new Usuarios();
+		$pendiente=false;
 		$perfilesUsuario = $_usuarios->perfilesFirmaUsuario($rut_usuario,$rut_empresa);
         $tDocsIds = array();
                 $arrSalidaDocs = array();
@@ -127,10 +128,11 @@ class Documentos {
 	            $arrFirmante['orden'] = $firmante->orden;
 	            $arrFirmante['codigoFirma'] = $firmante->codigoFirma;
 				$arrFirmante['estadoFirma'] = $firmante->estadoFirma;
-				if($firmante->estadoFirma=="FIRMADO")
+				if($firmante->estadoFirma=="FIRMADO" || $pendiente)
 					$arrFirmante["firmable"] = "N";
 				else
 				{
+					$pendiente=true;
 					if($firmante->descripcionPerfil=="PERSONAL")
 						$arrFirmante["firmable"]="S";
 					else
@@ -141,7 +143,6 @@ class Documentos {
 							$arrFirmante["firmable"] = "N";
 					}
 				}
-
 				$tDocsIds['firmantes'][] = $arrFirmante; 	            
 
             }
