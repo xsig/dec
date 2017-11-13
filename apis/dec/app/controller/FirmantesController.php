@@ -201,8 +201,12 @@ class FirmantesController{
 		$nombreFirmante = strtoupper($document['mensaje_dec']['mensaje']['nombreFirmante']) ;
 		$nombrePerfilFirmante = strtoupper($document['mensaje_dec']['mensaje']['nombrePerfilFirmante']) ;
 		$descripcionFirmante = strtoupper($document['mensaje_dec']['mensaje']['descripcionFirmante']) ;
+		$rut_usuario=$document["mensaje_dec"]["header"]["usuario"];
+		$rut_empresa=$document["mensaje_dec"]["header"]["empresa"];
 
 		$idDoc = $_firmante->firmarDocumento(
+					$rut_usuario,
+					$rut_empresa,
 					$codigoDocAcepta,
 					$codigoFirma,
 					$rutFirmante,

@@ -100,7 +100,7 @@ class Firmantes {
 		return true;
 	}
 
-	public function firmarDocumento($idAcepta,$codigoFirma,$rutFirmante,$nombreFirmante,$nombrePerfilFirmante,$descripcionFirmante){
+	public function firmarDocumento($rut_usuario,$rut_empresa,$idAcepta,$codigoFirma,$rutFirmante,$nombreFirmante,$nombrePerfilFirmante,$descripcionFirmante){
 		$_documentos = new Documentos();
 		$new_firmante = array();
 		$tmp_firmante = array();
@@ -108,6 +108,8 @@ class Firmantes {
 		$documento = $_documentos->traeDocumentoPorIdAcepta($idAcepta);
 		$idDoc = $documento->_id;
 		$lastFirmante = 0 ;
+		$_usuarios = new Usuarios();
+		$perfilesUsuario = $_usuarios->perfilesFirmaUsuario($rut_usuario,$rut_empresa);
 		foreach ($documento->firmantes as  $firmante) {
 			$tmp_firmante['rutFirmante'] = $firmante->rutFirmante;
 			$tmp_firmante['nombreFirmante'] = $firmante->nombreFirmante;
@@ -116,8 +118,7 @@ class Firmantes {
 			$tmp_firmante['fechaFirma'] = $firmante->fechaFirma;
 			$tmp_firmante['estadoFirma'] = $firmante->estadoFirma;
 			$tmp_firmante['codigoFirma'] = $firmante->codigoFirma;
-			$tmp_firmante['orden'] = $firmante->orden;	
-
+			$tmp_firmante['orden'] = $firmante->orden;
 			if ($nombrePerfilFirmante == $firmante->nombrePerfil && $descripcionFirmante == $firmante->descripcionPerfil && $firmante->estadoFirma == "DISPONIBLE FIRMA"){
 				$tmp_firmante['rutFirmante'] = $rutFirmante;
 				$tmp_firmante['nombreFirmante'] = $nombreFirmante;
@@ -126,7 +127,7 @@ class Firmantes {
 				$tmp_firmante['fechaFirma'] = date("Y-m-d H:i:s");
 				$tmp_firmante['estadoFirma'] = "FIRMADO";
 				$tmp_firmante['codigoFirma'] = $codigoFirma;
-				$lastFirmante = $firmante->orden;			
+				$lastFirmante = $firmante->orden;
 			}
 
 			$new_firmante[] = $tmp_firmante;
@@ -146,16 +147,14 @@ class Firmantes {
 			}
 
 			$datosAct['firmantes'] =  $new_firmante;
-			$cursor = self::$ConnMDB->actualizaPorId("documentos", $idDoc, $datosAct);			
+			$cursor = self::$ConnMDB->actualizaPorId("documentos", $idDoc, $datosAct);
 		}
 		else{
 			$idDoc = 0 ;
 		}
 
-
 		return $idDoc;
 	}
-
 }
 
 ?>

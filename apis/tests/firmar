@@ -11,10 +11,10 @@ content-type: application/json
     "fecha":"2017-11-06T21:41:43.196Z",
     "empresa":"801234569"},
     "mensaje":
-    {"codigoDocAcepta":"ACEPTA-0000000098",
+    {"codigoDocAcepta":"ACEPTA-0000000099",
     "codigoFirma":"7650-KQ54-0973-H630",
     "rutFirmante":"128643036","nombreFirmante":"PABLO SCHWARZENBERG",
-    "nombrePerfilFirmante":"VENDEDOR",
-    "descripcionFirmante":"VENDEDOR"}
+    "nombrePerfilFirmante":"GERENTE",
+    "descripcionFirmante":"GERENTE"}
     }
 }
