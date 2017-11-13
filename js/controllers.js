@@ -286,6 +286,12 @@ function registrarCambio(e)
         this.label_archivo.innerHTML="Seleccione Archivo(s)";
 }
 
+function unformat_rut(rut) {
+    rut=rut.replace(/\./g,"");
+    rut=rut.replace(/\-/g,"");
+    return rut;
+}
+
 function ordenarApellidos(a,b)
 {
     s1=a.apellidoPaterno.toUpperCase();
@@ -933,10 +939,10 @@ angular.module('dec.controllers', [])
 })
 .controller('UsuariosCtrl', function($scope, $rootScope, $http, $stateParams, $ionicLoading, $ionicPopup,$stateParams)
 {
-    $scope.rut_empresa=$stateParams.empresa;    
+    $scope.rut_empresa=$stateParams.empresa;
     $scope.buscar = function()
     {
-        var rut=$scope.filtro.rut;
+        var rut=unformat_rut($scope.filtro.rut);
         var nombre=$scope.filtro.nombre;
         var apellidoPaterno=$scope.filtro.apellido;
         var estado=$scope.filtro.estado;
@@ -1157,7 +1163,7 @@ angular.module('dec.controllers', [])
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
                     else
-                        $scope.showAlert("No se pudo autorizar la empresa");
+                        $scope.showAlert("No se pudieron modificar las solicitudes");
                     header=response.data.mensaje_dec.header;
                     $scope.errores=cargarErrores(header.listaDeErroresCampo,header.listaDeErroresNegocio,header.listaDeErroresSistema);
                 }

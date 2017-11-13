@@ -870,21 +870,32 @@ class Usuarios {
         $cursor = self::$ConnMDB->busca("usuarios", $busqueda);
         foreach($cursor as $item )
         {
-            $clientes = $item->empresasAutorizadas;
-            $Solicitados = $item->empresasSolicitadas;
+            $autorizadas = $item->empresasAutorizadas;
+            $solicitadas = $item->empresasSolicitadas;
         }
-        for($i=0;$i<count($clientes);$i++)
+        for($i=0;$i<count($solicitadas);$i++)
         {
-            if($clientes[$i]->rut==$empresa)
+            if($solicitadas[$i]==$empresa)
             {
-                array_splice($clientes,$i,1);
+                array_splice($solicitadas,$i,1);
                 break;
             }
         }
-        if ($Solicitados == null ){ $Solicitados = array(); }
+        for($i=0;$i<count($autorizadas);$i++)
+        {
+            if($autorizadas[$i]->rut==$empresa)
+            {
+                array_splice($autorizadas,$i,1);
+                break;
+            }
+        }
+        if ($solicitadas == null )
+            $solicitadas=array();
+        if($autorizadas==null)
+            $autorizadas=array();
         $datosAct = array( 
-            "empresasAutorizadas" => $clientes ,
-            "empresasSolicitadas" => $Solicitados
+            "empresasAutorizadas" => $autorizadas ,
+            "empresasSolicitadas" => $solicitadas
             );
         $cursor = self::$ConnMDB->actualiza("usuarios", $busqueda, $datosAct);
     }

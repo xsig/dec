@@ -756,7 +756,7 @@ class UsuariosController{
 	private function validaFormatoCreaUsuario($document){
 		$this->validaRut($document);
 		$this->validaNombres($document);
-		//$this->validaCorreoElectronico($document);
+		$this->validaCorreoElectronico($document);
 		$this->validaGenero($document);
 		$this->validaClave($document);
 		$this->validaEmpresas($document);
