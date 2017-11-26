@@ -317,7 +317,7 @@ use PHPMailer as PHPMailer;
 		$mail->SMTPAuth = true;
 		$mail->Username = "AKIAIK2HP2DWBHKN4Y7A";
 		$mail->Password = "AnI4JvuMbELKZdWczdfi2jatUhkffcbreyKxX0NgXZL9";
-		$mail->setFrom('cristian.amoretti@ratifica.cl', 'DEC Ratifica');
+		$mail->setFrom('No-Reply@ratifica.cl', 'DEC Ratifica');
 		$mail->addAddress($to_email, $to_name);
 		$mail->Subject = $subject;
 		$mail->Body = $body ;
