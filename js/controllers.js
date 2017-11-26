@@ -1314,9 +1314,12 @@ angular.module('dec.controllers', [])
                             {
                                 codigoPerfil=empresas[i].perfiles[j].id;
                                 perfil=$scope.traductorPerfiles[codigoPerfil];
-                                index=perfiles.indexOf(perfil);
-                                perfiles.splice(index,1);
-                                $scope.perfiles_usuario.push(perfil);
+                                if(perfil!=null)
+                                {
+                                    index=perfiles.indexOf(perfil);
+                                    perfiles.splice(index,1);
+                                    $scope.perfiles_usuario.push(perfil);
+                                }
                             }
                         }
                     }

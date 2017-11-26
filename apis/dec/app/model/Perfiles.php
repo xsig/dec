@@ -114,6 +114,18 @@ class Perfiles {
 		return $perfilId;
 	}
 
+	public function traeIdPerfilPorNombreEmpresa($nombrePerfil,$empresa){
+		$perfilId = 0;
+		$busqueda = array("nombrePerfil" => $nombrePerfil, "empresa" => $empresa, "estadoPerfil" => "ACTIVO", "tipoPerfil" => "CLIENTES" );
+		$cursor = self::$ConnMDB->busca("perfiles", $busqueda);
+		//if($cursor->count()>0){
+			foreach($cursor as $item){
+				$perfilId = $item->_id;
+			}	
+		//}
+		return $perfilId;
+	}
+
 	public function traeIdPerfilesPorNombre($nombrePerfil){
 		$perfilesIds = array();
 		$busqueda = array("nombrePerfil" => $nombrePerfil, "estadoPerfil" => "ACTIVO" );
@@ -152,6 +164,25 @@ class Perfiles {
 			$roles = $item->roles;
 		}	
 		return $roles;
+	}
+
+	public function traePerfilesClientePorEmpresa($rut)
+	{
+		$perfiles=array();
+		$perf = array();
+		$busqueda = array( "empresa" => $rut, "tipoPerfil" => "CLIENTES" );
+		$cursor = self::$ConnMDB->busca("perfiles", $busqueda);
+		foreach($cursor as $item )
+		{
+			$perf['id']=$item->_id;
+			$perf['nombrePerfil'] =$item->nombrePerfil;
+			$perf['descripcionPerfil'] =$item->descripcionPerfil;
+			$perf['roles'] = $item->roles;
+			$perf['estado'] =$item->estadoPerfil;
+			$perf['fechaUltEstado'] =$item->fechaUltimoEstado;
+			$perfiles[] =$perf;
+		}
+		return $perfiles;
 	}
 
 	public function traePerfilesPorEmpresa($rut)
@@ -290,13 +321,11 @@ class Perfiles {
 
     public function actualizaPerfil($document){
     	$rol = new Roles();
-    	$cliente = new Clientes();
     	$usuario = new Usuarios();
-    	$perfCliente = new PerfilesClientes();
     	$idCliente = 0;
-    	$_idPerfilCliente = 0;
-    	$nombrePerfil = $document['mensaje_dec']['mensaje']['nombrePerfil'];
-    	$idPerfil = $this->traeIdPerfilPorNombre($nombrePerfil);
+		$nombrePerfil = $document['mensaje_dec']['mensaje']['nombrePerfil'];
+		$empresa = $document['mensaje_dec']['mensaje']['empresa'];
+    	$idPerfil = $this->traeIdPerfilPorNombreEmpresa($nombrePerfil,$empresa);
     	$docModPerfil = array();
     	$rut_usuario = $document['mensaje_dec']['header']['usuario']; 
      	$idUsuario = $usuario->traeIdUsuarioPorRut($rut_usuario); 
