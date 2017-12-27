@@ -1,0 +1,22 @@
+POST http://localhost/apis/dec/usuarios/enrolar HTTP/1.1
+content-type: application/json
+
+{
+"mensaje_dec":
+{"header":
+{"usuario":"222222222",
+"accion":"10",
+"descripcion":"Enrolar",
+"etiqueta":"Enrolar",
+"fecha":"2017-12-21T01:46:45.805Z",
+"empresa":"801234569"
+},
+"mensaje":
+{"rut":"128643036",
+"Nombre":"PABLO",
+"apellidoPaterno":"SCHWARZENBERG",
+"apellidoMaterno":"RIVEROS",
+"huella":"XX"
+}
+}
+}

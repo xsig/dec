@@ -1,0 +1,35 @@
+<ion-view view-title="Enrolamiento de Usuarios">
+  <ion-content>
+        <form name="misDatosForm" id="misDatosForm">
+        <div class="list">
+            <div class="item item-divider item-positive"> 
+                Datos Personales
+            </div>
+            <label class="item item-input">
+                <span class="input-label">Rut Usuario</span>
+                <input type="text" required dvrut rutlen name="rut" id="rut" ng-minlength="8" ng-model="persona.rut" ng-focus="unformat_rut($event)" ng-blur="format_rut($event)" autofocus ng-model-options="{ updateOn: 'blur' }">
+            </label>
+            <div class="list" ng-show="misDatosForm.username.$dirty && misDatosForm.username.$error.dvrut">
+                <div class="error">El digito verificador no es valido</div>
+            </div>
+            <div class="list" ng-show="misDatosForm.username.$dirty && misDatosForm.username.$error.rutlen">
+                <div class="error">Un rut debe tener al menos 8 caracteres incluyendo digito verificador</div>
+            </div>
+            <label class="item item-input">
+                <span class="input-label">Nombres</span>
+                <input type="text" id="nombres" required ng-model="persona.nombres" ng-model-options="{ debounce: 1000 }">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Apellido paterno</span>
+                <input type="text" id="paterno" required ng-model="persona.apellidoPaterno" ng-model-options="{ debounce: 1000 }">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Apellido materno</span>
+                <input type="text" id="materno" required ng-model="persona.apellidoMaterno" ng-model-options="{ debounce: 1000 }">
+            </label>
+            <div id="container" class="list" ng-if="misDatosForm.$valid" ng-bind-html="generateAppletCall(misDatosForm.$valid)">
+            </div>
+        </div>
+    </form>
+  </ion-content>
+</ion-view>

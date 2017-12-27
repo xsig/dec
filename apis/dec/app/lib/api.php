@@ -409,6 +409,12 @@ class DecApi extends Api
 			break;
 			case 'POST':
 				switch($this->verb){
+					case "enrolar":
+						$this->output=$this->_usuarios->enrolar($this->document);
+						break;
+					case "identificar":
+						$this->output=$this->_usuarios->identificar($this->document);
+						break;
 					case "actualizar":
 						$this->output=$this->_usuarios->actualizaUsuario($this->document);
 						break;

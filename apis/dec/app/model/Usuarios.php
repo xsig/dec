@@ -479,9 +479,6 @@ class Usuarios {
                         }
                     }               
                 }
-                else{
-                    // Buscar Perfil de Administrador Empresa
-                }
             }
         }    
     }

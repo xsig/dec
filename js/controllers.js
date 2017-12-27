@@ -1,6 +1,12 @@
 //var servidor="http://34.208.241.57";
 var servidor="http://localhost";
 
+function clear()
+{
+    var scope=angular.element(document.getElementById('misDatosForm')).scope();
+    scope.clear(true);
+}
+
 function construirHeader(etiqueta,usuario, accion)
 {
     var mensaje = { "mensaje_dec": { "header": {}, "mensaje": {} } };
@@ -348,7 +354,7 @@ var dec=angular.module('dec', ['ionic', 'dec.controllers'])
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
     $stateProvider
 
       .state('app', {
@@ -524,6 +530,16 @@ var dec=angular.module('dec', ['ionic', 'dec.controllers'])
             }
         }
     })
+    .state('app.biometria', {
+        url: '/biometria/:empresa',
+        cache: false,
+        views: {
+            'menuContent': {
+                templateUrl: 'templates/enrolar.html',
+                controller: 'BiometriaCtrl'
+           }
+        }
+    })
     .state('app.upload', {
          url: '/upload/:empresa',
          cache: false,
@@ -564,6 +580,13 @@ var dec=angular.module('dec', ['ionic', 'dec.controllers'])
     }
     
     $urlRouterProvider.otherwise('/app/home');
+    $httpProvider.defaults.cache = false;
+    if (!$httpProvider.defaults.headers.get)
+    {
+      $httpProvider.defaults.headers.get = {};
+    }
+    // disable IE ajax request caching
+    $httpProvider.defaults.headers.get['If-Modified-Since'] = '0';
 });
 
 function format_rut(campo)
@@ -1412,8 +1435,15 @@ angular.module('dec.controllers', [])
             nombre=$scope.firma.nombre_firmante.toUpperCase();
             etiqueta="Firma un Tercero";
         }
+        identificador=document.getElementById('decapplet');
+        resultado=identificador.identificar_persona($rootScope.loginData.username,$scope.empresaSeleccionada,rut);
+        if(!resultado)
+        {
+            $scope.showAlert("No se pudo identificar al firmante");
+            return;
+        }
         mensaje=generarMensajeFirma(etiqueta,$rootScope.loginData.username,$scope.empresaSeleccionada,
-        $scope.documento.idAcepta, "7650-KQ54-0973-H630", rut, nombre, nombrePerfil, descripcionPerfil);
+        $scope.documento.idAcepta, resultado, rut, nombre, nombrePerfil, descripcionPerfil);
         $http.post(servidor+"/apis/dec/firmantes/firmar",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1733,6 +1763,42 @@ angular.module('dec.controllers', [])
             }
         );        
     };
+})
+.controller('BiometriaCtrl', function($scope, $sce, $rootScope, $ionicModal, $timeout, $http, $stateParams, $ionicLoading, DocumentosWorkflow) {
+    $scope.empresa=$stateParams.empresa;
+    $scope.usuario=$rootScope.loginData.username;
+    $scope.clear = function(flag) {
+        $scope.persona={};
+        $scope.persona.usuario=$scope.usuario;
+        $scope.persona.empresa=$scope.empresa;
+        $scope.persona.rut="";
+        $scope.persona.nombres="";
+        $scope.persona.paterno="";
+        $scope.persona.materno="";
+        document.getElementById('rut').value=null;
+        document.getElementById('nombres').value=null;
+        document.getElementById('paterno').value=null;
+        document.getElementById('materno').value=null;
+        if(flag)
+            document.getElementById('rut').focus();
+    }
+    $scope.generateAppletCall = function(estado)
+    {
+        text="";
+        if(estado)
+        {
+            text = "<applet name='decapplet' code = 'Enrolar.class' archive='dec.jar' width = '100' height = '100'>";
+            text = text + "<param name='empresa' value='"+$scope.empresa+"'/>";
+            text = text + "<param name='usuario' value='"+$scope.usuario+"'/>";
+            text = text + "<param name='rut' value='"+$scope.persona.rut+"'/>";
+            text = text + "<param name='nombres' value='"+$scope.persona.nombres+"'/>";
+            text = text + "<param name='paterno' value='"+$scope.persona.apellidoPaterno+"'/>";
+            text = text + "<param name='materno' value='"+$scope.persona.apellidoMaterno+"'/>";
+            text = text + "</applet>";
+        }
+        return $sce.trustAsHtml(text);
+    }
+    $scope.clear(false);
 })
 .controller('WorkflowCtrl', function($scope, $rootScope, $ionicModal, $timeout, $http, $stateParams, $ionicLoading, DocumentosWorkflow) {
     $scope.empresa=$stateParams.empresa;

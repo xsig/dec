@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>DemoCSharpActiveX webpage</title>
+  </head>
+    <body>
+      <object id="xreadercollectionid" name="xreadercollectionid" classid="clsid:CAC5592F-EBA5-487C-AF8A-F35A70FAA33B"></object>
+      <object id="xreaderid" name="xreaderid" classid="clsid:C4287526-1485-48CB-99BB-6CC4A3552B81" events="true"></object>
+      <object id="xenrollmentid" name="xenrollmentid" classid="clsid:A1589E23-FE6E-43D8-9EDF-93142671C47A"></object>
+      <script type="text/javascript">
+          window.onload = function() {
+            try {
+              var obj = document.xreadercollectionid;
+
+              if (obj) {
+                var readers = obj.GetReaders();
+                var rea = readers(0);
+                var reader = rea.ReaderX;
+                (function() {
+                  function reader::On_Captured(v)
+                  {
+                    alert("Hola");
+                  }
+                })();
+		            //eval("function reader::On_Captured (v) {captura(v);}");
+                reader.Open(4);
+                console.log("Reader status: " + reader.GetStatus());
+
+                var resolutions = reader.Resolutions;
+                var resolution = resolutions(0);
+                console.log("Using resolution: " + resolution);
+
+                reader.Capture("ANSI", 0, -1, resolution);
+                console.log("Capture() returns");
+              }
+
+              else {
+                alert("Object is not created!");
+              }
+            }
+            catch (ex) {
+              alert("Some error happens, error message is: " + ex.Description);
+            }
+          }
+
+          </script>
+     </body>
+</html>

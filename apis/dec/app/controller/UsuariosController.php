@@ -8,6 +8,7 @@ use Dec\model\Usuarios as Usuarios;
 use Dec\model\Logging as Logging;
 use Dec\model\Salida as _Salida;
 use Dec\model\Perfilamientos as Perfilamientos;
+use Dec\model\Identidad as Identidad;
 use Dec\error\MensajeError as MensajeError;
 use Dec\utils\Funciones as Funciones;
 
@@ -21,6 +22,7 @@ class UsuariosController{
 	private $_perfiles;
 	private $_tiposDocumentos;
 	private $_clientes;
+	private $_identidad;
 	
 	
 	public function __construct(){
@@ -32,6 +34,7 @@ class UsuariosController{
 		$this->_perfiles = new Perfiles();
 		$this->_tiposDocumentos = new TipoDocumentos();
 		$this->_clientes = new Clientes();
+		$this->_identidad = new Identidad();
 	}
 	
 	public function datosUsuario($document){
@@ -101,6 +104,89 @@ class UsuariosController{
 		return $this->salida;
 	}
 
+	public function identificar($document)
+	{
+		$this->salida = $this->objSalida->seteaSalida("identificar",$document);
+		$this->validaIdentificar($document);
+		if($this->valid)
+		{
+			$rut = strtoupper($document['mensaje_dec']['mensaje']['rut']);
+			$resultado = $this->_identidad->identificar($rut);
+			if($resultado)
+			{
+				$this->salida['mensaje_dec']['header']['glosaEstado'] = "Operación Exitosa";
+				$this->salida['mensaje_dec']['mensaje']=$resultado;				
+			}
+			else
+				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"ActualizaUsuarioErr");
+		}
+		return $this->salida;
+	}
+
+	private function validaIdentificar($document)
+	{
+		$this->valid = true;
+		$this->validaConexion();
+		$this->validaDocumento($document);
+		$this->validaFormatoIdentificar($document);
+	}
+
+	private function validaFormatoIdentificar($document)
+	{
+		$this->validaRutCondicion($document,true);
+	}
+
+	public function enrolar($document)
+	{
+		$this->salida = $this->objSalida->seteaSalida("enrolar",$document);
+		$this->validaEnrolar($document);
+		if($this->valid)
+		{
+			if($this->_identidad->enrolar($document))
+				$this->salida['mensaje_dec']['header']['glosaEstado'] = "Operación Exitosa";
+			else
+				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"ActualizaUsuarioErr");
+		}
+		return $this->salida;
+	}
+
+	private function validaEnrolar($document)
+	{
+		$this->valid = true;
+		$this->validaConexion();
+		$this->validaDocumento($document);
+		$this->validaFormatoEnrolar($document);
+	}
+
+	private function validaFormatoEnrolar($document)
+	{
+		$this->validaRutCondicion($document,false);
+		$this->validaNombresAct($document);
+		$this->validaApellidoPaternoAct($document);
+		$this->validaApellidoMaternoAct($document);
+	}
+
+	private function validaRutCondicion($document,$existe){
+		$rut = strtoupper($document['mensaje_dec']['mensaje']['rut']);
+		if (!$this->func->valida_rut($rut)){
+			$this->valid=false;
+			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"RutInvalidoErr","rut");
+		}
+		if (empty($rut)){
+			$this->valid=false;
+			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"CampoRutVacioErr","rut");
+		}
+		$existe_bd=$this->_identidad->validaRutExiste($rut);
+		if($existe!=$existe_bd)
+		{
+			$this->valid=false;
+			if($existe)
+				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"RutNoExisteErr","rut");
+			else
+				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"RutExisteErr","rut");
+		}
+	}
+
 	public function actualizaUsuario($document){
 		$this->salida = $this->objSalida->seteaSalida("actualizaUsuario",$document);
 		$this->validaActualizaUsuario($document);
@@ -113,7 +199,6 @@ class UsuariosController{
 		}
 		return $this->salida;
 	}
-
 	
 	public function login($document){
 		$this->salida = $this->objSalida->seteaSalida("loginUsuario",$document);
@@ -141,10 +226,6 @@ class UsuariosController{
 	
 	public function busquedaUsuario($document){
 		$this->salida = $this->objSalida->seteaSalida("busquedaUsuario",$document);
-/*		$_perfilamiento = new Perfilamientos();
-		if (!$_perfilamiento->validaPerfilServicio("USUARIO BUSQUEDA",$document['mensaje_dec']['header']['usuario'], null)){
-			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"NoPerfilBusquedaUsuario", "perfiles");
-		}*/
 		$this->validaBusquedaUsuario($document);
 		if ($this->valid){
 			$this->traeBusquedaUsuario($document);
@@ -209,14 +290,6 @@ class UsuariosController{
 		$this->validaDocumento($document);
 		$this->validaFormatoActualizaUsuario($document);
 	}
-//	private function validaDatosUsuario($document){
-//		$this->valid=true;
-//		$this->validaConexion();
-//		$this->validaDocumento($document);
-//		$this->validaFormatoDatosUsuario($document);
-//		$this->validaBusqueda($document);
-//		//$this->validaPerfiles($document);
-//	}
 	
 	private function validaTipoDocumnetos($document){
 		$this->valid = true;
