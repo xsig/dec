@@ -1436,7 +1436,12 @@ angular.module('dec.controllers', [])
             etiqueta="Firma un Tercero";
         }
         identificador=document.getElementById('decapplet');
-        identificador.identificar_persona($rootScope.loginData.username,$scope.empresaSeleccionada,rut);
+        resultado=identificador.identificar_persona($rootScope.loginData.username,$scope.empresaSeleccionada,rut);
+        if(!resultado)
+        {
+            $scope.showAlert("No se pudo identificar al firmante");
+            return;
+        }
         mensaje=generarMensajeFirma(etiqueta,$rootScope.loginData.username,$scope.empresaSeleccionada,
         $scope.documento.idAcepta, resultado, rut, nombre, nombrePerfil, descripcionPerfil);
         $http.post(servidor+"/apis/dec/firmantes/firmar",mensaje,
