@@ -1436,7 +1436,7 @@ angular.module('dec.controllers', [])
             etiqueta="Firma un Tercero";
         }
         identificador=document.getElementById('decapplet');
-        resultado=identificador.identificar_persona($rootScope.loginData.username,$scope.empresaSeleccionada,rut);
+        resultado=identificador.identificar_persona(servidor,$rootScope.loginData.username,$scope.empresaSeleccionada,rut);
         if(!resultado)
         {
             $scope.showAlert("No se pudo identificar al firmante");
@@ -1794,6 +1794,7 @@ angular.module('dec.controllers', [])
             text = text + "<param name='nombres' value='"+$scope.persona.nombres+"'/>";
             text = text + "<param name='paterno' value='"+$scope.persona.apellidoPaterno+"'/>";
             text = text + "<param name='materno' value='"+$scope.persona.apellidoMaterno+"'/>";
+            text = text + "<param name='server' value='"+servidor+"'/>";
             text = text + "</applet>";
         }
         return $sce.trustAsHtml(text);
