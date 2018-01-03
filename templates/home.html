@@ -20,6 +20,7 @@
           <span class="input-label">Clave</span>
           <input type="password" name="password" required ng-model="loginData.password">
         </label>
+        <ion-toggle ng-model="loginData.admin">Modo Administrador</ion-toggle>
         <ion-list ng-repeat="error in errores" ng-show="errores">
           <ion-item class="error">{{error.errDescripcion}}</ion-item>
         </ion-list>

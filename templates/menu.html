@@ -36,16 +36,16 @@
         <ion-item menu-close ng-show="loginData.username" href="#/app/me">
           Mis Datos
         </ion-item>
-        <ion-item menu-close ng-show="loginData.username" href="#/app/usuarios/{{empresaSeleccionada}}">
+        <ion-item menu-close ng-show="loginData.username && loginData.admin" href="#/app/usuarios/{{empresaSeleccionada}}">
           Usuarios
         </ion-item>
-        <ion-item menu-close ng-show="loginData.username" href="#/app/biometria/{{empresaSeleccionada}}">
+        <ion-item menu-close ng-show="loginData.username && loginData.admin" href="#/app/biometria/{{empresaSeleccionada}}">
           Enrolar
         </ion-item>
-        <ion-item menu-close ng-show="loginData.username" href="#/app/seguridad/{{empresaSeleccionada}}">
+        <ion-item menu-close ng-show="loginData.username && loginData.admin" href="#/app/seguridad/{{empresaSeleccionada}}">
           Perfiles
         </ion-item>
-        <ion-item menu-close ng-show="loginData.username" href="#/app/workflow/{{empresaSeleccionada}}">
+        <ion-item menu-close ng-show="loginData.username && loginData.admin" href="#/app/workflow/{{empresaSeleccionada}}">
           Flujo de Documentos
         </ion-item>
         <ion-item menu-close ng-show="loginData.username" href="#/app/documentos/{{empresaSeleccionada}}">

@@ -1,5 +1,6 @@
 //var servidor="http://34.208.241.57";
 var servidor="http://localhost";
+var token=null;
 
 function clear()
 {
@@ -12,6 +13,10 @@ function construirHeader(etiqueta,usuario, accion)
     var mensaje = { "mensaje_dec": { "header": {}, "mensaje": {} } };
     mensaje["mensaje_dec"]["header"]["usuario"] = usuario;
     mensaje["mensaje_dec"]["header"]["accion"] = accion;
+    mensaje["mensaje_dec"]["header"]["etiqueta"]=etiqueta;
+    if(token!=null)
+        mensaje["mensaje_dec"]["header"]["token"]=token;
+
     if(accion=="000004")
         mensaje["mensaje_dec"]["header"]["descripcion"] = "Autentificación Usuario - Password";
     if(accion=="10")
@@ -20,7 +25,6 @@ function construirHeader(etiqueta,usuario, accion)
         mensaje["mensaje_dec"]["header"]["descripcion"]="Olvido de Clave";
     if(accion=="000002")
         mensaje["mensaje_dec"]["header"]["descripcion"]="Registro Nuevo Usuario - Selección de Empresas";
-    mensaje["mensaje_dec"]["header"]["etiqueta"]=etiqueta;
     var d = new Date();
     mensaje["mensaje_dec"]["header"]["fecha"] = d.toJSON();
 
@@ -123,6 +127,7 @@ function generarMensajeRegistrarUsuario(etiqueta,usuario)
 function generarMensajeConsultaGeneralUsuarios(etiqueta,usuario,empresa,rut,nombre,apellido,estado)
 {
     mensaje=construirHeader(etiqueta,usuario,"10")
+    mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
     mensaje["mensaje_dec"]["mensaje"]["empresa"]=empresa;
     if(rut.length!=0)
         mensaje["mensaje_dec"]["mensaje"]["rutUsuario"] = rut;
@@ -193,6 +198,7 @@ function generarMensajeConsultaDocumentos(etiqueta,usuario,empresa,tipo,subtipo,
 function generarMensajeConsultaRoles(etiqueta,usuario,empresa)
 {
     mensaje=construirHeader(etiqueta,usuario,"10");
+    mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
     mensaje["mensaje_dec"]["mensaje"]["empresa"] = empresa;
   
     return JSON.stringify(mensaje);
@@ -201,6 +207,7 @@ function generarMensajeConsultaRoles(etiqueta,usuario,empresa)
 function generarMensajeConsultaPerfiles(etiqueta,usuario,empresa)
 {
     mensaje=construirHeader(etiqueta,usuario,"10");
+    mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
     mensaje["mensaje_dec"]["mensaje"]["empresa"] = empresa;
   
     return JSON.stringify(mensaje);
@@ -209,6 +216,7 @@ function generarMensajeConsultaPerfiles(etiqueta,usuario,empresa)
 function generarMensajeIngresaPerfil(etiqueta,usuario,empresa,perfil)
 {
     mensaje=construirHeader(etiqueta,usuario.rut,"10");
+    mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
     mensaje["mensaje_dec"]["mensaje"]["empresa"] = empresa;
     mensaje["mensaje_dec"]["mensaje"]["nombrePerfil"] = perfil["nombrePerfil"];
     mensaje["mensaje_dec"]["mensaje"]["descripcionPerfil"] = perfil["descripcionPerfil"];
@@ -220,6 +228,7 @@ function generarMensajeIngresaPerfil(etiqueta,usuario,empresa,perfil)
 function generarMensajeConsultaPerfilesEmpresa(etiqueta,usuario,empresa)
 {
     mensaje=construirHeader(etiqueta,usuario,"10");
+    mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
     empresas=[];
     empresas.push(empresa);
     mensaje["mensaje_dec"]["mensaje"]["Filtros"]=[];
@@ -231,6 +240,7 @@ function generarMensajeConsultaPerfilesEmpresa(etiqueta,usuario,empresa)
 function generarMensajeAutorizaEmpresa(etiqueta,usuario,rut,empresa,accion)
 {
     mensaje=construirHeader(etiqueta,usuario,"10");
+    mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
     mensaje["mensaje_dec"]["mensaje"]["rutUsuario"] = rut;
     mensaje["mensaje_dec"]["mensaje"]["decisiones"]=[];
     mensaje["mensaje_dec"]["mensaje"]["decisiones"].push({"autoriza":accion,"empresa":empresa});
@@ -241,6 +251,7 @@ function generarMensajeAutorizaEmpresa(etiqueta,usuario,rut,empresa,accion)
 function generarMensajeAutorizaPerfil(etiqueta,usuario,rut,empresa,perfiles)
 {
     mensaje=construirHeader(etiqueta,usuario,"10");
+    mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
     mensaje["mensaje_dec"]["mensaje"]["rutUsuario"] = rut;
     mensaje["mensaje_dec"]["mensaje"]["decisiones"]=[];
     mensaje["mensaje_dec"]["mensaje"]["decisiones"].push({"autoriza":"SI","empresa":empresa, "perfiles":[]});
@@ -760,7 +771,7 @@ angular.module('dec.controllers', [])
     };
 
     $scope.registrar = function() {
-        mensaje = generarMensajeRegistrarUsuario("Registrarse",$scope.usuario);
+        mensaje = generarMensajeRegistrarUsuario("USUARIO",$scope.usuario);
         $http.post(servidor+"/apis/dec/usuarios/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -775,6 +786,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Falló el registro del usuario");
                     header=response.data.mensaje_dec.header;
@@ -795,6 +810,8 @@ angular.module('dec.controllers', [])
     $scope.loginData = {};
     $rootScope.loggedIn=false;
     $rootScope.loginData=$scope.loginData;
+    $rootScope.token="";
+    $rootScope.admin=false;
     $scope.errores=[];
 
     $scope.format_rut = function(event) {
@@ -817,7 +834,7 @@ angular.module('dec.controllers', [])
     };
 
     $scope.modificar = function () {
-        mensaje = generarMensajeModificarUsuario("Actualizar datos",$scope.loginData.username, $scope.usuario);
+        mensaje = generarMensajeModificarUsuario("USUARIO",$scope.loginData.username, $scope.usuario);
         $http.post(servidor+"/apis/dec/usuarios/actualizar",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -829,8 +846,12 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
-                        $scope.showAlert("Error en la modificación de datos");
+                        $scope.showAlert("Falló la modificación de datos");
                 }
             },
             function (response) {
@@ -855,6 +876,9 @@ angular.module('dec.controllers', [])
     $scope.logout = function() {
         $scope.loginData={};
         $rootScope.loggedIn=false;
+        $rootScope.token="";
+        $rootScope.admin=false;
+        token=null;
         $scope.usuario={};
         $rootScope.loginData=$scope.loginData;
         $ionicHistory.nextViewOptions({
@@ -865,7 +889,7 @@ angular.module('dec.controllers', [])
 
     $scope.doLogin = function() {
         $scope.loginData.username=$scope.loginData.username.replace(/[-.]+/g, '').toUpperCase();
-        mensaje = generarMensajeLogin("Ingresar",$scope.loginData.username, $scope.loginData.password);
+        mensaje = generarMensajeLogin("USUARIO",$scope.loginData.username, $scope.loginData.password);
         $http.post(servidor+"/apis/dec/usuarios/autenticacion",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -873,6 +897,9 @@ angular.module('dec.controllers', [])
                 if ($scope.loginResponse.mensaje_dec.header.estado == 0)
                 {
                     $rootScope.loggedIn = true;
+                    $rootScope.admin = $scope.loginData.admin;
+                    $rootScope.token = response.data.mensaje_dec.header.token;
+                    token=$rootScope.token;
                     $scope.errores=[];
                     $scope.closeLogin();
                     $scope.buscarUsuario();
@@ -890,7 +917,7 @@ angular.module('dec.controllers', [])
     };
 
     $scope.buscarUsuario = function () {
-        mensaje = generarMensajeConsultaUsuarios("Ingresar",$scope.loginData.username, $scope.loginData.username,"","","");
+        mensaje = generarMensajeConsultaUsuarios("USUARIO",$scope.loginData.username, $scope.loginData.username,"","","");
         $http.post(servidor+"/apis/dec/usuarios/datos/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -940,7 +967,7 @@ angular.module('dec.controllers', [])
 
     $scope.recuperarClave = function()
     {
-        mensaje=generarMensajeOlvidoClave("Recuperar Clave",$scope.loginData.username);
+        mensaje=generarMensajeOlvidoClave("USUARIO",$scope.loginData.username);
         $http.post(servidor+"/apis/dec/usuarios/olvidoclave/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -963,6 +990,7 @@ angular.module('dec.controllers', [])
 .controller('UsuariosCtrl', function($scope, $rootScope, $http, $stateParams, $ionicLoading, $ionicPopup,$stateParams)
 {
     $scope.rut_empresa=$stateParams.empresa;
+    $scope.errores=[];
     $scope.buscar = function()
     {
         var rut=unformat_rut($scope.filtro.rut);
@@ -972,7 +1000,7 @@ angular.module('dec.controllers', [])
         $ionicLoading.show({
             template: '<ion-spinner></ion-spinner>'
         });
-        mensaje = generarMensajeConsultaGeneralUsuarios("Usuarios",$rootScope.loginData.username, $scope.rut_empresa, rut,nombre,apellidoPaterno,estado);
+        mensaje = generarMensajeConsultaGeneralUsuarios("ADMINISTRADOR DE USUARIOS",$rootScope.loginData.username, $scope.rut_empresa, rut,nombre,apellidoPaterno,estado);
         $http.post(servidor+"/apis/dec/usuarios/busqueda/",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1003,6 +1031,10 @@ angular.module('dec.controllers', [])
                     $scope.errores=cargarErrores(header.listaDeErroresCampo,header.listaDeErroresNegocio,header.listaDeErroresSistema);
                     if(response.data.mensaje_dec.header.estado==5000)
                         $ionicPopup.alert({title: "DEC",template: "No tiene autorización para realizar la acción"});
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $ionicPopup.alert({title: "DEC",template: "Sesión Expirada"});
+                    }
                     else
                         $ionicPopup.alert({title: "DEC",template: "Falló la búsqueda de usuarios"});
                 }
@@ -1025,7 +1057,7 @@ angular.module('dec.controllers', [])
 .controller('UsuarioCtrl', function($scope, $rootScope, $ionicPopup, $ionicModal, $timeout, $http, $stateParams) {
     $scope.rut=$stateParams.rut;
     $scope.usuario={"rut":""};
-
+    $scope.errores=[];
     $scope.showAlert = function(mensaje) {
         var alertPopup = $ionicPopup.alert({
             title: 'DEC',
@@ -1036,7 +1068,7 @@ angular.module('dec.controllers', [])
         });
     };
 
-    mensaje = generarMensajeConsultaUsuarios("Mis Datos",$rootScope.loginData.username, $scope.rut,"","","");
+    mensaje = generarMensajeConsultaUsuarios("USUARIO",$rootScope.loginData.username, $scope.rut,"","","");
     $http.post(servidor+"/apis/dec/usuarios/datos/",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
         function (response) {
@@ -1055,6 +1087,10 @@ angular.module('dec.controllers', [])
             {
                 if(response.data.mensaje_dec.header.estado==5000)
                     $scope.showAlert("No tiene autorización para realizar la acción");
+                else if(response.data.mensaje_dec.header.estado==6000)
+                {
+                    $scope.showAlert("Sesión Expirada");
+                }
                 $scope.usuario={"rut":""};
             }
         },
@@ -1090,7 +1126,7 @@ angular.module('dec.controllers', [])
 
     $scope.actualizarSolicitudes = function(accion,empresa)
     {
-        mensaje=generarMensajeSolicitaEmpresas("Consulta datos de Usuarios",$rootScope.username,$scope.rut,$scope.empresasSolicitadas);
+        mensaje=generarMensajeSolicitaEmpresas("USUARIO",$rootScope.loginData.username,$scope.rut,$scope.empresasSolicitadas);
         $http.post(servidor+"/apis/dec/usuarios/actualizar",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1101,6 +1137,12 @@ angular.module('dec.controllers', [])
                 }
                 else
                 {
+                    if(response.data.mensaje_dec.header.estado==5000)
+                        $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     if(accion=="A")
                     {
                         $scope.empresasSolicitadas.pop();
@@ -1153,7 +1195,11 @@ angular.module('dec.controllers', [])
     };
                 
     $scope.autorizar = function(empresa,accion) {
-        mensaje = generarMensajeAutorizaEmpresa("Consulta datos de Usuarios",$rootScope.loginData.username, $scope.rut, empresa,accion);
+        if(accion=="SI")
+            etiqueta="ADMINISTRADOR DE EMPRESAS";
+        else
+            etiqueta="USUARIO";
+        mensaje = generarMensajeAutorizaEmpresa(etiqueta,$rootScope.loginData.username, $scope.rut, empresa,accion);
         $http.post(servidor+"/apis/dec/usuarios/administraEmpresas/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1185,6 +1231,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("No se pudieron modificar las solicitudes");
                     header=response.data.mensaje_dec.header;
@@ -1200,7 +1250,7 @@ angular.module('dec.controllers', [])
     };
     $scope.actualizarEmpresas = function()
     {
-        mensaje = generarMensajeConsultaUsuarios("Consulta datos de Usuarios",$rootScope.loginData.username, $scope.rut,"","","");
+        mensaje = generarMensajeConsultaUsuarios("USUARIO",$rootScope.loginData.username, $scope.rut,"","","");
         $http.post(servidor+"/apis/dec/usuarios/datos/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1220,6 +1270,12 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
+                    else
+                        $scope.showAlert("Falló la actualización de empresas");
                     $scope.empresasSolicitadasObjeto=[];
                     $scope.empresasAsignadasObjeto=[];
                 }
@@ -1247,7 +1303,7 @@ angular.module('dec.controllers', [])
             $scope.agregarPerfil(perfil,nombre);
         else
             $scope.quitarPerfil(perfil);
-        mensaje = generarMensajeAutorizaPerfil("Otorgar Perfiles",$rootScope.loginData.username, $scope.rut, $scope.empresa, $scope.perfiles_usuario);
+        mensaje = generarMensajeAutorizaPerfil("ADMINISTRADOR DE USUARIOS",$rootScope.loginData.username, $scope.rut, $scope.empresa, $scope.perfiles_usuario);
         $http.post(servidor+"/apis/dec/usuarios/autorizar/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1259,6 +1315,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("No se pudo agregar el perfil");
                     if(accion=="A")
@@ -1318,7 +1378,7 @@ angular.module('dec.controllers', [])
     };
 
     $scope.buscarPerfilesUsuario = function(perfiles) {
-        mensaje = generarMensajeConsultaUsuarios("Consulta datos de Usuarios",$rootScope.loginData.username, $scope.rut,"","","");
+        mensaje = generarMensajeConsultaUsuarios("ADMINISTRADOR DE USUARIOS",$rootScope.loginData.username, $scope.rut,"","","");
         $http.post(servidor+"/apis/dec/usuarios/datos/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1352,6 +1412,12 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
+                    else
+                        $scope.showAlert("Falló la búsqueda de perfiles");
                     $scope.perfiles_usuario = [];
                     $scope.perfiles=perfiles;
                 }
@@ -1364,7 +1430,7 @@ angular.module('dec.controllers', [])
         );
     }
 
-    mensaje = generarMensajeConsultaPerfiles("Consulta datos de Usuarios",$rootScope.loginData.username, $scope.empresa);
+    mensaje = generarMensajeConsultaPerfiles("ADMINISTRADOR DE USUARIOS",$rootScope.loginData.username, $scope.empresa);
     $http.post(servidor+"/apis/dec/clientes/perfiles/",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
         function (response) {
@@ -1382,6 +1448,10 @@ angular.module('dec.controllers', [])
             {
                 if(response.data.mensaje_dec.header.estado==5000)
                     $scope.showAlert("No tiene autorización para realizar la acción");
+                else if(response.data.mensaje_dec.header.estado==6000)
+                {
+                    $scope.showAlert("Sesión Expirada");
+                }
                 $scope.perfiles = [];
             }
         },
@@ -1398,6 +1468,7 @@ angular.module('dec.controllers', [])
     $scope.firma.nombre_firmante="";
     $scope.documento=DocumentosPendientes.getDocumento($scope.id);
     $scope.usuario=$rootScope.loginData.username;
+    $scope.errores=[];
 
     $scope.copiarFirmantes = function(origen,destino)
     {
@@ -1422,7 +1493,7 @@ angular.module('dec.controllers', [])
         {
             rut=$rootScope.loginData.username;
             nombre=$rootScope.loginData.nombre;
-            etiqueta="Firma Usuario";
+            etiqueta="FIRMANTE";
         }
         else
         {
@@ -1433,10 +1504,10 @@ angular.module('dec.controllers', [])
             }
             rut=$scope.unformat_rut($scope.firma.rut_firmante);
             nombre=$scope.firma.nombre_firmante.toUpperCase();
-            etiqueta="Firma un Tercero";
+            etiqueta="FIRMANTE TERCERO";
         }
         identificador=document.getElementById('decapplet');
-        resultado=identificador.identificar_persona(servidor,$rootScope.loginData.username,$scope.empresaSeleccionada,rut);
+        resultado=identificador.identificar_persona(servidor,token,$rootScope.loginData.username,$scope.empresaSeleccionada,rut);
         if(!resultado)
         {
             $scope.showAlert("No se pudo identificar al firmante");
@@ -1459,6 +1530,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Falló la firma del documento");
                     header=response.data.mensaje_dec.header;
@@ -1475,6 +1550,7 @@ angular.module('dec.controllers', [])
 .controller('DocumentosCtrl', function($scope, $rootScope, $ionicModal, $timeout, $http, $stateParams, $ionicLoading, DocumentosPendientes) {
     $scope.empresa=$stateParams.empresa;
     $scope.filtro={estado: "PENDIENTE FIRMA"};
+    $scope.errores=[];
     $scope.changeTipo = function(nuevo)
     {
         for(i=0;i<$scope.tipos_documento.length;i++)
@@ -1503,7 +1579,7 @@ angular.module('dec.controllers', [])
             $scope.showAlert("El usuario no tiene una empresa asociada");
             return;            
         }
-        mensaje = generarMensajeConsultaTipoDocumentos("Firma Documentos",$rootScope.loginData.username,$scope.empresa);
+        mensaje = generarMensajeConsultaTipoDocumentos("FIRMANTE",$rootScope.loginData.username,$scope.empresa);
         $http.post(servidor+"/apis/dec/TipoDocumentos/busqueda",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1526,6 +1602,10 @@ angular.module('dec.controllers', [])
                     $scope.tipos_documento=[];
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Falló la busqueda de tipos de documento");
                     header=response.data.mensaje_dec.header;
@@ -1549,7 +1629,7 @@ angular.module('dec.controllers', [])
             $scope.showAlert("El usuario no tiene una empresa asociada");
             return;            
         }
-        mensaje = generarMensajeConsultaDocumentos("Firma Documentos",$rootScope.loginData.username,
+        mensaje = generarMensajeConsultaDocumentos("FIRMANTE",$rootScope.loginData.username,
                   $scope.empresa, $scope.tipo_documento_seleccionado,$scope.subtipo_documento_seleccionado,$scope.filtro);
         $http.post(servidor+"/apis/dec/OperaDocumentos/busqueda",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
@@ -1566,6 +1646,10 @@ angular.module('dec.controllers', [])
                     $ionicLoading.hide();
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Falló la busqueda de documentos");
                     header=response.data.mensaje_dec.header;
@@ -1584,6 +1668,7 @@ angular.module('dec.controllers', [])
 })
 .controller('UploadCtrl', function($scope, $rootScope, $ionicModal, $timeout, $http, $stateParams, $ionicLoading, DocumentosPendientes) {
     $scope.empresa=$stateParams.empresa;
+    $scope.errores=[];
 
     $scope.inicializar = function()
     {
@@ -1611,7 +1696,7 @@ angular.module('dec.controllers', [])
                     $scope.showAlert("Archivo de formato incorrecto");
                     return;
                 }
-                mensaje=generarMensajeUpload("Cargar documentos",$rootScope.loginData.username, $scope.empresa,
+                mensaje=generarMensajeUpload("REGISTRADOR DE DOCUMENTOS",$rootScope.loginData.username, $scope.empresa,
                 $scope.tipo_documento_seleccionado, $scope.subtipo_documento_seleccionado, f.name, descripcion, contenido[1], f.size);
                 $http.post(servidor+"/apis/dec/OperaDocumentos/carga",mensaje,
                 {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
@@ -1632,6 +1717,10 @@ angular.module('dec.controllers', [])
                         $ionicLoading.hide();
                         if(response.data.mensaje_dec.header.estado==5000)
                             $scope.showAlert("No tiene autorización para realizar la acción");
+                        else if(response.data.mensaje_dec.header.estado==6000)
+                        {
+                            $scope.showAlert("Sesión Expirada");
+                        }
                         else
                             $scope.showAlert("Falló la carga de documentos");
                     }
@@ -1683,7 +1772,7 @@ angular.module('dec.controllers', [])
             $scope.showAlert("El usuario no tiene una empresa asociada");
             return;            
         }
-        mensaje = generarMensajeConsultaTipoDocumentos("Cargar documentos",$rootScope.loginData.username,$scope.empresa);
+        mensaje = generarMensajeConsultaTipoDocumentos("FIRMANTE",$rootScope.loginData.username,$scope.empresa);
         $http.post(servidor+"/apis/dec/TipoDocumentos/busqueda",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1705,6 +1794,10 @@ angular.module('dec.controllers', [])
                     $scope.tipos_documento=[];
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Falló la busqueda de tipos de documento");
                     header=response.data.mensaje_dec.header;
@@ -1721,6 +1814,7 @@ angular.module('dec.controllers', [])
     $scope.inicializar();
 })
 .controller('ClaveCtrl', function($scope, $rootScope, $ionicPopup, $ionicModal, $timeout, $http, $stateParams) {
+    $scope.errores=[];
     $scope.showAlert = function(mensaje) {
         var alertPopup = $ionicPopup.alert({
             title: 'DEC',
@@ -1740,7 +1834,7 @@ angular.module('dec.controllers', [])
     };
     $scope.cambiarClave = function()
     {
-        mensaje=generarMensajeCambioClave("Cambiar Clave",$scope.cuenta.username,$scope.cuenta.clave);
+        mensaje=generarMensajeCambioClave("USUARIO",$scope.cuenta.username,$scope.cuenta.clave);
         $http.post(servidor+"/apis/dec/usuarios/cambioclave/",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1753,6 +1847,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Fallo el cambio de clave");
                 }
@@ -1767,6 +1865,7 @@ angular.module('dec.controllers', [])
 .controller('BiometriaCtrl', function($scope, $sce, $rootScope, $ionicModal, $timeout, $http, $stateParams, $ionicLoading, DocumentosWorkflow) {
     $scope.empresa=$stateParams.empresa;
     $scope.usuario=$rootScope.loginData.username;
+    $scope.errores=[];
     $scope.clear = function(flag) {
         $scope.persona={};
         $scope.persona.usuario=$scope.usuario;
@@ -1795,6 +1894,7 @@ angular.module('dec.controllers', [])
             text = text + "<param name='paterno' value='"+$scope.persona.apellidoPaterno+"'/>";
             text = text + "<param name='materno' value='"+$scope.persona.apellidoMaterno+"'/>";
             text = text + "<param name='server' value='"+servidor+"'/>";
+            text = text + "<param name='token' value='"+token+"'/>";
             text = text + "</applet>";
         }
         return $sce.trustAsHtml(text);
@@ -1813,6 +1913,7 @@ angular.module('dec.controllers', [])
     $scope.borrado_habilitado=false;
     $scope.ordenacion_habilitada=false;
     $scope.perfiles=[];
+    $scope.errores=[];
     $scope.habilitarCreacion=function()
     {
         if(!$scope.borrado_habilitado)
@@ -1893,7 +1994,7 @@ angular.module('dec.controllers', [])
             $scope.showAlert("El usuario no tiene una empresa asociada");
             return;            
         }
-        mensaje = generarMensajeConsultaTipoDocumentos("Firma Documentos",$rootScope.loginData.username,$scope.empresa);
+        mensaje = generarMensajeConsultaTipoDocumentos("FIRMANTE",$rootScope.loginData.username,$scope.empresa);
         $http.post(servidor+"/apis/dec/TipoDocumentos/busqueda",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1912,6 +2013,10 @@ angular.module('dec.controllers', [])
                     $scope.tipos_documento=[];
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Falló la busqueda de tipos de documento");
                     header=response.data.mensaje_dec.header;
@@ -1926,7 +2031,7 @@ angular.module('dec.controllers', [])
     }
     $scope.crearSubtipoDocumento = function()
     {
-        mensaje = generarMensajeCrearSubtipoDocumentos("Crear SubtipoDocumentos",$rootScope.loginData.username,$scope.empresa,$scope.nuevo_documento);
+        mensaje = generarMensajeCrearSubtipoDocumentos("ADMINISTRADOR DE DOCUMENTOS",$rootScope.loginData.username,$scope.empresa,$scope.nuevo_documento);
         $http.post(servidor+"/apis/dec/subtipodocumentos/crear",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1941,6 +2046,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Falló la creación del documento");
                     $scope.creacion_habilitada=false;
@@ -1957,7 +2066,7 @@ angular.module('dec.controllers', [])
     }
     $scope.actualizarSubtipoDocumento = function(opcion)
     {
-        mensaje = generarMensajeCrearSubtipoDocumentos("Actualizar SubtipoDocumentos",$rootScope.loginData.username,$scope.empresa,$scope.documento_workflow);
+        mensaje = generarMensajeCrearSubtipoDocumentos("ADMINISTRADOR DE DOCUMENTOS",$rootScope.loginData.username,$scope.empresa,$scope.documento_workflow);
         $http.post(servidor+"/apis/dec/subtipodocumentos/actualizar",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1970,6 +2079,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     else
                         $scope.showAlert("Falló la actualización del documento");
                     $scope.creacion_habilitada=false;
@@ -1986,7 +2099,7 @@ angular.module('dec.controllers', [])
     }
     $scope.buscarFirmantes = function()
     {
-        mensaje = generarMensajeConsultaPerfiles("Consulta Perfiles",$rootScope.loginData.username, $scope.empresa);
+        mensaje = generarMensajeConsultaPerfiles("ADMINISTRADOR DE DOCUMENTOS",$rootScope.loginData.username, $scope.empresa);
         $http.post(servidor+"/apis/dec/clientes/perfiles",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -2010,6 +2123,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     $scope.perfiles = [];
                 }
             },
@@ -2045,7 +2162,7 @@ angular.module('dec.controllers', [])
     $scope.creacion_habilitada=false;
     $scope.nuevo_perfil={};
     $scope.nuevo_rol={};
-
+    $scope.errores=[];
     $scope.borrarPerfil = function(item)
     {
         $scope.perfiles.splice($scope.perfiles.indexOf(item), 1);
@@ -2065,7 +2182,7 @@ angular.module('dec.controllers', [])
     {
         $scope.nuevo_perfil["roles"]=[];
         $scope.nuevo_perfil["roles"].push($scope.nuevo_perfil["rol"]);
-        mensaje=generarMensajeIngresaPerfil("Ingresa Perfil",$scope.usuario,$scope.empresa,$scope.nuevo_perfil);
+        mensaje=generarMensajeIngresaPerfil("ADMINISTRADOR DE PERFILES",$scope.usuario,$scope.empresa,$scope.nuevo_perfil);
         $http.post(servidor+"/apis/dec/perfiles/crear",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
         function (response) {
@@ -2079,6 +2196,10 @@ angular.module('dec.controllers', [])
             {
                 if(response.data.mensaje_dec.header.estado==5000)
                     $scope.showAlert("No tiene autorización para realizar la acción");
+                else if(response.data.mensaje_dec.header.estado==6000)
+                {
+                    $scope.showAlert("Sesión Expirada");
+                }
                 else
                     $scope.showAlert("Falló la creación del perfil");
                 $scope.creacion_habilitada=false;
@@ -2100,7 +2221,7 @@ angular.module('dec.controllers', [])
             $scope.perfil.roles.push($scope.nuevo_rol.nombreRol);
         else
             $scope.perfil.roles.splice($scope.perfil.roles.indexOf(rol), 1);
-        mensaje=generarMensajeIngresaPerfil("Actualiza Perfil",$scope.usuario,$scope.empresa,$scope.perfil);
+        mensaje=generarMensajeIngresaPerfil("ADMINISTRADOR DE PERFILES",$scope.usuario,$scope.empresa,$scope.perfil);
         $http.post(servidor+"/apis/dec/perfiles/actualizar",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
         function (response) {
@@ -2118,6 +2239,10 @@ angular.module('dec.controllers', [])
                     $scope.perfil.roles.push(rol);
                 if(response.data.mensaje_dec.header.estado==5000)
                     $scope.showAlert("No tiene autorización para realizar la acción");
+                else if(response.data.mensaje_dec.header.estado==6000)
+                {
+                    $scope.showAlert("Sesión Expirada");
+                }
                 else
                     $scope.showAlert("Falló la actualización de roles");
                 $scope.creacion_habilitada=false;
@@ -2155,7 +2280,7 @@ angular.module('dec.controllers', [])
 
     $scope.buscar = function()
     {
-        mensaje = generarMensajeConsultaPerfiles("Consulta Perfiles",$rootScope.loginData.username, $scope.empresa);
+        mensaje = generarMensajeConsultaPerfiles("ADMINISTRADOR DE PERFILES",$rootScope.loginData.username, $scope.empresa);
         $http.post(servidor+"/apis/dec/clientes/perfiles",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -2169,6 +2294,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     $scope.perfiles = [];
                 }
             },
@@ -2181,7 +2310,7 @@ angular.module('dec.controllers', [])
 
     $scope.buscarRoles = function()
     {
-        mensaje = generarMensajeConsultaRoles("Consulta Roles",$rootScope.loginData.username, $scope.empresa);
+        mensaje = generarMensajeConsultaRoles("ADMINISTRADOR DE PERFILES",$rootScope.loginData.username, $scope.empresa);
         $http.post(servidor+"/apis/dec/roles/busqueda",mensaje,
             {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -2193,6 +2322,10 @@ angular.module('dec.controllers', [])
                 {
                     if(response.data.mensaje_dec.header.estado==5000)
                         $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
                     $scope.roles_posibles = [];
                 }
             },

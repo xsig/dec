@@ -4,6 +4,12 @@ use Dec\controller as Controller;
 use Dec\model as Model;
 use Dec\database as Database; 
 use Dec\model\Logging as Logging;
+use \Firebase\JWT\JWT;
+use \Firebase\JWT\ExpiredException;
+use \Firebase\JWT\SignatureInvalidException;
+use Dec\error\MensajeError as MensajeError;
+use Dec\model\Usuarios as Usuarios;
+use Dec\model\Salida as Salida;
 
 abstract class Api
 {
@@ -44,6 +50,8 @@ abstract class Api
 	 protected $document = Array();
 	 
 	 protected $output= null;
+
+	 protected $publicKey=null;
     /**
      * Constructor: __construct
      * Allow for CORS, assemble and pre-process the data
@@ -93,7 +101,22 @@ abstract class Api
         default:
             $this->_response('Invalid Method', 405);
             break;
-        }
+		}
+		
+		$this->publicKey="-----BEGIN PUBLIC KEY-----\n";
+		$this->publicKey=$this->publicKey."MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAxtMJaVdleLw2Ata++6Tq\n";
+		$this->publicKey=$this->publicKey."VPib8VYVJ5ctbTrl/W18W/33JVVU8eyt/yMnIFOIPz6DIYFZSwkpBmWQDNOTPWZk\n";
+		$this->publicKey=$this->publicKey."+SHf/X1foEqvJMaqkHe4FT7+EqXyED8aL3KBHkOakExt2VPcn4J0crBxmveRr6Pl\n";
+		$this->publicKey=$this->publicKey."yMx08Q8WskAt2O8MCfq5JwD2zePUCwMW79Ls/6iq6OrOg7WZob9oEOE4zhBRsTU7\n";
+		$this->publicKey=$this->publicKey."FwxOG5X9Hrr6MnxuLzAIl1W4bYbODHYRQzvMIyS+yBbVEcwezvo3ziLJGPBK7539\n";
+		$this->publicKey=$this->publicKey."fCpfaEEDoRuGE17DxNYFdZi91dBecGT8lNPt9TQsdamvboeJHLJ9ynZth8XesqmA\n";
+		$this->publicKey=$this->publicKey."qRaL4hJdA2B8vRU+IWn+eWNBq8KyUnX/JgsBhrKXx7v0bboyptlAEOAXM8RAsNrZ\n";
+		$this->publicKey=$this->publicKey."dwgBvclJ86mGhQlQOshT+kHSmOV2JL/FKhcuCThyurKivgDVnnYZccloaoiAfXvT\n";
+		$this->publicKey=$this->publicKey."xYdlcOTYitqmCZdEkffzJuTJL/jv4ljg0mgcwHzomPgsoaDugQqxJ3/1Z8x0an46\n";
+		$this->publicKey=$this->publicKey."kgdprB/XPIBtqVVJ7KaSgLkwmzUR6aRfYbF4A0O3QJzZOKfFZT7m4Hzgulo2Temb\n";
+		$this->publicKey=$this->publicKey."o+nimnH0u31nF1JkQZr0Y1KTSMM90imjaJLj863SBcDPpULI8V5nYnq4W6tnTkA/\n";
+		$this->publicKey=$this->publicKey."kynbO7obFBEn1sfPXD+J68UCAwEAAQ==\n";
+		$this->publicKey=$this->publicKey."-----END PUBLIC KEY-----\n";
     }
 	
 	public function processAPI() {
@@ -219,6 +242,7 @@ class DecApi extends Api
 		$this->_operadocumentos = new Controller\OperaDocumentosController();
 		$this->_firmantes = new Controller\FirmantesController();
 		$this->_roles = new Controller\RolesController();
+		$this->Mensaje = new MensajeError();
     }   
 
     /** 
@@ -402,6 +426,127 @@ class DecApi extends Api
 		$m->close();
 		return $output;
 	}
+
+	protected function validarToken($document) {
+		$jwt=null;
+		$usuario=null;
+		$generador_salida = new Salida();
+		$salida = $generador_salida->seteaSalida("authorization",$document);
+		if(isset($document["mensaje_dec"]["header"]["etiqueta"]))
+		{
+			$rol=$document["mensaje_dec"]["header"]["etiqueta"];
+		}
+		else
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;	
+		}
+		if(isset($document["mensaje_dec"]["header"]["token"]))
+		{
+			$token=$document["mensaje_dec"]["header"]["token"];
+			try
+			{
+				$jwt = JWT::decode($token, $this->publicKey, array('RS256'));
+			} catch(ExpiredException $e)
+			{
+				$this->output = $this->Mensaje->grabarMensaje( $salida,"sessionTimeout");
+				return false;	
+			} catch(SignatureInvalidException $e)
+			{
+				$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+				return false;	
+			}
+		}
+		else
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;	
+		}
+		if(isset($document['mensaje_dec']['header']['usuario']))
+		{
+			$usuario=$document['mensaje_dec']['header']['usuario'];
+		}
+		else
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;
+		}
+		if($jwt->user != $usuario)
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;
+		}
+		return true;
+	}
+
+	protected function validarAcceso($document) {
+		$jwt=null;
+		$usuario=null;
+		$rut_empresa=null;
+		$rol=null;
+		$users = new Usuarios();
+		$generador_salida = new Salida();
+		$salida = $generador_salida->seteaSalida("authorization",$document);
+		if(isset($document["mensaje_dec"]["header"]["etiqueta"]))
+		{
+			$rol=$document["mensaje_dec"]["header"]["etiqueta"];
+		}
+		else
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;	
+		}
+		if(isset($document["mensaje_dec"]["header"]["token"]))
+		{
+			$token=$document["mensaje_dec"]["header"]["token"];
+			try
+			{
+				$jwt = JWT::decode($token, $this->publicKey, array('RS256'));
+			} catch(ExpiredException $e)
+			{
+				$this->output = $this->Mensaje->grabarMensaje( $salida,"sessionTimeout");
+				return false;	
+			} catch(SignatureInvalidException $e)
+			{
+				$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+				return false;	
+			}
+		}
+		else
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;	
+		}
+		if(isset($document['mensaje_dec']['header']['usuario']))
+		{
+			$usuario=$document['mensaje_dec']['header']['usuario'];
+		}
+		else
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;
+		}
+		if(isset($document['mensaje_dec']['header']['empresa']))
+		{
+			$rut_empresa=$document['mensaje_dec']['header']['empresa'];
+		}
+		else
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;
+		}
+		if($jwt->user != $usuario)
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;
+		}
+		if(!$users->verificaAutorizacion($usuario,$rut_empresa,$rol))
+		{
+			$this->output = $this->Mensaje->grabarMensaje( $salida,"accesoNegado");
+			return false;
+		}
+		return true;
+	}
 	
 	protected function usuarios(){
 		switch($this->method) {
@@ -410,89 +555,55 @@ class DecApi extends Api
 			case 'POST':
 				switch($this->verb){
 					case "enrolar":
+						if(!$this->validarAcceso($this->document))
+							break;
 						$this->output=$this->_usuarios->enrolar($this->document);
 						break;
 					case "identificar":
+						if(!$this->validarAcceso($this->document))
+							break;
 						$this->output=$this->_usuarios->identificar($this->document);
 						break;
 					case "actualizar":
+						if(!$this->validarToken($this->document))
+							break;
 						$this->output=$this->_usuarios->actualizaUsuario($this->document);
 						break;
 					case "datos":
+						if(!$this->validarToken($this->document))
+							break;
 						$this->output=$this->_usuarios->datosUsuario($this->document);
 						break;
-					case "tipodocumentos":
-						$this->output=$this->_usuarios->tipoDocumentosUsuario($this->document);
-						break;
-					case "perfiles":
-						$this->output=$this->_usuarios->perfilesUsuario($this->document);
-						break;
 					case "busqueda":
+						if(!$this->validarAcceso($this->document))
+							break;
 						$this->output=$this->_usuarios->busquedaUsuario($this->document);
 						break;
 					case "administraempresas":
+						if(!$this->validarAcceso($this->document))
+							break;
 						$this->output=$this->_usuarios->autorizaUsuario($this->document);
 						break;
 					case "autorizar":
+						if(!$this->validarAcceso($this->document))
+							break;
 						$this->output=$this->_usuarios->autorizaUsuario($this->document);
 						break;
 					case "autenticacion":				
 						$this->output=$this->_usuarios->login($this->document);
 						break;
-					case "valida":				
-						$this->output=$this->_usuarios->validaNuevoUsuario($this->document);
-						break;
 					case "olvidoclave":				
 						$this->output=$this->_usuarios->olvidoClave($this->document);
 						break;
 					case "cambioclave":				
+						if(!$this->validarToken($this->document))
+							break;
 						$this->output=$this->_usuarios->cambioClave($this->document);
 						break;
 					default:
 						$this->output=$this->_usuarios->creaNuevoUsuario($this->document);
 						break;
 				}
-			break;
-			case 'GET':
-				$this->output=$this->_clientes->listaUsuarios();
-			break;
-			case 'PUT':
-				switch ($this->verb) {
-					case 'actualizaestado':
-						$this->output=$this->_usuarios->actualizaEstado($this->document);
-						break;
-					default:
-						$this->output=$this->_usuarios->actualizaUsuario($this->document);
-						break;
-				}
-			    
-			break;
-		}
-		return $this->output;
-	}
-	
-	protected function errores(){
-		switch($this->method) {
-			case 'DELETE':
-			break;
-			case 'POST':
-			break;
-			case 'GET':
-				$this->output=$this->_clientes->listaErrores();
-				break;
-			break;
-			case 'PUT':
-			break;
-		}
-		return $this->output;
-	}
-
-	protected function autenticacion(){
-		switch($this->method) {
-			case 'DELETE':
-			break;
-			case 'POST':
-				$this->output=$this->_usuarios->login($this->document);
 			break;
 			case 'GET':
 			break;
@@ -509,10 +620,9 @@ class DecApi extends Api
 			case 'POST':
 				if (isset($this->verb)){
 					switch($this->verb){
-						case "empresasolicitada":
-							$this->output=$this->_clientes->ClientePorRut($this->document);
-							break;
 						case "perfiles":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_clientes->PerfilesEmpresa($this->document);
 							break;
 						default:
@@ -524,7 +634,6 @@ class DecApi extends Api
 				}
 				break;
 			case 'GET':
-				$this->output=$this->_clientes->listaClientes();
 				break;
 			case 'PUT':
 				break;
@@ -540,16 +649,14 @@ class DecApi extends Api
 				if (isset($this->verb)){
 					switch($this->verb){
 						case "carga":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_operadocumentos->CargaDocumentos($this->document);
 							break;
-						case "cargaorden":
-							$this->output=$this->_operadocumentos->CargaOrdenDocumentos($this->document);
-							break;
 						case "busqueda":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_operadocumentos->ConsultaDocumentos($this->document);
-							break;
-						case "firmantes":
-							$this->output=$this->_operadocumentos->FirmantesDeDocumentos($this->document);
 							break;
 						default:
 							break;
@@ -560,7 +667,6 @@ class DecApi extends Api
 				}
 				break;
 			case 'GET':
-				$this->output=$this->_clientes->listaClientes();
 				break;
 			case 'PUT':
 				break;
@@ -568,21 +674,6 @@ class DecApi extends Api
 		return $this->output;
 	}
 
-	protected function prueba(){
-		switch ($this->method) {
-			case 'GET':
-				$this->output=$this->_test->pruebaMail($this->document);
-				break;
-			case 'POST':
-				$this->output=$this->_perfiles->test($this->document);
-				break;
-			
-			default:
-				break;
-		}
-		return $this->output;
-	}
-	
 	protected function perfiles(){
 		switch($this->method) {
 			case 'DELETE':
@@ -591,15 +682,23 @@ class DecApi extends Api
 				if (isset($this->verb)){
 					switch($this->verb){
 						case "busqueda":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_perfiles->busquedaPerfil($this->document);
 						    break;
 						case "crear":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_perfiles->creaPerfil($this->document);
 						    break;
 						case 'actualizar':
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_perfiles->actualizaPerfil($this->document);
 							break;
 						default:
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_perfiles->creaPerfil($this->document);
 						    break;
 					}
@@ -611,7 +710,6 @@ class DecApi extends Api
 			case 'GET':
 				break;
 			case 'PUT':
-				$this->output=$this->_perfiles->actualizaPerfil($this->document);
 				break;
 		}
 		return $this->output;
@@ -625,21 +723,26 @@ class DecApi extends Api
 				if (isset($this->verb)){
 					switch($this->verb){
 						case "busqueda":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_roles->busquedaRoles($this->document);
 						    break;
 						default:
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_roles->busquedaRoles($this->document);
 						    break;
 					}
 				}
 				else{
+					if(!$this->validarAcceso($this->document))
+						break;
 					$this->output=$this->_roles->busquedaRoles($this->document);
 				}
 				break;
 			case 'GET':
 				break;
 			case 'PUT':
-				$this->output=$this->_roles->busquedaRoles($this->document);
 				break;
 		}
 		return $this->output;
@@ -653,27 +756,36 @@ class DecApi extends Api
 				if (isset($this->verb)){
 					switch($this->verb){
 						case "busqueda":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_subtipodocumentos->busquedaSubTipoDocumento($this->document);
 						    break;
 						case "crear":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_subtipodocumentos->creaSubTipoDocumento($this->document);
 						    break;
 						case 'actualizar':
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_subtipodocumentos->actualizaSubTipoDocumento($this->document);
 							break;
 						default:
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_subtipodocumentos->creaSubTipoDocumento($this->document);
 						    break;
 					}
 				}
 				else{
+					if(!$this->validarAcceso($this->document))
+						break;
 					$this->output=$this->_subtipodocumentos->creaSubTipoDocumento($this->document);
 				}
 				break;
 			case 'GET':
 				break;
 			case 'PUT':
-				$this->output=$this->_subtipodocumentos->actualizaSubTipoDocumento($this->document);
 				break;
 		}
 		return $this->output;
@@ -687,27 +799,36 @@ class DecApi extends Api
 				if (isset($this->verb)){
 					switch($this->verb){
 						case "busqueda":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_tipodocumentos->busquedaTipoDocumento($this->document);
 						    break;
 						case "crear":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_tipodocumentos->creaTipoDocumento($this->document);
 						    break;
 						case 'actualizar':
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_tipodocumentos->actualizaTipoDocumento($this->document);
 							break;
 						default:
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_tipodocumentos->creaTipoDocumento($this->document);
 						    break;
 					}
 				}
 				else{
+					if(!$this->validarAcceso($this->document))
+						break;
 					$this->output=$this->_tipodocumentos->creaTipoDocumento($this->document);
 				}
 				break;
 			case 'GET':
 				break;
 			case 'PUT':
-				$this->output=$this->_tipodocumentos->actualizaTipoDocumento($this->document);
 				break;
 		}
 		return $this->output;
@@ -721,29 +842,35 @@ class DecApi extends Api
 				if (isset($this->verb)){
 					switch($this->verb){
 						case "busqueda":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_firmantes->busquedaFirmantes($this->document);
 						    break;
 						case "firmar":
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_firmantes->firmarDocumento($this->document);
 						    break;
 						default:
+							if(!$this->validarAcceso($this->document))
+								break;
 							$this->output=$this->_firmantes->agregaFirmantes($this->document);
 						    break;
 					}
 				}
 				else{
+					if(!$this->validarAcceso($this->document))
+						break;
 					$this->output=$this->_firmantes->agregaFirmantes($this->document);
 				}
 				break;
 			case 'GET':
 				break;
 			case 'PUT':
-				$this->output=$this->_firmantes->actualizaFirmantes($this->document);
 				break;
 		}
 		return $this->output;
 	}
 }
-
 
 ?>

@@ -43,7 +43,7 @@ return array(
     'Dec\\model\\Usuarios' => $baseDir . '/app/model/Usuarios.php',
     'Dec\\models\\DbUtils' => $baseDir . '/app/model/DBUtils.php',
     'Dec\\utils\\Funciones' => $baseDir . '/app/utils/Funciones.php',
-    'Dec\\utils\\SimpleMail' => $baseDir . '/app/utils/SimpleMail.php',
+    'Dec\\utils\\SimpleMail' => $baseDir . '/app/utils/SimpleMail.php',    
     'EasyPeasyICS' => $vendorDir . '/phpmailer/phpmailer/extras/EasyPeasyICS.php',
     'FPDF_TPL' => $vendorDir . '/setasign/fpdi/fpdf_tpl.php',
     'FPDI' => $vendorDir . '/setasign/fpdi/fpdi.php',

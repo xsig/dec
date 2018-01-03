@@ -98,14 +98,14 @@ class Documentos {
 
 	public function buscaDocumentosFiltros($busquedaDocumentos,$rut_usuario,$rut_empresa){
 		$_usuarios = new Usuarios();
-		$pendiente=false;
 		$perfilesUsuario = $_usuarios->perfilesFirmaUsuario($rut_usuario,$rut_empresa);
         $tDocsIds = array();
                 $arrSalidaDocs = array();
         $cursor = self::$ConnMDB->busca("documentos", $busquedaDocumentos);
         foreach($cursor as $item){
         	unset($item->_id);
-        	unset($item->archivo);
+			unset($item->archivo);
+			$pendiente=false;
             $tDocsIds['idAcepta'] = $item->idAcepta;
             $tDocsIds['empresa'] = $item->empresa;
             $tDocsIds['subtipoDocumento'] = $item->subtipoDocumento;

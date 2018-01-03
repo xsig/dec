@@ -7,6 +7,10 @@ namespace Composer\Autoload;
 class ComposerStaticInit3db5e92c3db050b497024770f01220f5
 {
     public static $prefixLengthsPsr4 = array (
+        'F' => 
+        array (
+            'Firebase\\JWT\\' => 13,
+        ),
         'D' => 
         array (
             'Dec\\' => 4,
@@ -14,6 +18,10 @@ class ComposerStaticInit3db5e92c3db050b497024770f01220f5
     );
 
     public static $prefixDirsPsr4 = array (
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
         'Dec\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
@@ -58,7 +66,7 @@ class ComposerStaticInit3db5e92c3db050b497024770f01220f5
         'Dec\\model\\Usuarios' => __DIR__ . '/../..' . '/app/model/Usuarios.php',
         'Dec\\models\\DbUtils' => __DIR__ . '/../..' . '/app/model/DBUtils.php',
         'Dec\\utils\\Funciones' => __DIR__ . '/../..' . '/app/utils/Funciones.php',
-        'Dec\\utils\\SimpleMail' => __DIR__ . '/../..' . '/app/utils/SimpleMail.php',
+        'Dec\\utils\\SimpleMail' => __DIR__ . '/../..' . '/app/utils/SimpleMail.php',        
         'EasyPeasyICS' => __DIR__ . '/..' . '/phpmailer/phpmailer/extras/EasyPeasyICS.php',
         'FPDF_TPL' => __DIR__ . '/..' . '/setasign/fpdi/fpdf_tpl.php',
         'FPDI' => __DIR__ . '/..' . '/setasign/fpdi/fpdi.php',

@@ -97,7 +97,7 @@ class MensajeError {
             $tipo ="Sistema";
         }
 
-        if($error != "conexionErr" && $error != "accesoNegado"){
+        if($error != "conexionErr" && $error != "accesoNegado" && $error != "sessionTimeout"){
             $cursor = self::$ConnMDB->busca($this->coll,$busqueda);
             $contador = self::$ConnMDB->count($this->coll,$busqueda);
             if($contador>0){
@@ -126,6 +126,8 @@ class MensajeError {
             self::$errCod = 1;
             if($error=="accesoNegado")
                 self::$errDescripcion = "Acceso Negado";
+            else if($error=="sessionTimeout")
+                self::$errDescripcion = "Sesión Expirada";
             else
                 self::$errDescripcion = "Error interno en la conexion a la BD";
         }
@@ -152,10 +154,12 @@ class MensajeError {
                 # code...
             break;
         }
-        if ($error != "accesoNegado")
-            $documento['mensaje_dec']['header']['estado'] = 1;
-        else
+        if($error == "accesoNegado")
             $documento['mensaje_dec']['header']['estado'] = 5000;
+        else if($error == "sessionTimeout")
+            $documento['mensaje_dec']['header']['estado'] = 6000;
+        else
+            $documento['mensaje_dec']['header']['estado'] = 1;
 
         return $documento;
     }

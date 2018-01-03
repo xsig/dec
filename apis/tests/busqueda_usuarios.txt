@@ -4,11 +4,13 @@ content-type: application/json
 {
     "mensaje_dec":
     {"header":
-    {"usuario":"222222222",
+    {"usuario":"2222222228",
     "accion":"10",
     "descripcion":"Usuario - Acciones Usuario",
     "etiqueta":"Usuarios",
-    "fecha":"2017-11-06T03:48:23.433Z"},
+    "fecha":"2017-11-06T03:48:23.433Z",
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VyIjoiMjIyMjIyMjIyIiwiZXhwIjoxNTE0OTQyMjcxfQ.ln0jlt1ZbrLxte539Z7VXe5Man8PSjrllT2AWhN02sr3t7GxlaCX7OUDqHCOB4_gpDlrBUqoQwesrgYe0S4oklzJPviHGUcrHbAbWfIkiRm2iM2uGiwKp4AcLbVkr7_1kVlPRKPe8AFejo2_XWKnS_8OdR40LkYqvk7k4EOyWVRh1TZDIxT5kC7J8UNwwnm1KCTacp8LIwIWDhfVnKPj3Kfmxx0J5eM6WeiyBQy1GaFkmPHBn8Srca1WOpP1Ffh8JCV_s21VlkiUOOE7E_EtpEsAT-C2Ieh3pUWRmAZoeSbjczxhxD2eQ6cwlqnywL0zlAfvPWF539g-XDDXBlUL8RxXR2mOSe58iXOxFBNjkrvmwflAXtgCZ2wY5H-WoLUbb7wntyngGDwLks0ETi6UkqG6d5860tCEV55YbigAzANVRa0-adE3PNiUJsdCyUX4_JQtMqS09cpDtLx7JCDZnQBpLCXhQRwW4plTiB6roRv8VI_eBVRevm950yZPeE_97MIXD8lOTRcsGxIDMgDe4yKIDNvVm-Cr75wD4R6rN28VMOQ4NDqV72oGYz_qlUL3_1vHIBRfBFOTGniCAS5En8aNkOj74XJ9DrzTYfDS9ADDk7lYNyL_18SHIzpogEeV20ny4V96y_VogrVMhvUAW675kmgkfeBbVEyLrcziby4"   
+    },
     "mensaje":
     {"empresa":"801234569"}
     }

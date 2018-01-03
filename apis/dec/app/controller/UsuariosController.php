@@ -11,6 +11,7 @@ use Dec\model\Perfilamientos as Perfilamientos;
 use Dec\model\Identidad as Identidad;
 use Dec\error\MensajeError as MensajeError;
 use Dec\utils\Funciones as Funciones;
+use \Firebase\JWT\JWT;
 
 class UsuariosController{
 	private $valid;
@@ -23,8 +24,9 @@ class UsuariosController{
 	private $_tiposDocumentos;
 	private $_clientes;
 	private $_identidad;
-	
-	
+	private $privateKey;
+	private $publicKey;
+
 	public function __construct(){
 		$this->objSalida = new _Salida();
 		$this->func = new Funciones();
@@ -35,6 +37,73 @@ class UsuariosController{
 		$this->_tiposDocumentos = new TipoDocumentos();
 		$this->_clientes = new Clientes();
 		$this->_identidad = new Identidad();
+		
+		$this->privateKey="-----BEGIN RSA PRIVATE KEY-----\n";
+		$this->privateKey=$this->privateKey."MIIJKAIBAAKCAgEAxtMJaVdleLw2Ata++6TqVPib8VYVJ5ctbTrl/W18W/33JVVU\n";
+		$this->privateKey=$this->privateKey."8eyt/yMnIFOIPz6DIYFZSwkpBmWQDNOTPWZk+SHf/X1foEqvJMaqkHe4FT7+EqXy\n";
+		$this->privateKey=$this->privateKey."ED8aL3KBHkOakExt2VPcn4J0crBxmveRr6PlyMx08Q8WskAt2O8MCfq5JwD2zePU\n";
+		$this->privateKey=$this->privateKey."CwMW79Ls/6iq6OrOg7WZob9oEOE4zhBRsTU7FwxOG5X9Hrr6MnxuLzAIl1W4bYbO\n";
+		$this->privateKey=$this->privateKey."DHYRQzvMIyS+yBbVEcwezvo3ziLJGPBK7539fCpfaEEDoRuGE17DxNYFdZi91dBe\n";
+		$this->privateKey=$this->privateKey."cGT8lNPt9TQsdamvboeJHLJ9ynZth8XesqmAqRaL4hJdA2B8vRU+IWn+eWNBq8Ky\n";
+		$this->privateKey=$this->privateKey."UnX/JgsBhrKXx7v0bboyptlAEOAXM8RAsNrZdwgBvclJ86mGhQlQOshT+kHSmOV2\n";
+		$this->privateKey=$this->privateKey."JL/FKhcuCThyurKivgDVnnYZccloaoiAfXvTxYdlcOTYitqmCZdEkffzJuTJL/jv\n";
+		$this->privateKey=$this->privateKey."4ljg0mgcwHzomPgsoaDugQqxJ3/1Z8x0an46kgdprB/XPIBtqVVJ7KaSgLkwmzUR\n";
+		$this->privateKey=$this->privateKey."6aRfYbF4A0O3QJzZOKfFZT7m4Hzgulo2Tembo+nimnH0u31nF1JkQZr0Y1KTSMM9\n";
+		$this->privateKey=$this->privateKey."0imjaJLj863SBcDPpULI8V5nYnq4W6tnTkA/kynbO7obFBEn1sfPXD+J68UCAwEA\n";
+		$this->privateKey=$this->privateKey."AQKCAgBJOq06uU/MWjXiccnB0YnlZfO5vaTpAgtfMdRHtS2ajD2c6ILy3+NuFzpv\n";
+		$this->privateKey=$this->privateKey."85Q5BwMxMfz7YBJWIs4di0et06rY/5sKOEUiOp+rgeiMcSvB14OoxqoTRcqVMy1P\n";
+		$this->privateKey=$this->privateKey."QkMJZr0G0JZvwZK2MzqEgy6LbGhTvspLhu0rFexM/C6I9ml/biF4z7Lno2mtRxi3\n";
+		$this->privateKey=$this->privateKey."SR45z1HkvNwq8N6ZaPqNGwGbrSloYcXa7zFdQiyor5+9jYl8g7v7yyzU9h+BjeKw\n";
+		$this->privateKey=$this->privateKey."Bvalp5MujOnD/fDT4YgDwW04OA6Gzux474kwq3yEYeDk/JbiKzGwMKC38Nn+ztfT\n";
+		$this->privateKey=$this->privateKey."+jVt2OOeaBkeEre1/Ex3N2/AiiGyftixP7zvimfMuNJl9oqcGxxJkAVtuwLU0ayT\n";
+		$this->privateKey=$this->privateKey."S9OJZ8AwSAoTjTyu+tQSS1ERUUreUBApduRtME27ce1U3sT83yhtbYBDpNG/kwzR\n";
+		$this->privateKey=$this->privateKey."BUiyGhRoeX/CJaFWWeZNvTgGG7hIu0eSIcfrK3jBbYHasS1BXZxxCqyLe2bLKBEl\n";
+		$this->privateKey=$this->privateKey."uaYNLtVtnN2j4z+iLmYM6CiGcDgOaYgjkk2TwsuGGIBH9iti51do7jlc9MNwh1HO\n";
+		$this->privateKey=$this->privateKey."Kjcvu0rKo+PSpbswLyLip6IEwjtRAXNQYdXbSvJOUfjog4HZl4H5sAmiHB31M8LH\n";
+		$this->privateKey=$this->privateKey."52MhjfsTFAUEC7hkABKbMmN57cMEvOh2C0EY8PojZ6//nqPQgQKCAQEA8kLF+iC0\n";
+		$this->privateKey=$this->privateKey."8rfBsGxBd559l33bkB2NJSzxVMqKs75z17igRjZYF7yPDxwf12HFjLNHmEj0hfjW\n";
+		$this->privateKey=$this->privateKey."yOzb96uUjrv2Sx0Fcfkx1zGjpLxgiJ0b7EFN8P4WiUV9/48YvSr4/PefrCim4EWt\n";
+		$this->privateKey=$this->privateKey."bQ6WvOhJBseiPXwfu/OE/n/ERJcqL8oxpE92bAVCIXQb7KPRwdfYzJ5RmMJyI96x\n";
+		$this->privateKey=$this->privateKey."t41T53EQ9Tz+16kknK0ilunDKC8OWinwMk6JJvvwxDWZxp8+0P1MruL584RJgo8I\n";
+		$this->privateKey=$this->privateKey."ZwUuiRgNrj0Mu3R8RPgWrrs5f25QG/F5pNJqgqgiJKzmjNEZqXksr0/3wmgTKsMy\n";
+		$this->privateKey=$this->privateKey."i38cz+U/2ZDzEQKCAQEA0hmjP7qrjb3y92DlDHrk2SUlJVWw15Irq52SzdeC/QNG\n";
+		$this->privateKey=$this->privateKey."H0N54sq2G4cPmsogE0kf5loaiKMCUB6t+Ox2adnm3DPXTprS007GZA77n0rnhY2i\n";
+		$this->privateKey=$this->privateKey."6BFxFkJbkAUPqYv+2G5wGc7LEGi6pd27y8u/oURvj2tIX3VqkXu7s8bxCPgQ3FTW\n";
+		$this->privateKey=$this->privateKey."rR+1Y2vHqAS+o0adRG4hqK6C8lmVXX2gtT2WB6D3TKSrHlcgSZboTSWwCe1sY47C\n";
+		$this->privateKey=$this->privateKey."RJWLim7dREwG3jWgx1SpEDjAqhjhmG8BJ70l8SU+b/f9k4Md0ZNuNDs0hss4Sprn\n";
+		$this->privateKey=$this->privateKey."UIi+loYIBoX4E0uQVwpDsiTASbG68BYWlD+ke9OFdQKCAQB0skeNik2/kVaitjL+\n";
+		$this->privateKey=$this->privateKey."/QCAhebK0AFahACoGHyhwr8ojc3epHTg0jqTS7fm1zkC4qU9LP9kvY4w8S+waR1B\n";
+		$this->privateKey=$this->privateKey."eDdWzV7/HMuuXkH2q6tQg2Wc84Qo7yxJ6YidHwAKt3WC3YEzu81OwSGeI+Xmj3oF\n";
+		$this->privateKey=$this->privateKey."4wo61dyve8l3knInnC19Icex33kq5YmKddSxs+PpnSDYx/aEQD4dGzu+MDzXgrZp\n";
+		$this->privateKey=$this->privateKey."e31Cwz5YnmnICkiwxaIDOqpygTQ97CR5T1yIudLXdvyGTd2bOQDz/BRPE8br0QNe\n";
+		$this->privateKey=$this->privateKey."CBhm/+CQlHTQrG0w/iFmpHY1OAqIb5cq1YKlGGBlK3Kj7EBrjBiXg7mISq3FUyfj\n";
+		$this->privateKey=$this->privateKey."lJgRAoIBAQCQIXRjgMy1pSxr1nXrVNdvu9K6xQlXKXh599RBD+pVZgyR3/lawxOg\n";
+		$this->privateKey=$this->privateKey."2Mu0tZrBgDW5EfEH8UPh8NoKXTVyskB0qb+3tfCRc4YYGEs34OvpK9wo9eYtjgJA\n";
+		$this->privateKey=$this->privateKey."T6iJ+HcwxLp0ie+2ZxI8PVvamADzQf6CVefFTMh523dOAllSfNMcQ7st8wW9ma/T\n";
+		$this->privateKey=$this->privateKey."LMYXPpce3aqLjIRae2hDRa6dBw3IV/2u/3xAiSamNTdRzVvxw4XK2qGc6TZcFmgG\n";
+		$this->privateKey=$this->privateKey."tV00zXdpp0N/1F8fkYgZyXTybQj9YD5wE6FKs/Ud09UTUdZb7kfErnWnQtf0bShO\n";
+		$this->privateKey=$this->privateKey."SVOA8SKpA2qjaCDdrWZ/07dTpkFRjS8NAoIBAGbVJHIBAskaaJK0yF2/j3dA5wdx\n";
+		$this->privateKey=$this->privateKey."EtZGWmLfYBlN/hBn6ZfybUj6+McZUFZQODJ92KF6aW3zDLm69xI3wUoqcGovun30\n";
+		$this->privateKey=$this->privateKey."enNglm82/EpBFpNNovqTRuJROA9TcWxU+IeOdd82vtdb+z0xoAxmjc12ACbkXUUt\n";
+		$this->privateKey=$this->privateKey."sj+7DUY8FfNQKRC/4535CtDd03i/nfJPzkODvYLakUKf0ezcQMKM5BbQ1RbSvhAK\n";
+		$this->privateKey=$this->privateKey."7io6/4o+g95UOlM5lvd9Xy54XkZOTtrNziR9Wus+Vb3opXkJyDFeFqjQJc8sAjKt\n";
+		$this->privateKey=$this->privateKey."Zt/NqmiBsIe3LszZEmx7H6fmoqBFvducAEafUIZ3naYWiFYj5nTfw0B+6Jk=\n";
+		$this->privateKey=$this->privateKey."-----END RSA PRIVATE KEY-----\n";
+
+		$this->publicKey="-----BEGIN PUBLIC KEY-----\n";
+		$this->publicKey=$this->publicKey."MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAxtMJaVdleLw2Ata++6Tq\n";
+		$this->publicKey=$this->publicKey."VPib8VYVJ5ctbTrl/W18W/33JVVU8eyt/yMnIFOIPz6DIYFZSwkpBmWQDNOTPWZk\n";
+		$this->publicKey=$this->publicKey."+SHf/X1foEqvJMaqkHe4FT7+EqXyED8aL3KBHkOakExt2VPcn4J0crBxmveRr6Pl\n";
+		$this->publicKey=$this->publicKey."yMx08Q8WskAt2O8MCfq5JwD2zePUCwMW79Ls/6iq6OrOg7WZob9oEOE4zhBRsTU7\n";
+		$this->publicKey=$this->publicKey."FwxOG5X9Hrr6MnxuLzAIl1W4bYbODHYRQzvMIyS+yBbVEcwezvo3ziLJGPBK7539\n";
+		$this->publicKey=$this->publicKey."fCpfaEEDoRuGE17DxNYFdZi91dBecGT8lNPt9TQsdamvboeJHLJ9ynZth8XesqmA\n";
+		$this->publicKey=$this->publicKey."qRaL4hJdA2B8vRU+IWn+eWNBq8KyUnX/JgsBhrKXx7v0bboyptlAEOAXM8RAsNrZ\n";
+		$this->publicKey=$this->publicKey."dwgBvclJ86mGhQlQOshT+kHSmOV2JL/FKhcuCThyurKivgDVnnYZccloaoiAfXvT\n";
+		$this->publicKey=$this->publicKey."xYdlcOTYitqmCZdEkffzJuTJL/jv4ljg0mgcwHzomPgsoaDugQqxJ3/1Z8x0an46\n";
+		$this->publicKey=$this->publicKey."kgdprB/XPIBtqVVJ7KaSgLkwmzUR6aRfYbF4A0O3QJzZOKfFZT7m4Hzgulo2Temb\n";
+		$this->publicKey=$this->publicKey."o+nimnH0u31nF1JkQZr0Y1KTSMM90imjaJLj863SBcDPpULI8V5nYnq4W6tnTkA/\n";
+		$this->publicKey=$this->publicKey."kynbO7obFBEn1sfPXD+J68UCAwEAAQ==\n";
+		$this->publicKey=$this->publicKey."-----END PUBLIC KEY-----\n";
 	}
 	
 	public function datosUsuario($document){
@@ -690,19 +759,6 @@ class UsuariosController{
 				$filtroConTramite = strtoupper($document['mensaje_dec']['mensaje']['conTramite']) ;
 		}
 		
-		if(isset($document['mensaje_dec']['mensaje']['empresa']))
-		{
-			$rut_empresa=$document['mensaje_dec']['mensaje']['empresa'];
-			if ($rut_empresa!=NULL)
-			{
-				if(!$this->_usuarios->verificaAutorizacion($rut_usuario,$rut_empresa,"BUSQUEDA DE USUARIOS"))
-				{
-					$this->salida['mensaje_dec']['mensaje']['ListaUsuarios']=array();
-					return;
-				}
-			}
-		}
-
 		$busquedaUsuario =  array();
 		if ($filtroRut != "" ){
 			$busquedaUsuario['rut'] = $filtroRut;
@@ -1120,6 +1176,7 @@ class UsuariosController{
 	private function validaClavePassword($document){
 		$rut = $document['mensaje_dec']['mensaje']['usuario'];
 		$password =$document['mensaje_dec']['mensaje']['password'];
+				
 		if($this->_usuarios->validaUsuarioExiste($rut)){
 			if ($this->_usuarios->validaUsuarioPassword($rut,$password)){
 				if($this->_usuarios->traeEstadoUsuario($rut) != "ACTIVO"){
@@ -1136,6 +1193,15 @@ class UsuariosController{
 		else{
 			$this->valid=false;
 			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"AutenticacionUsuarioNoExisteErr");			
+		}
+		if($this->valid)
+		{
+			$token = array(
+				"user" => $rut,
+				"exp" => time() + 1800
+			);
+			$jwt = JWT::encode($token, $this->privateKey, 'RS256');
+			$this->salida['mensaje_dec']['header']['token'] = $jwt;
 		}
 	}
 	

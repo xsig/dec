@@ -8,8 +8,8 @@ if (!array_key_exists('HTTP_ORIGIN', $_SERVER)) {
 }
 
 try {
-     $API = new DecApi($_REQUEST['request'], $_SERVER['HTTP_ORIGIN']);
-     echo $API->processAPI();
+    $API = new DecApi($_REQUEST['request'], $_SERVER['HTTP_ORIGIN']);
+    echo $API->processAPI();
 } catch (Exception $e) {
     echo json_encode(Array('error' => $e->getMessage()));
 }
