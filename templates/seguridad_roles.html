@@ -1,7 +1,7 @@
 <ion-view view-title="Roles asociados al Perfil {{perfil.nombrePerfil}}">
     <ion-nav-buttons side="secondary">
         <button class="button button-clear icon ion-ios-plus-outline" on-release="habilitarCreacion()"></button>
-        <button class="button button-clear icon ion-ios-minus-outline" ng-click="habilitarBorrado()"></button>
+        <button class="button button-clear icon ion-ios-minus-outline" on-release="habilitarBorrado()"></button>
     </ion-nav-buttons>
     <ion-content>
         <div class="list list-inset" ng-if="creacion_habilitada">

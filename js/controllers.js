@@ -40,7 +40,7 @@ function generarMensajeLogin(etiqueta,usuario, clave)
     return JSON.stringify(mensaje);
 }
 
-function generarMensajeFirma(etiqueta,usuario, empresa, codigoDoc, codigoFirma, rut, nombre, perfil, descripcion)
+function generarMensajeFirma(etiqueta,usuario, empresa, codigoDoc, codigoFirma, rut, nombre, email, perfil, descripcion)
 {
     mensaje = construirHeader(etiqueta,usuario, "10");
     if(empresa.length!=0)
@@ -52,6 +52,7 @@ function generarMensajeFirma(etiqueta,usuario, empresa, codigoDoc, codigoFirma, 
     mensaje["mensaje_dec"]["mensaje"]["nombreFirmante"] = nombre;
     mensaje["mensaje_dec"]["mensaje"]["nombrePerfilFirmante"] = perfil;
     mensaje["mensaje_dec"]["mensaje"]["descripcionFirmante"] = descripcion;
+    mensaje["mensaje_dec"]["mensaje"]["emailFirmante"] = email;
 
     return JSON.stringify(mensaje);
 }
@@ -1183,12 +1184,18 @@ angular.module('dec.controllers', [])
         for(i=0;i<$scope.empresasSolicitadas.length;i++)
         {
             if($scope.empresasSolicitadas[i]==rut_empresa)
-                return;
+            {
+                $scope.showAlert("La empresa ya existe");
+                return
+            }
         }
         for(i=0;i<$scope.empresasAsignadas.length;i++)
         {
             if($scope.empresasAsignadas[i]==rut_empresa)
-                return;
+            {
+                $scope.showAlert("La empresa ya existe");
+                return
+            }
         }
         $scope.empresasSolicitadas.push(rut_empresa);
         $scope.actualizarSolicitudes("A",rut_empresa);
@@ -1466,6 +1473,7 @@ angular.module('dec.controllers', [])
     $scope.firma={};
     $scope.firma.rut_firmante="";
     $scope.firma.nombre_firmante="";
+    $scope.firma.email_firmante="";
     $scope.documento=DocumentosPendientes.getDocumento($scope.id);
     $scope.usuario=$rootScope.loginData.username;
     $scope.errores=[];
@@ -1489,6 +1497,7 @@ angular.module('dec.controllers', [])
     $scope.firmar = function(nombrePerfil,descripcionPerfil)
     {
         etiqueta="";
+        email="";
         if(descripcionPerfil!="PERSONAL")
         {
             rut=$rootScope.loginData.username;
@@ -1497,13 +1506,19 @@ angular.module('dec.controllers', [])
         }
         else
         {
-            if($scope.firma.rut_firmante=="" || $scope.firma.nombre_firmante=="")
+            if($scope.firma.rut_firmante=="" || $scope.firma.nombre_firmante=="" || $scope.firma.email_firmante=="")
             {
                 $scope.showAlert("Debe ingresar los datos del tercero que firma.");
                 return;
             }
+            if($scope.firma.email_firmante==null)
+            {
+                $scope.showAlert("El mail ingresado no es válido");
+                return;
+            }
             rut=$scope.unformat_rut($scope.firma.rut_firmante);
             nombre=$scope.firma.nombre_firmante.toUpperCase();
+            email=$scope.firma.email_firmante;
             etiqueta="FIRMANTE TERCERO";
         }
         identificador=document.getElementById('decapplet');
@@ -1514,7 +1529,7 @@ angular.module('dec.controllers', [])
             return;
         }
         mensaje=generarMensajeFirma(etiqueta,$rootScope.loginData.username,$scope.empresaSeleccionada,
-        $scope.documento.idAcepta, resultado, rut, nombre, nombrePerfil, descripcionPerfil);
+        $scope.documento.idAcepta, resultado, rut, nombre, email, nombrePerfil, descripcionPerfil);
         $http.post(servidor+"/apis/dec/firmantes/firmar",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {
@@ -1542,7 +1557,7 @@ angular.module('dec.controllers', [])
             },
             function (response)
             {
-                $scope.showAlert("Falló la comunicación con el servidor");
+                $scope.showAlert("Falló la firma del documento");
             }
         );  
     };

@@ -45,6 +45,7 @@ class OperaDocumentos {
 			foreach ($firmas as $value) {
 				$firmante['rutFirmante'] = "";
 				$firmante['nombreFirmante'] = "";
+				$firmante['emailFirmante'] = "";
 				$firmante['nombrePerfil'] = $value->nombrePerfil;
 				$firmante['descripcionPerfil'] = $value->descripcionPerfil;
 				$firmante['orden'] = $value->orden;

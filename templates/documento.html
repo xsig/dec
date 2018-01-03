@@ -20,6 +20,12 @@
                         <input type="text" required ng-model="firma.nombre_firmante" name="nombre_firmante" id="nombre_firmante">
                     </label>
                 </div>
+                <div class="col no-padding">
+                    <label class="item item-input" style="margin-top: 0px;">
+                        <span class="input-label">E-mail</span>
+                        <input type="text" required ng-pattern="/^[a-z]+[a-z0-9._]+@[a-z]+\.[a-z.]{2,5}$/" ng-model="firma.email_firmante" name="email_firmante" id="email_firmante">
+                    </label>
+                </div>
             </div>
             <div class="list" ng-show="errores">
                 <ion-list ng-repeat="error in errores">

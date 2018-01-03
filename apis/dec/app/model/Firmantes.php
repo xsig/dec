@@ -100,7 +100,7 @@ class Firmantes {
 		return true;
 	}
 
-	public function firmarDocumento($rut_usuario,$rut_empresa,$idAcepta,$codigoFirma,$rutFirmante,$nombreFirmante,$nombrePerfilFirmante,$descripcionFirmante){
+	public function firmarDocumento($rut_usuario,$rut_empresa,$idAcepta,$codigoFirma,$rutFirmante,$nombreFirmante,$emailFirmante,$nombrePerfilFirmante,$descripcionFirmante){
 		$_documentos = new Documentos();
 		$new_firmante = array();
 		$tmp_firmante = array();
@@ -113,6 +113,7 @@ class Firmantes {
 		foreach ($documento->firmantes as  $firmante) {
 			$tmp_firmante['rutFirmante'] = $firmante->rutFirmante;
 			$tmp_firmante['nombreFirmante'] = $firmante->nombreFirmante;
+			$tmp_firmante['emailFirmante'] = $firmante->emailFirmante;
 			$tmp_firmante['nombrePerfil'] = $firmante->nombrePerfil;
 			$tmp_firmante['descripcionPerfil'] = $firmante->descripcionPerfil;
 			$tmp_firmante['fechaFirma'] = $firmante->fechaFirma;
@@ -122,6 +123,7 @@ class Firmantes {
 			if ($nombrePerfilFirmante == $firmante->nombrePerfil && $descripcionFirmante == $firmante->descripcionPerfil && $firmante->estadoFirma == "DISPONIBLE FIRMA"){
 				$tmp_firmante['rutFirmante'] = $rutFirmante;
 				$tmp_firmante['nombreFirmante'] = $nombreFirmante;
+				$tmp_firmante['emailFirmante'] = $emailFirmante;
 				$tmp_firmante['nombrePerfil'] = $nombrePerfilFirmante;
 				$tmp_firmante['descripcionPerfil'] = $descripcionFirmante;
 				$tmp_firmante['fechaFirma'] = date("Y-m-d H:i:s");

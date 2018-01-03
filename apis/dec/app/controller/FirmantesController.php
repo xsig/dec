@@ -199,6 +199,7 @@ class FirmantesController{
 		$codigoFirma = strtoupper($document['mensaje_dec']['mensaje']['codigoFirma']) ;
 		$rutFirmante = strtoupper($document['mensaje_dec']['mensaje']['rutFirmante']) ;
 		$nombreFirmante = strtoupper($document['mensaje_dec']['mensaje']['nombreFirmante']) ;
+		$emailFirmante = strtoupper($document['mensaje_dec']['mensaje']['emailFirmante']) ;
 		$nombrePerfilFirmante = strtoupper($document['mensaje_dec']['mensaje']['nombrePerfilFirmante']) ;
 		$descripcionFirmante = strtoupper($document['mensaje_dec']['mensaje']['descripcionFirmante']) ;
 		$rut_usuario=$document["mensaje_dec"]["header"]["usuario"];
@@ -211,13 +212,13 @@ class FirmantesController{
 					$codigoFirma,
 					$rutFirmante,
 					$nombreFirmante,
+					$emailFirmante,
 					$nombrePerfilFirmante,
 					$descripcionFirmante
 			);
 		return $idDoc;
 
 	}
-
 }
 
 ?>
