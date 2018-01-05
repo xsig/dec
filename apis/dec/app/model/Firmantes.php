@@ -1,6 +1,8 @@
 <?php
 namespace Dec\model;
 use Dec\database\MongoDBConn as MongoDBConn;
+use \setasign\Fpdi;
+use \setasign\Fpdi\PdfParser\StreamReader;
 
 class Firmantes {
 	private static $ConnMDB;
@@ -100,13 +102,36 @@ class Firmantes {
 		return true;
 	}
 
-	public function firmarDocumento($rut_usuario,$rut_empresa,$idAcepta,$codigoFirma,$rutFirmante,$nombreFirmante,$emailFirmante,$nombrePerfilFirmante,$descripcionFirmante){
+	public function formatear_rut($rut)
+	{
+		$largo=strlen($rut);
+		$dv=$rut[$largo-1];
+		$rut=substr($rut,0,$largo-1);
+		$i=strlen($rut)-1;
+		$numero="-".$dv;
+		$c=1;
+		while($i>=0)
+		{
+			if($c%3==0 && $i!=0)
+				$numero=".".$rut[$i].$numero;
+			else
+				$numero=$rut[$i].$numero;
+			$c=$c+1;
+			$i=$i-1;
+		}
+		return $numero;
+	}
+
+	public function firmarDocumento($rut_usuario,$rut_empresa,$idAcepta,$codigoFirma,$imagenHuella,$rutFirmante,$nombreFirmante,$emailFirmante,$nombrePerfilFirmante,$descripcionFirmante){
 		$_documentos = new Documentos();
 		$new_firmante = array();
 		$tmp_firmante = array();
 		$datosAct =array();
 		$documento = $_documentos->traeDocumentoPorIdAcepta($idAcepta);
 		$idDoc = $documento->_id;
+		$archivo = base64_decode($documento->archivo);
+		$pdf = new Fpdi\Fpdi();
+		$pageCount=$pdf->setSourceFile(StreamReader::createByString($archivo));
 		$lastFirmante = 0 ;
 		$_usuarios = new Usuarios();
 		$perfilesUsuario = $_usuarios->perfilesFirmaUsuario($rut_usuario,$rut_empresa);
@@ -130,6 +155,30 @@ class Firmantes {
 				$tmp_firmante['estadoFirma'] = "FIRMADO";
 				$tmp_firmante['codigoFirma'] = $codigoFirma;
 				$lastFirmante = $firmante->orden;
+
+				for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+					// import a page
+					$templateId = $pdf->importPage($pageNo);
+				
+					$pdf->AddPage();
+					// use the imported page and adjust the page size
+					$pdf->useTemplate($templateId, ['adjustPageSize' => true]);
+				}
+				$pic = "data://text/plain;base64,". $imagenHuella;
+				$pdf->SetFont('Arial','',10);
+				if($lastFirmante==1)
+					$pdf->AddPage();
+				$pdf->SetXY(10,$firmante->orden*40);
+				$pdf->Cell(20,30,$pdf->Image($pic,$pdf->GetX(),$pdf->GetY(),20,30,'png'),1);
+				$rut_formateado=$this->formatear_rut($rutFirmante);
+				$pdf->MultiCell(100,10,$nombrePerfilFirmante."\n".$rut_formateado."\n".$nombreFirmante,1,'C');
+				
+				$archivo=$pdf->Output('','S');
+				$url=$documento->url;
+				$p=strpos($url,"/archivos/");
+				$file=substr($url,$p+10);
+				$directorio = __DIR__ . '/../archivos/'.$file;
+				$pdf->Output($directorio,'F');
 			}
 
 			$new_firmante[] = $tmp_firmante;
@@ -138,6 +187,7 @@ class Firmantes {
 		if ($lastFirmante > 0){
 
 			$datosAct['firmantes'] =  $new_firmante;
+			$datosAct['archivo'] = base64_encode($archivo);
 			$cursor = self::$ConnMDB->actualizaPorId("documentos", $idDoc, $datosAct);	
 
 			if(!$this->existenFirmantesMismoOrden($new_firmante, $lastFirmante) && $lastFirmante > 0 ){

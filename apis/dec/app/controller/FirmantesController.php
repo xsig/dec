@@ -196,7 +196,8 @@ class FirmantesController{
 	public function ingresaFirmarDocumento($document){
 		$_firmante = new Firmantes();
 		$codigoDocAcepta = strtoupper($document['mensaje_dec']['mensaje']['codigoDocAcepta']) ;
-		$codigoFirma = strtoupper($document['mensaje_dec']['mensaje']['codigoFirma']) ;
+		$codigoFirma = $document['mensaje_dec']['mensaje']['codigoFirma'];
+		$imagenHuella = $document['mensaje_dec']['mensaje']['imagenHuella'];
 		$rutFirmante = strtoupper($document['mensaje_dec']['mensaje']['rutFirmante']) ;
 		$nombreFirmante = strtoupper($document['mensaje_dec']['mensaje']['nombreFirmante']) ;
 		$emailFirmante = strtoupper($document['mensaje_dec']['mensaje']['emailFirmante']) ;
@@ -210,6 +211,7 @@ class FirmantesController{
 					$rut_empresa,
 					$codigoDocAcepta,
 					$codigoFirma,
+					$imagenHuella,
 					$rutFirmante,
 					$nombreFirmante,
 					$emailFirmante,

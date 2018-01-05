@@ -40,7 +40,7 @@ function generarMensajeLogin(etiqueta,usuario, clave)
     return JSON.stringify(mensaje);
 }
 
-function generarMensajeFirma(etiqueta,usuario, empresa, codigoDoc, codigoFirma, rut, nombre, email, perfil, descripcion)
+function generarMensajeFirma(etiqueta,usuario, empresa, codigoDoc, imagenHuella, codigoFirma,  rut, nombre, email, perfil, descripcion)
 {
     mensaje = construirHeader(etiqueta,usuario, "10");
     if(empresa.length!=0)
@@ -53,6 +53,7 @@ function generarMensajeFirma(etiqueta,usuario, empresa, codigoDoc, codigoFirma, 
     mensaje["mensaje_dec"]["mensaje"]["nombrePerfilFirmante"] = perfil;
     mensaje["mensaje_dec"]["mensaje"]["descripcionFirmante"] = descripcion;
     mensaje["mensaje_dec"]["mensaje"]["emailFirmante"] = email;
+    mensaje["mensaje_dec"]["mensaje"]["imagenHuella"] = imagenHuella;
 
     return JSON.stringify(mensaje);
 }
@@ -616,7 +617,7 @@ function format_rut(campo)
     c=1;
     while(i>=0)
     {
-        if(c%3==0)
+        if(c%3==0 && i!=0)
         {
             salida="."+campo[i]+salida;
             c=1;
@@ -881,6 +882,7 @@ angular.module('dec.controllers', [])
         $rootScope.admin=false;
         token=null;
         $scope.usuario={};
+        $scope.empresas=[];
         $rootScope.loginData=$scope.loginData;
         $ionicHistory.nextViewOptions({
             disableBack: true
@@ -1529,7 +1531,7 @@ angular.module('dec.controllers', [])
             return;
         }
         mensaje=generarMensajeFirma(etiqueta,$rootScope.loginData.username,$scope.empresaSeleccionada,
-        $scope.documento.idAcepta, resultado, rut, nombre, email, nombrePerfil, descripcionPerfil);
+        $scope.documento.idAcepta, resultado[0], resultado[1], rut, nombre, email, nombrePerfil, descripcionPerfil);
         $http.post(servidor+"/apis/dec/firmantes/firmar",mensaje,
         {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
             function (response) {

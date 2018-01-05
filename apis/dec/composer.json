@@ -15,9 +15,9 @@
     },
 	"require":{
 		"phpmailer/phpmailer": "~5.2",
-		"tecnickcom/tcpdf": "~6.0@stable",
-		"setasign/fpdi-tcpdf": "1.6.1",
-		"firebase/php-jwt": "^5.0"
+		"firebase/php-jwt": "^5.0",
+		"setasign/fpdi": "^2.0",
+		"setasign/fpdf": "^1.8"
 	},
     "require-dev": {},
 	"autoload":{
