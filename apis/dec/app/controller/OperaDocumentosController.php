@@ -66,6 +66,14 @@ class OperaDocumentosController{
 		return $this->salida;
 	}
 
+	public function ConsultaDetalleDocumento($document){
+		$this->salida = $this->objSalida->seteaSalida("ConsultaDetalleDocumento",$document);
+		$this->validaIdDocumento($document);
+		if ($this->valid){
+			$this->ejecutaConsultaDetalleDocumentos($document);
+		}
+		return $this->salida;
+	}
 	
 	public function FirmantesDeDocumentos($document){
 		$this->salida = $this->objSalida->seteaSalida("FirmantesDeDocumentos",$document);
@@ -300,11 +308,18 @@ class OperaDocumentosController{
 
 	private function validaIdDocumento($document){
 		$_Documentos = new Documentos();
-		if (isset($document['mensaje_dec']['mensaje']['Filtro']['idDocumento'])){
-			if (!$_Documentos->ExisteDocumentoPorIdAcepta($document['mensaje_dec']['mensaje']['Filtro']['idDocumento'])){
+		if (isset($document['mensaje_dec']['mensaje']['idDocumento'])){
+			if (!$_Documentos->ExisteDocumentoPorIdAcepta($document['mensaje_dec']['mensaje']['idDocumento'])){
 				$this->valid=false;
 				$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"IdDocumentosEnOperaDocumentosNoExiste", "documentos");		
-			}	
+			}
+			else
+				$this->valid=true;	
+		}
+		else
+		{
+			$this->valid=false;
+			$this->salida = $this->Mensaje->grabarMensaje( $this->salida,"IdDocumentosEnOperaDocumentosNoExiste", "documentos");		
 		}
 	}
 
@@ -335,6 +350,13 @@ class OperaDocumentosController{
 
 		$this->salida['mensaje_dec']['mensaje'] = $_Documentos->buscaDocumentosFiltros($doc_busqueda,$rut_usuario,$rut_empresa);
 
+	}
+
+	private function ejecutaConsultaDetalleDocumentos($document){
+		$_Documentos = new Documentos();
+		$doc_busqueda = array();
+		$idDocumento=$document['mensaje_dec']['mensaje']['idDocumento'];
+		$this->salida['mensaje_dec']['mensaje']['documento'] = $_Documentos->traeDocumentoPorIdAcepta($idDocumento);
 	}
 
 	private function ejecutaFirmantesDeDocumentos($document){

@@ -658,6 +658,11 @@ class DecApi extends Api
 								break;
 							$this->output=$this->_operadocumentos->ConsultaDocumentos($this->document);
 							break;
+						case "detalle":
+						if(!$this->validarAcceso($this->document))
+							break;
+						$this->output=$this->_operadocumentos->ConsultaDetalleDocumento($this->document);
+						break;
 						default:
 							break;
 					}

@@ -1,6 +1,14 @@
 <ion-view view-title="Firma de Documento">
+    <ion-nav-buttons side="secondary">
+        <button class="button button-clear icon ion-android-arrow-dropleft-circle" on-release="prevPage()"></button>
+        <button class="button button-clear icon ion-android-arrow-dropright-circle" on-release="nextPage()"></button>
+    </ion-nav-buttons>
     <ion-content overflow-scroll="true">
-        <iframe id="docfirma" name="docfirma" src='{{ documento.url | trusted }}' width="100%" height="80%"></iframe>
+        <!--<iframe id="docfirma" name="docfirma" src='{{ documento.url | trusted }}' width="100%" height="80%"></iframe>-->
+        <div>
+            <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+        </div>
+        <canvas id="pdf-viewer"></canvas>
         <form name="FirmaForm">
             <applet id="decapplet" name='decapplet' code = 'IdentificarFirmante.class' archive='dec.jar' width = '100' height = '100'>
             </applet>

@@ -1,5 +1,6 @@
 //var servidor="http://34.208.241.57";
-var servidor="http://localhost";
+//var servidor="http://localhost";
+var servidor="http://192.168.1.96";
 var token=null;
 
 function clear()
@@ -193,6 +194,17 @@ function generarMensajeConsultaDocumentos(etiqueta,usuario,empresa,tipo,subtipo,
         mensaje["mensaje_dec"]["mensaje"]["subtipoDocumento"] = subtipo;
     if(filtro.estado!=null)
         mensaje["mensaje_dec"]["mensaje"]["estado"] = filtro.estado;
+
+    return JSON.stringify(mensaje);
+}
+
+function generarMensajeConsultaDetalleDocumento(etiqueta,usuario,empresa,idDocumento)
+{
+    mensaje=construirHeader(etiqueta,usuario,"100")
+    if(empresa.length!=0)
+        mensaje["mensaje_dec"]["header"]["empresa"] = empresa;
+    if(idDocumento!=null)
+        mensaje["mensaje_dec"]["mensaje"]["idDocumento"] = idDocumento;
 
     return JSON.stringify(mensaje);
 }
@@ -1470,7 +1482,7 @@ angular.module('dec.controllers', [])
         }
     );
 })
-.controller('DocumentoCtrl', function($scope, $rootScope, $ionicModal, $timeout, $http, $stateParams,DocumentosPendientes) {
+.controller('DocumentoCtrl', function($scope, $rootScope, $ionicPopup, $ionicModal, $timeout, $http, $stateParams,DocumentosPendientes) {
     $scope.id=$stateParams.id;
     $scope.firma={};
     $scope.firma.rut_firmante="";
@@ -1479,6 +1491,133 @@ angular.module('dec.controllers', [])
     $scope.documento=DocumentosPendientes.getDocumento($scope.id);
     $scope.usuario=$rootScope.loginData.username;
     $scope.errores=[];
+    $scope.archivo=null;
+    $scope.viewer={};
+    $scope.viewer.pdf = null;
+    $scope.viewer.pageNum = 1;
+    $scope.viewer.pageRendering = false;
+    $scope.viewer.pageNumPending = null;
+    $scope.viewer.scale = 0.8;
+    canvas = document.getElementById('pdf-viewer');
+    $scope.viewer.canvas=canvas;
+    $scope.viewer.ctx = canvas.getContext('2d');
+
+    $scope.showAlert = function(mensaje) {
+        var alertPopup = $ionicPopup.alert({
+            title: 'DEC',
+            template: "<div style='text-align: center'>"+mensaje+"</div>"
+        });
+
+        alertPopup.then(function(res) {
+        });
+    };
+
+    $scope.renderPage = function(numero_pagina)
+    {
+        $scope.viewer.pageRendering = true;
+        $scope.viewer.pdf.getPage(numero_pagina).then(function(page)
+        {
+          var viewport = page.getViewport($scope.viewer.scale);
+          $scope.viewer.canvas.height = viewport.height;
+          $scope.viewer.canvas.width = viewport.width;
+      
+          var renderContext = {
+            canvasContext: $scope.viewer.ctx,
+            viewport: viewport
+          };
+          var renderTask = page.render(renderContext);
+      
+          renderTask.promise.then(function()
+          {
+            $scope.viewer.pageRendering = false;
+            if ($scope.viewer.pageNumPending !== null)
+            {
+              renderPage($scope.viewer.pageNumPending);
+              $scope.viewer.pageNumPending = null;
+            }
+          });
+        });
+        document.getElementById('page_num').textContent = numero_pagina;
+    }
+      
+    $scope.queueRenderPage = function(num)
+    {
+        if ($scope.viewer.pageRendering)
+        {
+          $scope.viewer.pageNumPending = num;
+        }
+        else
+        {
+          $scope.renderPage(num);
+        }
+    }
+      
+    $scope.prevPage = function()
+    {
+        if ($scope.viewer.pageNum <= 1) {
+          return;
+        }
+        $scope.viewer.pageNum--;
+        $scope.queueRenderPage($scope.viewer.pageNum);
+    }
+      
+    $scope.nextPage = function()
+    {
+        if ($scope.viewer.pageNum >= $scope.viewer.pdf.numPages)
+        {
+          return;
+        }
+        $scope.viewer.pageNum++;
+        $scope.queueRenderPage($scope.viewer.pageNum);
+    }
+
+    $scope.visualizar = function()
+    {
+        mensaje = generarMensajeConsultaDetalleDocumento("FIRMANTE",$rootScope.loginData.username,
+                  $scope.documento.empresa, $scope.documento.idAcepta);
+        $http.post(servidor+"/apis/dec/OperaDocumentos/detalle",mensaje,
+        {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
+            function (response) {
+                if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
+                {
+                    archivo=response.data.mensaje_dec.mensaje.documento.archivo;
+                    $scope.archivo=atob(archivo);
+                    PDFJS.getDocument({data: $scope.archivo}).then(
+                    function(_pdf)
+                    {
+                        $scope.viewer.pdf = _pdf;
+                        document.getElementById('page_count').textContent = $scope.viewer.pdf.numPages;
+                        $scope.renderPage(1);
+                    },
+                    function(reason)
+                    {
+                        alert(reason.toString());
+                        console.error(reason);
+                    });
+                }
+                else
+                {
+                    $scope.archivo=null;
+                    $ionicLoading.hide();
+                    if(response.data.mensaje_dec.header.estado==5000)
+                        $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
+                    else
+                        $scope.showAlert("Falló la busqueda de documentos");
+                    header=response.data.mensaje_dec.header;
+                    $scope.errores=cargarErrores(header.listaDeErroresCampo,header.listaDeErroresNegocio,header.listaDeErroresSistema);
+                }
+            },
+            function (response)
+            {
+                $scope.showAlert("Falló la comunicación con el servidor");
+                $scope.archivo=null;
+            }
+        );
+    }
 
     $scope.copiarFirmantes = function(origen,destino)
     {
@@ -1563,6 +1702,7 @@ angular.module('dec.controllers', [])
             }
         );  
     };
+    $scope.visualizar();
 })
 .controller('DocumentosCtrl', function($scope, $rootScope, $ionicModal, $timeout, $http, $stateParams, $ionicLoading, DocumentosPendientes) {
     $scope.empresa=$stateParams.empresa;
