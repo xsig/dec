@@ -174,11 +174,11 @@ class Firmantes {
 				$pdf->MultiCell(100,10,$nombrePerfilFirmante."\n".$rut_formateado."\n".$nombreFirmante,1,'C');
 				
 				$archivo=$pdf->Output('','S');
-				$url=$documento->url;
-				$p=strpos($url,"/archivos/");
-				$file=substr($url,$p+10);
-				$directorio = __DIR__ . '/../archivos/'.$file;
-				$pdf->Output($directorio,'F');
+				//$url=$documento->url;
+				//$p=strpos($url,"/archivos/");
+				//$file=substr($url,$p+10);
+				//$directorio = __DIR__ . '/../archivos/'.$file;
+				//$pdf->Output($directorio,'F');
 			}
 
 			$new_firmante[] = $tmp_firmante;

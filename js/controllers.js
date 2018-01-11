@@ -1635,6 +1635,42 @@ angular.module('dec.controllers', [])
         return s;
     }
 
+    $scope.enviarFirma = function(etiqueta,imagen,codigo,rut,nombre,email,nombrePerfil,descripcionPerfil)
+    {
+        mensaje=generarMensajeFirma(etiqueta,$rootScope.loginData.username,$scope.empresaSeleccionada,
+        $scope.documento.idAcepta, imagen, codigo, rut, nombre, email, nombrePerfil, descripcionPerfil);
+        $http.post(servidor+"/apis/dec/firmantes/firmar",mensaje,
+        {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
+            function (response) {
+                if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
+                {
+                    $scope.showAlert("Documento firmado exitosamente");
+                    $scope.copiarFirmantes($scope.documento,response.data.mensaje_dec.mensaje);
+                    $scope.documento=response.data.mensaje_dec.mensaje;
+//                    docfirma=document.getElementById('docfirma');
+//                    docfirma.src=$scope.documento.url;
+                }
+                else
+                {
+                    if(response.data.mensaje_dec.header.estado==5000)
+                        $scope.showAlert("No tiene autorización para realizar la acción");
+                    else if(response.data.mensaje_dec.header.estado==6000)
+                    {
+                        $scope.showAlert("Sesión Expirada");
+                    }
+                    else
+                        $scope.showAlert("Falló la firma del documento");
+                    header=response.data.mensaje_dec.header;
+                    $scope.errores=cargarErrores(header.listaDeErroresCampo,header.listaDeErroresNegocio,header.listaDeErroresSistema);
+                }
+            },
+            function (response)
+            {
+                $scope.showAlert("Falló la firma del documento");
+            }
+        );
+    }
+
     $scope.firmar = function(nombrePerfil,descripcionPerfil)
     {
         etiqueta="";
@@ -1662,45 +1698,31 @@ angular.module('dec.controllers', [])
             email=$scope.firma.email_firmante;
             etiqueta="FIRMANTE TERCERO";
         }
-        identificador=document.getElementById('decapplet');
-        resultado=identificador.identificar_persona(servidor,token,$rootScope.loginData.username,$scope.empresaSeleccionada,rut);
-        if(!resultado)
+        agent = navigator.userAgent.toLowerCase();
+        resultado=null;
+        if(agent.indexOf("android") == -1)
         {
-            $scope.showAlert("No se pudo identificar al firmante");
-            return;
-        }
-        mensaje=generarMensajeFirma(etiqueta,$rootScope.loginData.username,$scope.empresaSeleccionada,
-        $scope.documento.idAcepta, resultado[0], resultado[1], rut, nombre, email, nombrePerfil, descripcionPerfil);
-        $http.post(servidor+"/apis/dec/firmantes/firmar",mensaje,
-        {headers: {"Content-type": "application/x-www-form-urlencoded"}}).then(
-            function (response) {
-                if (response.status == 200 && response.data.mensaje_dec.header.estado==0)
-                {
-                    $scope.showAlert("Documento firmado exitosamente");
-                    $scope.copiarFirmantes($scope.documento,response.data.mensaje_dec.mensaje);
-                    $scope.documento=response.data.mensaje_dec.mensaje;
-                    docfirma=document.getElementById('docfirma');
-                    docfirma.src=$scope.documento.url;
-                }
-                else
-                {
-                    if(response.data.mensaje_dec.header.estado==5000)
-                        $scope.showAlert("No tiene autorización para realizar la acción");
-                    else if(response.data.mensaje_dec.header.estado==6000)
-                    {
-                        $scope.showAlert("Sesión Expirada");
-                    }
-                    else
-                        $scope.showAlert("Falló la firma del documento");
-                    header=response.data.mensaje_dec.header;
-                    $scope.errores=cargarErrores(header.listaDeErroresCampo,header.listaDeErroresNegocio,header.listaDeErroresSistema);
-                }
-            },
-            function (response)
+            identificador=document.getElementById('decapplet');
+            resultado=identificador.identificar_persona(servidor,token,$rootScope.loginData.username,$scope.empresaSeleccionada,rut);
+            if(!resultado)
             {
-                $scope.showAlert("Falló la firma del documento");
+                $scope.showAlert("No se pudo identificar al firmante");
+                return;
             }
-        );  
+            $scope.enviarFirma(etiqueta,resultado[0],resultado[1],rut,nombre,email,nombrePerfil,descripcionPerfil);
+        }
+        else
+        {
+            window.identificador.identificar_persona(servidor,token,$rootScope.loginData.username,$scope.empresaSeleccionada,rut,
+            function(resultado)
+            {
+                $scope.enviarFirma(etiqueta,resultado[0],resultado[1],rut,nombre,email,nombrePerfil,descripcionPerfil);
+            },
+            function(error)
+            {
+                $scope.showAlert("No se pudo identificar al firmante");
+            });
+        }
     };
     $scope.visualizar();
 })
